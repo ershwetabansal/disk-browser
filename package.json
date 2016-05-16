@@ -1,0 +1,53 @@
+{
+  "name": "disk-browser",
+  "description": "This package supports the client implementation for browsing files and directories on a disk.",
+  "version": "1.0.0",
+  "main": "gulpfile.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "gulp unit_test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ershwetabansal/disk-browser.git"
+  },
+  "devDependencies": {
+    "bootstrap": "^3.3.6",
+    "brfs": "^1.4.3",
+    "jasmine-core": "^2.4.1",
+    "jquery": "^2.2.2",
+    "karma": "^0.13.19",
+    "karma-browserify": "^5.0.3",
+    "karma-chrome-launcher": "^0.2.3",
+    "karma-jasmine": "^0.3.6",
+    "phantomjs": "^2.1.3",
+    "run-sequence": "^1.1.5",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.6.1"
+  },
+  "dependencies": {
+    "browserify": "^13.0.0",
+    "gulp": "^3.8.8",
+    "gulp-sass": "^2.2.0"
+  },
+  "peerDependencies": {
+    "karma": ">=0.10.0",
+    "browserify": ">=10.0.0 <=13.0.0",
+    "watchify": ">=3.0.0 <4.0.0"
+  },
+  "keywords": [
+    "file",
+    "browser",
+    "disk",
+    "directory",
+    "image"
+  ],
+  "author": "Shweta Bansal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ershwetabansal/disk-browser/issues"
+  },
+  "homepage": "https://github.com/ershwetabansal/disk-browser#readme"
+}
