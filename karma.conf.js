@@ -6,7 +6,7 @@ module.exports = function(config) {
         files: [
             'node_modules/jquery/dist/jquery.min.js',
             'node_modules/bootstrap/dist/js/bootstrap.min.js',
-            'public/app/build/js/bundle.js',
+            'dist/js/bundle.js',
             'tests/**/*Spec.js'
         ],
         preprocessors: {

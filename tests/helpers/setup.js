@@ -1,9 +1,9 @@
-var Disk = require('../../public/js/Fbrowser/model/disk.js');
-var Directory = require('../../public/js/Fbrowser/model/directory.js');
-var File = require('../../public/js/Fbrowser/model/file.js');
+var Disk = require('../../src/js/Fbrowser/model/disk.js');
+var Directory = require('../../src/js/Fbrowser/model/directory.js');
+var File = require('../../src/js/Fbrowser/model/file.js');
 
-var handler = require('../../public/js/Fbrowser/handlers/handler.js');
-var evHandler = require('../../public/js/Fbrowser/handlers/eventhandler.js');
+var handler = require('../../src/js/Fbrowser/handlers/handler.js');
+var evHandler = require('../../src/js/Fbrowser/handlers/eventhandler.js');
 
 var stub = require('../helpers/stub.js');
 

@@ -1,4 +1,4 @@
-var validate = require('../../public/js/Fbrowser/helpers/validate.js');
+var validate = require('../../src/js/Fbrowser/helpers/validate.js');
 
 describe("Setup parameters should get validated. ", function() {
 

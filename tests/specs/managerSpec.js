@@ -1,4 +1,4 @@
-var Manager = require('../../public/js/Fbrowser/controllers/manager.js');
+var Manager = require('../../src/js/Fbrowser/controllers/manager.js');
 
 describe("Test Manager functions", function() {
 

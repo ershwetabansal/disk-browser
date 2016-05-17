@@ -1,0 +1,238 @@
+.file-manager {
+  z-index: 65537; }
+  .file-manager .form-inline .form-group {
+    margin-bottom: 15px; }
+  @media (max-width: 768px) {
+    .file-manager .form-inline {
+      text-align: center; }
+      .file-manager .form-inline #fb_sort_files {
+        margin-bottom: 15px; }
+      .file-manager .form-inline .btn-group {
+        display: none; } }
+  .file-manager .directories {
+    padding: 0;
+    border-right: 1px solid lightgrey; }
+    .file-manager .directories input {
+      color: black;
+      border: none; }
+      .file-manager .directories input:focus {
+        outline: 0; }
+    .file-manager .directories .nav.nav-tabs {
+      margin-bottom: 10px;
+      overflow-x: auto; }
+      .file-manager .directories .nav.nav-tabs li.active > a {
+        background: transparent;
+        border: none; }
+        @media (min-width: 768px) {
+          .file-manager .directories .nav.nav-tabs li.active > a {
+            border-left: 1px solid lightgrey; } }
+      .file-manager .directories .nav.nav-tabs li a {
+        cursor: pointer;
+        background: white;
+        border-radius: 0;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap; }
+        @media (min-width: 768px) {
+          .file-manager .directories .nav.nav-tabs li a {
+            border-left: 1px solid lightgrey; } }
+    .file-manager .directories .root {
+      padding-left: 10px; }
+    .file-manager .directories > ul#directories-list > li {
+      padding-left: 0; }
+      .file-manager .directories > ul#directories-list > li i {
+        padding: 5px 10px; }
+      .file-manager .directories > ul#directories-list > li ul {
+        list-style-type: none;
+        padding-left: 0; }
+        .file-manager .directories > ul#directories-list > li ul > li {
+          background: #f0f0f0;
+          color: black; }
+      .file-manager .directories > ul#directories-list > li > ul > li i {
+        padding-left: 20px; }
+      .file-manager .directories > ul#directories-list > li > ul > li > ul > li i {
+        padding-left: 30px; }
+      .file-manager .directories > ul#directories-list > li > ul > li > ul > li > ul > li i {
+        padding-left: 40px; }
+      .file-manager .directories > ul#directories-list > li span {
+        cursor: pointer; }
+    .file-manager .directories > ul#directories-list li.active > div {
+      background: #337ab7;
+      color: white; }
+    .file-manager .directories > ul#directories-list li {
+      cursor: pointer; }
+      .file-manager .directories > ul#directories-list li > div {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap; }
+      .file-manager .directories > ul#directories-list li:focus, .file-manager .directories > ul#directories-list li:hover, .file-manager .directories > ul#directories-list li:active, .file-manager .directories > ul#directories-list li:visited, .file-manager .directories > ul#directories-list li, .file-manager .directories > ul#directories-list li div:focus {
+        outline: 0; }
+  .file-manager .files {
+    background: white; }
+    .file-manager .files .fa-3x {
+      width: 90px;
+      height: 70px;
+      text-align: center;
+      padding-top: 15px;
+      border: 1px solid lightgrey;
+      background: white;
+      color: black; }
+    .file-manager .files #files-grid {
+      padding-top: 15px; }
+      .file-manager .files #files-grid li {
+        display: inline-block;
+        padding: 7px;
+        margin-right: 15px;
+        margin-bottom: 15px;
+        cursor: pointer; }
+        .file-manager .files #files-grid li, .file-manager .files #files-grid li:focus {
+          outline: 0; }
+        .file-manager .files #files-grid li.active {
+          background: darkgrey;
+          color: white; }
+        .file-manager .files #files-grid li img {
+          width: 90px;
+          height: 70px;
+          border: 1px solid lightgrey; }
+        .file-manager .files #files-grid li > div {
+          text-align: center; }
+          .file-manager .files #files-grid li > div > div {
+            font-size: 0.85em;
+            padding-top: 4px;
+            width: 100px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap; }
+    .file-manager .files #files-list i {
+      margin-right: 5px; }
+    .file-manager .files #files-list tr, .file-manager .files #files-list tr:focus {
+      outline: 0; }
+    .file-manager .files #files-list tr.active td {
+      background: darkgrey;
+      color: white;
+      border: none; }
+    .file-manager .files #files-list td img {
+      width: 18px;
+      margin-right: 5px;
+      height: 14px;
+      border: 1px solid grey; }
+    .file-manager .files #files-list td, .file-manager .files #files-list th {
+      cursor: pointer; }
+      .file-manager .files #files-list td:last-of-type, .file-manager .files #files-list th:last-of-type {
+        text-align: center; }
+    .file-manager .files #files-list th {
+      position: relative;
+      border-top: none;
+      cursor: pointer; }
+      .file-manager .files #files-list th.asc span {
+        position: absolute;
+        bottom: 15px;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-bottom: 5px solid black;
+        margin-left: 10px; }
+      .file-manager .files #files-list th.desc span {
+        position: absolute;
+        bottom: 15px;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid black;
+        margin-left: 10px; }
+    .file-manager .files #file_browser_upload {
+      padding-top: 15px;
+      border-bottom: 1px solid lightgrey; }
+  .file-manager .files, .file-manager .directories {
+    height: 50vh;
+    overflow-y: auto;
+    border-top: 1px solid lightgrey; }
+  .file-manager .btn-toolbar select, .file-manager .btn-toolbar form {
+    margin-left: 10px; }
+  .file-manager .btn-toolbar select {
+    display: inline-block;
+    width: auto; }
+  .file-manager .modal-body {
+    padding-bottom: 0;
+    background-color: #f0f0f0; }
+  @media (min-width: 992px) {
+    .file-manager .modal-lg {
+      width: 70%; } }
+  .file-manager #fb_search_cancel {
+    position: absolute;
+    right: 46px;
+    z-index: 10;
+    top: 6px;
+    font-size: 20px;
+    color: grey;
+    cursor: pointer; }
+  .file-manager #fb_file_search_options {
+    background: #f0f0f0;
+    margin: 0 -15px;
+    padding: 5px 15px;
+    border-bottom: 1px solid lightgrey; }
+    .file-manager #fb_file_search_options li {
+      cursor: pointer;
+      border: 1px solid lightgrey;
+      border-radius: 5px;
+      padding: 0 5px;
+      margin-right: 10px; }
+      .file-manager #fb_file_search_options li.active {
+        background: lightgrey; }
+  .file-manager #show-file-details {
+    background: #f0f0f0;
+    margin-left: -15px;
+    margin-right: -15px;
+    margin-top: -15px;
+    margin-bottom: 15px;
+    padding: 5px 15px;
+    border: 1px solid lightgrey; }
+  .file-manager .context-menu {
+    position: absolute;
+    z-index: 10;
+    padding: 12px 0;
+    background-color: #fff;
+    border: solid 1px #dfdfdf;
+    box-shadow: 1px 1px 2px #cfcfcf; }
+    .file-manager .context-menu ul > li {
+      cursor: pointer;
+      display: block;
+      margin-bottom: 4px; }
+      .file-manager .context-menu ul > li:last-child {
+        margin-bottom: 0; }
+      .file-manager .context-menu ul > li a {
+        display: block;
+        padding: 4px 12px;
+        color: black;
+        text-decoration: none; }
+        .file-manager .context-menu ul > li a:hover {
+          color: #fff;
+          background-color: #0066aa; }
+  .file-manager .ui-resizable.model-content {
+    height: auto !important; }
+  .file-manager .popup {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: white;
+    z-index: 5;
+    border: 1px solid;
+    padding: 10px;
+    box-shadow: 5px 5px 5px #888888; }
+  .file-manager .move-down {
+    margin-top: 10px; }
+  .file-manager .move-up {
+    margin-bottom: 10px; }
+  .file-manager .btn-group .btn {
+    outline: 0; }
+  .file-manager .activate {
+    pointer-events: initial; }
+  .file-manager .deactivate {
+    pointer-events: none; }
+  .file-manager .error {
+    color: darkred;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap; }

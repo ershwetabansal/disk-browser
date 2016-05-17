@@ -5,9 +5,9 @@ var source = require('vinyl-source-stream');
 var runSequence = require('run-sequence');
 
 gulp.task('sass', function(){
-    return gulp.src('public/sass/app.scss')
+    return gulp.src('src/sass/app.scss')
         .pipe(sass()) // Converts Sass to CSS with gulp-sass
-        .pipe(gulp.dest('public/app/build/css'));
+        .pipe(gulp.dest('dist/css'));
 });
 
 
@@ -21,21 +21,21 @@ gulp.task('unit_test', function (done) {
 });
 
 gulp.task('browserify', function() {
-    return browserify('public/js/Fbrowser/controllers/browser.js')
+    return browserify('src/js/Fbrowser/controllers/browser.js')
         .bundle()
         //Pass desired output filename to vinyl-source-stream
         .pipe(source('bundle.js'))
         // Start piping stream to tasks!
-        .pipe(gulp.dest('public/app/build/js'));
+        .pipe(gulp.dest('dist/js'));
 });
 
 gulp.task('watch', function(){
-  gulp.watch('public/sass/*.scss', ['sass']);
-  gulp.watch('public/js/Fbrowser/**/*.js', ['browserify']);
+  gulp.watch('src/sass/*.scss', ['sass']);
+  gulp.watch('src/js/Fbrowser/**/*.js', ['browserify']);
 });
 
 gulp.task('test_watch', function(){
-    gulp.watch('public/js/Fbrowser/**/*.js', ['unit_test']);
+    gulp.watch('src/js/Fbrowser/**/*.js', ['unit_test']);
     gulp.watch('tests/unit/**/*.js', ['unit_test']);
 });
 

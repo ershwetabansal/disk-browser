@@ -1,6 +1,6 @@
 var stub = require('../helpers/stub.js');
 var setup = require('../helpers/setup.js');
-var element = require('../../public/js/Fbrowser/helpers/element.js');
+var element = require('../../src/js/Fbrowser/helpers/element.js');
 
 
 describe("File browser should be able to manage directories and ", function() {

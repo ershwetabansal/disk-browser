@@ -1,4 +1,4 @@
-var util = require('../../public/js/Fbrowser/helpers/util.js');
+var util = require('../../src/js/Fbrowser/helpers/util.js');
 
 describe("Test Utility functions. ", function() {
 
