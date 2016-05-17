@@ -1,7 +1,7 @@
 {
   "name": "disk-browser",
   "description": "This package supports the client implementation for browsing files and directories on a disk.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "gulpfile.js",
   "directories": {
     "test": "tests"
