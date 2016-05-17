@@ -12,9 +12,8 @@ function browserSetup(setupObject) {
 
 function openBrowser(modalBoxParams) {
 	if (manager.validateSetupObject()) {
-		element.openModal(modalBoxParams.resize, function() {
-			manager.load(modalBoxParams);
-		});
+		element.openModal(modalBoxParams.resize);
+		manager.load(modalBoxParams);
 	} else {
 		alert("Please check consoler errors.");
 	}

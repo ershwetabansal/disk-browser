@@ -22,41 +22,54 @@ function setupParameters(disk, dir, files, http, auth) {
     authParams = auth || {};
 }
 
-function setupElements() {
-//Show/Hide manager controls and attach corresponding events
-	createDirectorySetup();		
-	uploadFileSetup();
+function setupElementsAndEvents() {
+	setupFileBrowserModal(function() {
+		//Show/Hide manager controls and attach corresponding events
+		createDirectorySetup();
+		uploadFileSetup();
+		setupEvents();
+	});
+}
 
-	function createDirectorySetup() {
-		var createDirBtn = element.getCreateNewDirectory();
-		(directoriesParam.create) ? element.show(createDirBtn) : element.hide(createDirBtn);
+function setupFileBrowserModal(callback) {
+	if ($('#disk-browser').length == 0) {
+		$('body').append('<div id="disk-browser"></div>');
 	}
 
-	function uploadFileSetup() {
-		var uploadBtn = element.getUploadFileBtn();
-		if (filesParam.upload) {
-			loadUploadFormParameters();
-			element.show(uploadBtn);
-		} else {
-			element.hide(uploadBtn);
-		}
+	$('#disk-browser').load(element.getDiskBrowserPath() + '/partials/disk-browser.html', function(){
+		if (callback) callback();
+	});
+}
 
-		function loadUploadFormParameters() {
-			if (doesUploadParamExist()) {
-				for (var i=0, len = filesParam.upload.params.length; i <len; i++) {
-					var param = filesParam.upload.params[i];
-					element.getUploadFileParameterContainer().append($(getFormElement(param)));
-				}
+function createDirectorySetup() {
+	var createDirBtn = element.getCreateNewDirectory();
+	(directoriesParam.create) ? element.show(createDirBtn) : element.hide(createDirBtn);
+}
+
+function uploadFileSetup() {
+	var uploadBtn = element.getUploadFileBtn();
+	if (filesParam.upload) {
+		loadUploadFormParameters();
+		element.show(uploadBtn);
+	} else {
+		element.hide(uploadBtn);
+	}
+
+	function loadUploadFormParameters() {
+		if (doesUploadParamExist()) {
+			for (var i=0, len = filesParam.upload.params.length; i <len; i++) {
+				var param = filesParam.upload.params[i];
+				element.getUploadFileParameterContainer().append($(getFormElement(param)));
 			}
 		}
+	}
 
-		function getFormElement(param) {
-			return '<input type="text" placeholder="'+param.label+'" name="'+param.name+'" class="form-control"/>'
-		}
+	function getFormElement(param) {
+		return '<input type="text" placeholder="'+param.label+'" name="'+param.name+'" class="form-control"/>'
+	}
 
-		function doesUploadParamExist() {
-			return typeof(filesParam.upload) == 'object' && filesParam.upload.params;
-		}
+	function doesUploadParamExist() {
+		return typeof(filesParam.upload) == 'object' && filesParam.upload.params;
 	}
 }
 
@@ -403,7 +416,7 @@ function updateButtonDetails(details) {
 module.exports = {
 	setupHandlers: setupHandlers,
 	setupParameters: setupParameters,
-	setupElements: setupElements,
+	setupElementsAndEvents: setupElementsAndEvents,
 	setupEvents: setupEvents,
 
 	load: load,

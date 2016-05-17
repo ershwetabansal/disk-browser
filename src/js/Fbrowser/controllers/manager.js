@@ -61,8 +61,7 @@ function manager(setupObject)
 		requestHandler.setupHandlers(new DiskHandler(),
 			new DirHandler(), new FileHandler(), eventHandler);
 		requestHandler.setupParameters(disksParam, directoriesParam, filesParam, httpParam, authParam);
-		requestHandler.setupElements();
-		requestHandler.setupEvents();
+		requestHandler.setupElementsAndEvents();
 	}
 
 	function load(modalBoxParams) {

@@ -58,7 +58,7 @@ var fbElement,
 * Browser window
 ************************************************/
 
-function getFileBrowser() {
+function getFileBrowser(callback) {
 
     if (!fbElement || fbElement.length == 0) {
         fbElement= $('#FileBrowser');
@@ -667,27 +667,18 @@ function unselectTableRow(row) {
 
 function openModal(allowResizing, callback) {
 
-    if ($('#disk-browser').length == 0) {
-        $('body').append('<div id="disk-browser"></div>');
-    }
-
-    $('#disk-browser').load(getDiskBrowserPath() + '/partials/disk-browser.html', function() {
-        getFileBrowser().modal({
-            keyboard: false,
-            backdrop: 'static'
-        });
-
-        if (allowResizing == true) {
-            allowModalResize();
-
-            $(window).resize(function(){
-                allowModalResize();
-            });
-        }
-
-        if (callback) callback();
+    getFileBrowser().modal({
+        keyboard: false,
+        backdrop: 'static'
     });
 
+    if (allowResizing == true) {
+        allowModalResize();
+
+        $(window).resize(function(){
+            allowModalResize();
+        });
+    }
 }
 
 function getDiskBrowserPath() {
@@ -822,5 +813,6 @@ module.exports = {
     openModal: openModal,
     closeModal: closeModal,
     activate: activate,
-    deactivate: deactivate
+    deactivate: deactivate,
+    getDiskBrowserPath: getDiskBrowserPath
 };
