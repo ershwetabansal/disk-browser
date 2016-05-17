@@ -1913,7 +1913,7 @@ function openModal(allowResizing) {
         $('body').append('<div id="disk-browser"></div>');
     }
 
-    $('#disk-browser').load('../partials/disk-browser.html', function() {
+    $('#disk-browser').load(getDiskBrowserPath() + '/partials/disk-browser.html', function() {
         getFileBrowser().modal({
             keyboard: false,
             backdrop: 'static'
@@ -1928,6 +1928,20 @@ function openModal(allowResizing) {
         }
     });
 
+}
+
+function getDiskBrowserPath() {
+    var scripts = document.getElementsByTagName('SCRIPT');
+    var path = '';
+    if(scripts && scripts.length>0) {
+        for(var i in scripts) {
+            if(scripts[i].src && scripts[i].src.match(/\/disk-browser\.js$/)) {
+                path = scripts[i].src.replace(/(.*)\/js\/disk-browser\.js$/, '$1');
+                break;
+            }
+        }
+    }
+    return path;
 }
 
 function allowModalResize() {
