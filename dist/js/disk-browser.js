@@ -13,8 +13,9 @@ function browserSetup(setupObject) {
 
 function openBrowser(modalBoxParams) {
 	if (manager.validateSetupObject()) {
-		manager.load(modalBoxParams);
-		element.openModal(modalBoxParams.resize);
+		element.openModal(modalBoxParams.resize, function() {
+			manager.load(modalBoxParams);
+		});
 	} else {
 		alert("Please check consoler errors.");
 	}
@@ -1907,7 +1908,7 @@ function unselectTableRow(row) {
 }
 
 
-function openModal(allowResizing) {
+function openModal(allowResizing, callback) {
 
     if ($('#disk-browser').length == 0) {
         $('body').append('<div id="disk-browser"></div>');
@@ -1926,6 +1927,8 @@ function openModal(allowResizing) {
                 allowModalResize();
             });
         }
+
+        if (callback) callback();
     });
 
 }

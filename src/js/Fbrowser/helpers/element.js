@@ -665,7 +665,7 @@ function unselectTableRow(row) {
 }
 
 
-function openModal(allowResizing) {
+function openModal(allowResizing, callback) {
 
     if ($('#disk-browser').length == 0) {
         $('body').append('<div id="disk-browser"></div>');
@@ -684,6 +684,8 @@ function openModal(allowResizing) {
                 allowModalResize();
             });
         }
+
+        if (callback) callback();
     });
 
 }
