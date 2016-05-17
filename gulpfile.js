@@ -5,7 +5,7 @@ var source = require('vinyl-source-stream');
 var runSequence = require('run-sequence');
 
 gulp.task('sass', function(){
-    return gulp.src('src/sass/app.scss')
+    return gulp.src('src/sass/disk-browser.scss')
         .pipe(sass()) // Converts Sass to CSS with gulp-sass
         .pipe(gulp.dest('dist/css'));
 });
@@ -24,7 +24,7 @@ gulp.task('browserify', function() {
     return browserify('src/js/Fbrowser/controllers/browser.js')
         .bundle()
         //Pass desired output filename to vinyl-source-stream
-        .pipe(source('bundle.js'))
+        .pipe(source('disk-browser.js'))
         // Start piping stream to tasks!
         .pipe(gulp.dest('dist/js'));
 });
