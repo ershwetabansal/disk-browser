@@ -115,10 +115,9 @@ function manager(setupObject)
 }
 
 module.exports = manager;
-},{"../handlers/eventHandler.js":3,"../handlers/handler.js":4,"../helpers/validate.js":7,"../model/directory.js":9,"../model/disk.js":10,"../model/file.js":11}],3:[function(require,module,exports){
+},{"../handlers/eventHandler.js":3,"../handlers/handler.js":4,"../helpers/validate.js":7,"../model/directory.js":8,"../model/disk.js":9,"../model/file.js":10}],3:[function(require,module,exports){
 var element = require('../helpers/element.js');
 var util = require('../helpers/util.js');
-var mock = require('../mock/mock.js');
 var reqHandler = require('../handlers/handler.js');
 
 /****************************************************
@@ -808,10 +807,9 @@ module.exports = {
     resetView : resetView
 	
 }
-},{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6,"../mock/mock.js":8}],4:[function(require,module,exports){
+},{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6}],4:[function(require,module,exports){
 var element = require('../helpers/element.js');
 var util = require('../helpers/util.js');
-var mock = require('../mock/mock.js');
 
 var diskHandler, dirHandler, fileHandler, eventHandler;
 var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {};
@@ -924,8 +922,6 @@ function loadDirectories() {
         loadFiles();
 	}
 	function fail() {
-		dirHandler.loadDirectories(mock.directories);
-        loadFiles();
 	}
 }
 
@@ -938,8 +934,6 @@ function loadFiles(isRefresh) {
 		setupSortDropdown();
 	}
 	function fail() {
-		fileHandler.loadFiles(mock.files);
-		setupSortDropdown();		
 	}
 }
 
@@ -1245,7 +1239,7 @@ module.exports = {
     updateButtonDetails : updateButtonDetails
 
 }
-},{"../helpers/element.js":5,"../helpers/util.js":6,"../mock/mock.js":8}],5:[function(require,module,exports){
+},{"../helpers/element.js":5,"../helpers/util.js":6}],5:[function(require,module,exports){
 var fbElement,
     primaryBtn,
     loadingBar,
@@ -1915,18 +1909,25 @@ function unselectTableRow(row) {
 
 function openModal(allowResizing) {
 
-    getFileBrowser().modal({
-        keyboard: false,
-        backdrop: 'static'
+    if ($('#disk-browser').length == 0) {
+        $('body').append('<div id="disk-browser"></div>');
+    }
+
+    $('#disk-browser').load('../partials/disk-browser.html', function() {
+        getFileBrowser().modal({
+            keyboard: false,
+            backdrop: 'static'
+        });
+
+        if (allowResizing == true) {
+            allowModalResize();
+
+            $(window).resize(function(){
+                allowModalResize();
+            });
+        }
     });
 
-    if (allowResizing == true) {
-        allowModalResize();
-
-        $(window).resize(function(){
-            allowModalResize();
-        });        
-    }
 }
 
 function allowModalResize() {
@@ -2428,105 +2429,8 @@ module.exports = {
     authParam : authParam
 }
 },{}],8:[function(require,module,exports){
-module.exports = {
-    directories: [
-        {
-            name: 'cats',
-            directories: [
-                {
-                    name: '2016',
-                    directories: [
-                        {name: '01'},
-                        {name: '02'},
-                        {name: '03'},
-                        {name: '04'},
-                        {name: '05'},
-                        {name: '06'},
-                        {name: '07'},
-                        {name: '08'},
-                        {name: '09'},
-                        {name: '10'}
-                    ]
-                }
-            ]
-        },
-        {
-            name: 'dogs',
-            directories: [
-                {
-                    name: '2016',
-                    directories: [
-                        {name: '01'},
-                        {name: '02'},
-                        {name: '03'},
-                        {name: '04'},
-                        {name: '05'},
-                        {name: '06'},
-                        {name: '07'},
-                        {name: '08'},
-                        {name: '09'},
-                        {name: '10'}
-                    ]
-                }
-            ]
-        },
-        {
-            name: 'monkeys',
-            directories: [
-                {
-                    name: '2016',
-                    directories: [
-                        {name: '01'},
-                        {name: '02'},
-                        {name: '03'},
-                        {name: '04'},
-                        {name: '05'},
-                        {name: '06'},
-                        {name: '07'},
-                        {name: '08'},
-                        {name: '09'},
-                        {name: '10'}
-                    ]
-                }
-            ]
-        }
-    ],
-    files: [
-                {
-                    name: 'Black Cat.jpg',
-                    path: 'https://www.petfinder.com/wp-content/uploads/2013/09/cat-black-superstitious-fcs-cat-myths-162286659.jpg',
-                    size: 20,
-                    last_modified_date: '2015-01-01 00:00',
-                    type: 'jpg'
-                },
-                {
-                    name: 'Kitten.jpg',
-                    path: 'http://www.medhatspca.ca/sites/default/files/news_photos/2014-Apr-15/node-147/cute-little-cat.jpg',
-                    size: 100,
-                    last_modified_date: '2015-01-01 00:00',
-                    type: 'jpg'
-                },
-                {
-                    name: 'Fat Cat.jpg',
-                    path: 'http://images.thesurge.com/app/uploads/2015/12/cat-.jpg?1bccdf',
-                    size: 50,
-                    last_modified_date: '2015-01-01 00:00',
-                    type: 'jpg'
-                }
-            ],
-    file : {
-        name: 'White Cat.jpg',
-        path: 'https://www.petfinder.com/wp-content/uploads/2013/09/cat-black-superstitious-fcs-cat-myths-162286659.jpg',
-        size: 20,
-        last_modified_date: '2015-01-01 00:00',
-        type: 'jpg'
-    }
-    
-};
-},{}],9:[function(require,module,exports){
 var util = require('../helpers/util.js');
 var element = require('../helpers/element.js');
-var mock = require('../mock/mock.js');
 var reqHandler = require('../handlers/handler.js');
 
 var directoriesData = {};
@@ -2745,7 +2649,7 @@ function isRootDirectory() {
 
 module.exports = directory;
 
-},{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6,"../mock/mock.js":8}],10:[function(require,module,exports){
+},{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6}],9:[function(require,module,exports){
 var util = require('../helpers/util.js');
 var element = require('../helpers/element.js');
 var reqHandler = require('../handlers/handler.js');
@@ -2843,7 +2747,7 @@ function getRootPath() {
 }
 
 module.exports = disk;
-},{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6}],11:[function(require,module,exports){
+},{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6}],10:[function(require,module,exports){
 var element = require('../helpers/element.js');
 var util = require('../helpers/util.js');
 var reqHandler = require('../handlers/handler.js');

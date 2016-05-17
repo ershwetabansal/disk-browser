@@ -1,6 +1,5 @@
 var element = require('../helpers/element.js');
 var util = require('../helpers/util.js');
-var mock = require('../mock/mock.js');
 
 var diskHandler, dirHandler, fileHandler, eventHandler;
 var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {};
@@ -113,8 +112,6 @@ function loadDirectories() {
         loadFiles();
 	}
 	function fail() {
-		dirHandler.loadDirectories(mock.directories);
-        loadFiles();
 	}
 }
 
@@ -127,8 +124,6 @@ function loadFiles(isRefresh) {
 		setupSortDropdown();
 	}
 	function fail() {
-		fileHandler.loadFiles(mock.files);
-		setupSortDropdown();		
 	}
 }
 

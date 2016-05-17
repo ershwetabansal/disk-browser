@@ -39,9 +39,13 @@ gulp.task('test_watch', function(){
     gulp.watch('tests/unit/**/*.js', ['unit_test']);
 });
 
+gulp.task('copyPartial', function() {
+    gulp.src('./src/partials/disk-browser.html')
+        .pipe(gulp.dest('dist/partials'));
+});
 
 gulp.task('default', function (callback) {
-    runSequence(['sass', 'browserify'],
+    runSequence(['sass', 'browserify', 'copyPartial'],
         callback
     )
 });

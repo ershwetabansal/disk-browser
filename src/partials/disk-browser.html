@@ -1,0 +1,117 @@
+<div class="modal fade file-manager" id="FileBrowser" tabindex="-1" role="dialog">
+
+    <nav id="file-context-menu" class="context-menu hidden">
+        <ul class="list-unstyled">
+            <li><a href="#" id="view-file"><i class="fa fa-eye"></i> View</a></li>
+            <li><a href="#" id="rename-file"><i class="fa fa-edit"></i> Rename</a></li>
+            <li><a href="#" id="remove-file"><i class="fa fa-trash"></i> Delete</a></li>
+            <li><a href="#" id="download-file"><i class="fa fa-download"></i> Download</a></li>
+        </ul>
+    </nav>
+
+    <nav id="directory-context-menu" class="context-menu hidden">
+        <ul class="list-unstyled">
+            <li><a href="#" id="remove-directory"><i class="fa fa-trash"></i> Delete</a></li>
+        </ul>
+    </nav>
+
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left" id="myModalLabel">File Manager
+                    <i id="loading_bar" class="fa fa-spinner fa-spin hidden"></i>
+                </h4>
+                <div id="error_message" class="text-center error"></div>
+            </div>
+            <div class="modal-body">
+                <div class="form-inline" role="toolbar" aria-label="...">
+                    <div class="form-group" role="group" aria-label="...">
+                        <select id="disk_selector" class="form-control">
+                        </select>
+                        <button class="btn btn-default" id="fb_create_new_directory">New Folder</button>
+                        <button class="btn btn-default" id="upload_file_btn"><i class="fa fa-upload" aria-hidden="true"></i></button>
+
+                        <button class="btn btn-default hidden desc" id="fb_file_manage">Manage &nbsp;<span class="caret"></span></button>
+                    </div>
+
+
+                    <div class="form-group pull-right">
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button id="fb_refresh" class="btn btn-default" ><i class="fa fa-refresh"></i></button>
+                            <button id="fb_align_list" class="btn btn-default" ><i class="fa fa-bars"></i></button>
+                            <button id="fb_align_grid" class="btn btn-default" ><i class="fa fa-th"></i></button>
+                        </div>
+
+                        <select id="fb_sort_files" class="form-control" >
+                            <option value="">Sort by</option>
+                        </select>
+
+                        <div class="input-group">
+                            <input id="fb_search_input" type="text" class="form-control" id="filter" placeholder="Filter" />
+                            <i id="fb_search_cancel" class="fa fa-times hidden"></i>
+                            <div id="fb_search_submit" type="submit" role="button" class="input-group-addon">
+                                <i class="fa fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-xs-3 directories">
+
+                        <ul class="list-unstyled" id="directories-list">
+                        </ul>
+                    </div>
+                    <div class="col-md-9 col-xs-9 files">
+                        <div id="remove-file-box" class="popup form-inline hidden">
+                            <div class="align-center">
+                                Are you sure you want to delete the file?
+                            </div>
+
+                            <div class="align-center move-down">
+                                <button id="remove-file-ok" class="btn btn-primary">Ok</button>
+                                <button id="remove-file-close" class="btn btn-default">Cancel</button>
+                            </div>
+                        </div>
+
+                        <div id="rename-file-box" class="popup form-inline hidden">
+                            <div class="form-group">
+                                <label for="file-name" class="label-control">File Name:</label>
+                                <input placeholder="File Name" id="rename-file-name" class="form-control"/>
+                            </div>
+
+                            <div class="align-center move-down">
+                                <button id="rename-file-ok" class="btn btn-primary">Ok</button>
+                                <button id="rename-file-close" class="btn btn-default">Close</button>
+                            </div>
+                        </div>
+
+                        <ul id="fb_file_search_options" class="list-inline hidden"></ul>
+                        <div>
+                            <form id="file_browser_upload" class="form-inline hidden">
+                                <div class="form-group">
+                                    <input id="upload_file" name="file" type="file" class="form-control" required/>
+                                </div>
+                                <div id="upload_file_parameters" class="form-group">
+                                </div>
+                                <div class="form-group">
+                                    <button id="upload_file_to_Server" type="button" class="btn btn-primary">Upload</button>
+                                    <button id="cancel_file_upload" type="button" class="btn btn-default">Cancel</button>
+                                </div>
+                            </form>
+                            <div class="text-center hidden" id="upload_file_loading"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+                        </div>
+                        <table id="files-list" class="table hidden"></table>
+                        <ul id="files-grid" class="list-unstyled hidden"></ul>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <ul id="show-file-details" class="list-inline hidden"></ul>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary hidden" id="fb-primary-btn"></button>
+            </div>
+        </div>
+    </div>
+</div>

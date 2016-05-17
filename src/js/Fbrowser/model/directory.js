@@ -1,6 +1,5 @@
 var util = require('../helpers/util.js');
 var element = require('../helpers/element.js');
-var mock = require('../mock/mock.js');
 var reqHandler = require('../handlers/handler.js');
 
 var directoriesData = {};

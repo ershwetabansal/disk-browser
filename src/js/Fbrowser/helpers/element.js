@@ -667,18 +667,25 @@ function unselectTableRow(row) {
 
 function openModal(allowResizing) {
 
-    getFileBrowser().modal({
-        keyboard: false,
-        backdrop: 'static'
+    if ($('#disk-browser').length == 0) {
+        $('body').append('<div id="disk-browser"></div>');
+    }
+
+    $('#disk-browser').load('../partials/disk-browser.html', function() {
+        getFileBrowser().modal({
+            keyboard: false,
+            backdrop: 'static'
+        });
+
+        if (allowResizing == true) {
+            allowModalResize();
+
+            $(window).resize(function(){
+                allowModalResize();
+            });
+        }
     });
 
-    if (allowResizing == true) {
-        allowModalResize();
-
-        $(window).resize(function(){
-            allowModalResize();
-        });        
-    }
 }
 
 function allowModalResize() {
