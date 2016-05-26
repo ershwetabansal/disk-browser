@@ -94,11 +94,11 @@ function manager(setupObject)
 
 	}
 
-	function doInitialSetup() {
+	function doInitialSetup(isTest) {
 		requestHandler.setupHandlers(new DiskHandler(),
 			new DirHandler(), new FileHandler(), eventHandler);
 		requestHandler.setupParameters(disksParam, directoriesParam, filesParam, httpParam, authParam);
-		requestHandler.setupElementsAndEvents();
+		requestHandler.setupElementsAndEvents(isTest);
 	}
 
 	function load(modalBoxParams) {
@@ -221,11 +221,11 @@ function attachSearchFilesEvent() {
             reqHandler.makeAjaxRequest(url, success, fail, false, params);
 
             function fail() {
-                alert('failed to search disk');
+				alert('failed to search disk');
             }
 
             function success(data) {
-                reqHandler.getFileHandler().showFiles(data.files);
+				reqHandler.getFileHandler().showFiles(data.files);
                 element.select(element.getFileSearchOptions(), liElement);
             }
 		});
@@ -356,9 +356,9 @@ function attachCreateDirectoryEvent(url) {
         }
 
         function focusOutEvent() {
-            var newValue = inputElement.val();
-            if (oldValue != newValue && newValue != '') {
-                var params = reqHandler.getDirHandler().getNewDirectoryData(inputElement);
+			var newValue = inputElement.val();
+			if (oldValue != newValue && newValue != '') {
+			    var params = reqHandler.getDirHandler().getNewDirectoryData(inputElement);
                 reqHandler.makeAjaxRequest(url, success, fail, false, params);
             } else {
                 element.focusAndSelect(inputElement);
@@ -366,11 +366,10 @@ function attachCreateDirectoryEvent(url) {
         }
 
 		function success(response) {
-            if (response.success == true) {
+			if (response.success == true) {
 				var dirElement = reqHandler.getDirHandler().saveDirectory(inputElement, response.directory.name, response.directory.path);
                 reqHandler.attachDirectoryEvents(dirElement);
             } else {
-                alert('Directory already exists');
                 reqHandler.getDirHandler().removeDirectory(inputElement);
             }
 
@@ -831,21 +830,23 @@ function setupParameters(disk, dir, files, http, auth) {
     authParams = auth || {};
 }
 
-function setupElementsAndEvents() {
+function setupElementsAndEvents(isTest) {
 	setupFileBrowserModal(function() {
 		//Show/Hide manager controls and attach corresponding events
 		createDirectorySetup();
 		uploadFileSetup();
 		setupEvents();
-	});
+	}, isTest);
 }
 
-function setupFileBrowserModal(callback) {
+function setupFileBrowserModal(callback, isTest) {
 	if ($('#disk-browser').length == 0) {
 		$('body').append('<div id="disk-browser"></div>');
 		$('#disk-browser').load(element.getDiskBrowserPath() + '/partials/disk-browser.html', function(){
 			if (callback) callback();
 		});
+	} else if (isTest) {
+		callback();
 	}
 
 }
@@ -1250,7 +1251,7 @@ module.exports = {
     getFileResponseParams: getFileResponseParams,
     updateButtonDetails : updateButtonDetails
 
-}
+};
 },{"../helpers/element.js":5,"../helpers/util.js":6}],5:[function(require,module,exports){
 var fbElement,
     primaryBtn,
@@ -1308,11 +1309,66 @@ var fbElement,
     ;
 
 
+function flush() {
+    fbElement = undefined;
+    primaryBtn = undefined;
+    loadingBar = undefined;
+    errorMessage = undefined;
+    fileBrowserBody = undefined;
+
+    diskDropdown = undefined;
+
+    directoryWindow = undefined;
+    directoriesList = undefined;
+    createNewDirectory = undefined;
+
+    fileWindow = undefined;
+    fileList = undefined;
+    fileGrid = undefined;
+
+    fileContextMenu = undefined;
+    fileRename = undefined;
+    fileRemove = undefined;
+    fileDownload = undefined;
+    fileView = undefined;
+    fileManageMenu = undefined;
+
+    directoryContextMenu = undefined;
+    deleteDirectory = undefined;
+
+    fileRenameBox = undefined;
+    fileRenameClose = undefined;
+    fileRenameOkay = undefined;
+    fileRenameInput = undefined;
+
+    fileRemoveBox = undefined;
+    fileRemoveClose = undefined;
+    fileRemoveOkay = undefined;
+
+    uploadFileBtn = undefined;
+    uploadFileInput = undefined;
+    cancelFileUploadBtn = undefined;
+    uploadFileToServerBtn = undefined;
+    fileBrowserUploadForm = undefined;
+    uploadFileParamContainer = undefined;
+    uploadFileLoadingBar = undefined;
+
+    fileRefreshBtn = undefined;
+    fileAlignListBtn = undefined;
+    fileAlignGridBtn = undefined;
+    sortFilesDropdown = undefined;
+    showFileDetailsDiv = undefined;
+
+    searchBtn = undefined;
+    searchCancelBtn = undefined;
+    searchInput = undefined;
+    fileSearchOptions = undefined;
+}
 /************************************************
 * Browser window
 ************************************************/
 
-function getFileBrowser(callback) {
+function getFileBrowser() {
 
     if (!fbElement || fbElement.length == 0) {
         fbElement= $('#FileBrowser');
@@ -2068,7 +2124,8 @@ module.exports = {
     closeModal: closeModal,
     activate: activate,
     deactivate: deactivate,
-    getDiskBrowserPath: getDiskBrowserPath
+    getDiskBrowserPath: getDiskBrowserPath,
+    flush: flush
 };
 
 },{}],6:[function(require,module,exports){
@@ -2828,6 +2885,7 @@ function file() {
                     gridElements += '</li>';
                     element.getFilesGrid().append($(gridElements));
                 }
+
             }
 
         }
