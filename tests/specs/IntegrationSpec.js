@@ -1,145 +1,345 @@
 var stub = require('../helpers/stub.js');
 var setup = require('../helpers/setup.js');
 var element = require('../../src/js/Fbrowser/helpers/element.js');
+var requestHandler = require('../../src/js/Fbrowser/handlers/handler.js');
+var Manager = require('../../src/js/Fbrowser/controllers/manager.js');
 
 var dirHandler, fileHandler, diskHandler;
 describe("File browser should be able to manage disks, directories and files. User", function() {
 
-    var browser = FileBrowser().getInstance();
-    browser.setup({
-
-        disks : {
-            search : true,
-            search_URL: 'http://file-browser.com/api/v1/disk/search',
-            details : [
-                {
-                    //In case of cross origin disk
-                    name: 'ea_images',
-                    label: 'Images',
-                    path : {
-                        relative : true
-                    }
-                },
-                {
-                    //In case of cross origin disk
-                    name: 'ea_publications',
-                    label: 'Publications',
-                    path : {
-                        relative : true
-                    }
-                }
-            ]
-        },
-        directories: {
-            list: 'http://file-browser.com/api/v1/directories',
-            create: 'http://file-browser.com/api/v1/directory/store',
-            delete: '/api/v1/directory/destroy'
-        },
-        files: {
-            list: 'http://file-browser.com/api/v1/files',
-            upload: {
-                url: 'http://file-browser.com/api/v1/file/store',
-                params:[]
-            },
-            thumbnail: {
-                show : true,
-                directory : '/thumbnails',
-                path : '',
-                prefix : '',
-                suffix : ''
-            },
-            size_unit : 'KB'
-        },
-        http : {
-            headers : {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            error : function(status, response) {
-                console.log(response);
-                if (status == '422') {
-                    for (var key in response) {
-                        return response[key][0];
-                    }
-                }
-                return 'Error encountered. ';
-            }
-        },
-        authentication : "session"
-    });
-
+    var setupObject;
     beforeEach(function() {
-        console.log("hello");
 
         stub.setUpHTMLFixture();
+        element.getFileWindow().width(500);
+        element.getFileWindow().height(500);
 
-        // browser.openBrowser({
-        //     context_menu: true,
-        //     button : {
-        //         text : 'Update URL',
-        //         onClick : function(path) {
-        //             console.log("path :"+path);
-        //         }
-        //     }
-        // });
+        setupObject = JSON.parse(JSON.stringify(stub.getSetupObject()));
+
+        var manager = new Manager(setupObject);
+        if (manager.validateSetupObject()) {
+            manager.doInitialSetup(true);
+
+            // Spy on the ajax and mock the call to pass mocked response
+            spyOn($, 'ajax').and.callFake(function(object){
+
+                return {
+                    success : function (callback) {
+                        if (object.url == setupObject.directories.list) {
+                            if (object.data.path == '/') {
+                                callback(stub.getDirectoryData(object.data.disk));
+                            } else {
+                                callback(stub.getSubDirectoryData(object.data.path.substr(1), object.data.disk));
+                            }
+                        }
+
+                        if (object.url == setupObject.files.list) {
+                            if (object.data.path == '/') {
+                                callback(stub.getFilesData('--root--', object.data.disk));
+                            } else {
+                                callback(stub.getFilesData(object.data.path.substr(1), object.data.disk));
+                            }
+                        }
+                        
+                        if (object.url == setupObject.directories.create) {
+                            callback({success: true, directory: {name: object.data.name, path: object.data.path}});
+                        }
+                        
+                        if (object.url == setupObject.disks.search_URL) {
+                            callback(stub.getSearchResults());
+                        }
+
+                        if (object.url == setupObject.files.upload.url) {
+                            callback(stub.getUploadedFile());
+                        }
+
+                        return {
+                            fail: function () {
+                            }
+                        }
+                    }
+                }
+            });
+
+            // When we load file browser
+            manager.load({
+                button : {
+                    text : 'Update URL',
+                    onClick : function(path) {
+                        $('#path_input_box').val(path);
+                    }
+                }
+            });
+
+            // We have two disks to manage
+            // 1) ea_images
+            // 2) ea_publications
+            //
+            // We have following directory structure in disk 'ea_images'
+            // Root
+            //      cats[3 files, 2 directories]
+            //          cute[1 file]
+            //              cute cat.jpg
+            //          angry[1 file]
+            //              angry cat.jpg
+            //          Black cat.jpg
+            //          Kitten.jpg
+            //          Fat cat.jpg
+            //          Cat like dog.jpg
+            //      dogs[2 files, 0 directories]
+            //          Black dog.jpg
+            //          White dog.jpg
+            //          Special breed.jpg
+            //      monkeys[0 file, 0 directory]
+            //      Animal.jpg
+            //
+            // We have following directory structure in disk 'ea_documents'
+            // Root
+            //      2016[5 directories]
+            //          01
+            //              2016_01_01.docx
+            //              2016_01_02.docx
+            //          02
+            //              2016_02_01.docx
+            //          03
+            //          04
+            //          05
+            //      2015[12 directories]
+            //          01
+            //              2015_01_01.docx
+            //          02
+            //              2015_02_01.docx
+            //          03
+            //              2015_03_01.docx
+            //          04
+            //          05
+            //          06
+            //          07
+            //          08
+            //          09
+            //          10
+            //          11
+            //          12
+
+        }
+
 
     });
 
     afterEach(function () {
-        // element.closeModal();
+        document.body.innerHTML = '';
+        element.flush();
     });
 
-    it("opens a file browser window with disks and directories.", function (done) {
+    it("opens a file browser window with disks and directories.", function () {
 
-        // File browser modal box should contain class 'in' of bootstrap
-        expect(element.getFileBrowser().attr('class')).toContain("in");
+        // When we load file browser
 
+        // Then we see that disks have been loaded in the dropdown
         expect(element.getDiskDropdown().find('option').length).toBeGreaterThan(0);
 
-        setTimeout(function() {
-            expect(element.getDirectories().find('li').length).toBeGreaterThan(0);
-            done();
-        },1000);
+        // and there are two ajax calls
+        expect($.ajax).toHaveBeenCalled();
+        expect($.ajax.calls.count()).toBe(2);
+
+        var arguments = $.ajax.calls.allArgs();
+
+        // Where first ajax call should be for directories
+        expect($.ajax.calls.allArgs()[0][0].url).toContain(setupObject.directories.list);
+
+        // And second ajax call should be for files
+        expect($.ajax.calls.allArgs()[1][0].url).toContain(setupObject.files.list);
+
+        // Also directories and files should get loaded
+        expect(element.getDirectories().find('li').length).toBeGreaterThan(0);
+        expect(element.getFilesGrid().find('li').length).toBeGreaterThan(0);
 
     });
 
-    it("clicks on a directory and corresponding files should list down.", function(done) {
+    it("clicks on a directory and corresponding files should list down.", function() {
 
-        // setTimeout(function() {
-        //     done();
-        // },1000);
+        // When we load file browser
+        // We see files corresponding to the root directory
+        expect(element.getFilesGrid().find('> li').length).toBe(1);
 
+        // When we click on the first directory 'cats'
+        element.getDirectories().find('> li').eq(1).find('> div').click();
+
+        // We see files present in cats folder
+        expect(element.getFilesGrid().find('> li').length).toBe(4);
+        var files = stub.getFilesData('cats');
+        element.getFilesGrid().find('> li').each(function(index){
+            expect(files[index].name).toBe($(this).find('> div').text());
+        });
+
+        // When we click on the second directory 'dogs'
+        element.getDirectories().find('> li').eq(2).find('> div').click();
+
+        // We see files present in dogs folder
+        expect(element.getFilesGrid().find('> li').length).toBe(3);
+        var files = stub.getFilesData('dogs');
+        element.getFilesGrid().find('> li').each(function(index){
+            expect(files[index].name).toBe($(this).find('> div').text());
+        });
 
     });
 
-    it("opens any disk and should see directories. On click of a directory, files should load.", function(done) {
+    it("opens any disk and should see directories in the root of that disk. On click of any directory, files will load.", function() {
+
+        // When we load a browser
+
+        // We see the first disk 'images' loaded in disk dropdown
+        expect(element.getDiskDropdown().find('option').eq(0).attr('selected')).toBe('selected');
+        expect(element.getDiskDropdown().find('option').eq(1).attr('selected')).not.toBeDefined();
+
+        // And directories in the root of that disk will be listed in the file browser
+        var directories = stub.getDirectoryData('images');
+        element.getDirectories().find('> li').each(function(index){
+            if (index != 0) {
+                expect(directories[index - 1].name).toBe($(this).find('> div').text());
+            } else {
+                expect($(this).find('> div').text()).toBe('..');
+            }
+        });
+
+        // When we select another disk 'documents'
+        element.getDiskDropdown().find('option:first').attr('selected', false);
+        element.getDiskDropdown().find('option').eq(1).attr('selected', 'selected').trigger('change');
+
+        // We see directories from documents disk
+        var directories = stub.getDirectoryData('documents');
+        element.getDirectories().find('> li').each(function(index){
+            if (index != 0) {
+                expect(directories[index - 1].name).toBe($(this).find('> div').text());
+            } else {
+                expect($(this).find('> div').text()).toBe('..');
+            }
+        });
+
+        var directory = element.getDirectories().find('> li').eq(1);
+
+        // When we click on a directory from documents disk
+        directory.find('> div').click();
+
+        // We see sub directories for that directory
+        expect(directory.find('ul > li').length).toBe(5);
+
+        // And we see that there is no file present in this directory
+        expect(element.getFilesGrid().find('> li').length).toBe(0);
+
+        // When we select a sub directory
+        var subDirectory = directory.find('ul > li').eq(0);
+        subDirectory.find('> div').click();
+
+        // We see files corresponding to this sub directory
+        expect(subDirectory.find('ul > li').length).toBe(0);
+
+        // And there is no directory inside this sub directory
+        expect(element.getFilesGrid().find('> li').length).toBe(2);
+        var files = stub.getFilesData('2016/01', 'documents');
+        element.getFilesGrid().find('> li').each(function(index){
+            expect(files[index].name).toBe($(this).find('> div').text());
+        });
 
     });
 
     it("can create a new directory.", function() {
 
-    });
+        // When we click on 'New folder' button
+        element.getCreateNewDirectory().click();
 
-    it("selects a file and its details should be visible.", function() {
+        // We see that there is one input field added to the directory list
+        var inputElement = element.getDirectories().find('input');
+        expect(inputElement.length).toBe(1);
 
+        // And the value inside that input field is 'Untitled'
+        expect(inputElement.val()).toBe('untitled');
+
+        // When we do not change the folder name inside that input field
+        inputElement.focusout();
+
+        // input field stays as is, because 'untitled' name is not allowed
+        inputElement = element.getDirectories().find('input');
+        expect(inputElement.val()).toBe('untitled');
+
+        // When user changes the name of the folder
+        inputElement.val('New folder');
+        inputElement.focusout();
+
+        // We see that new directory is created
+        inputElement = element.getDirectories().find('input');
+        expect(inputElement.length).toBe(0);
+        expect(element.getDirectories().find('> li').length).toBe(5);
+        var newDirectory = element.getDirectories().find('> li').eq(4);
+        expect(newDirectory.find('> div').text()).toBe('New folder');
+
+        // We should be able to click on this new directory
+        newDirectory.find('> div').click();
+
+        // And there should not be any files and sub directories for this new directory
+        expect(newDirectory.find('ul').length).toBe(0);
+        expect(element.getFilesGrid().find('li').length).toBe(0);
+        
     });
 
     it("can upload a file in a directory.", function() {
 
+        var numberOfFilesBeforeUpload = element.getFilesGrid().find('li').length;
+
+        // When we upload  a file
+        element.getUploadFileInput().trigger('change');
+        element.getUploadFileToServerBtn().click();
+
+        // We see that the number of files has been increase by 1
+        var numberOfFilesAfterUpload = element.getFilesGrid().find('li').length;
+
+        expect(numberOfFilesAfterUpload).toBe(numberOfFilesBeforeUpload + 1);
+
+    });
+
+    it("selects a file and its details should be visible.", function() {
+        // When we load a file browser
+
+        // We do not see a button to get the path from the browser
+        expect(element.getPrimarySubmitButton().attr('class')).toContain('hidden');
+
+        // When we select a file
+        element.getFilesGrid().find('li').eq(0).click();
+
+        // The button appears element.getPrimarySubmitButton()on the screen
+        expect(element.getPrimarySubmitButton().attr('class')).not.toContain('hidden');
+
+        // And on clicking that button
+        element.getPrimarySubmitButton().click();
+
+        // Requested input box is filled with the path
+        expect($('#path_input_box').val()).toBe('/dogs_cats_monkeys.jpg');
     });
 
     it("can search a file in a disk.", function() {
+        
+        // when we load a file browser
+        
+        // We click on the 'dog' directory
+        element.getDirectories().find('>li').eq(2).find('> div').click();
+        expect(element.getFilesGrid().find('li').length).toBe(3);
 
-    });
+        // And we search a word 'dog'
+        element.getSearchInput().val('dog');
+        element.getSearchBtn().click();
+        
+        // First all the files with the word dog in that directory are listed down
+        expect(element.getFilesGrid().find('li').length).toBe(2);
+        
+        // When we click on 'images' disk
+        $('#search_images').click();
 
-    it("can delete a directory.", function() {
-
-    });
-
-    it("can sort files.", function() {
-
-    });
-
-    it("can refresh files.", function() {
+        // We see all the files listed in images disk
+        expect(element.getFilesGrid().find('li').length).toBe(3);
+        var searchedFiles = stub.getSearchResults().files;
+        element.getFilesGrid().find('li').each(function(index){
+           expect(searchedFiles[index].name).toBe($(this).text());
+        });
 
     });
 

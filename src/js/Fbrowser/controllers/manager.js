@@ -57,11 +57,11 @@ function manager(setupObject)
 
 	}
 
-	function doInitialSetup() {
+	function doInitialSetup(isTest) {
 		requestHandler.setupHandlers(new DiskHandler(),
 			new DirHandler(), new FileHandler(), eventHandler);
 		requestHandler.setupParameters(disksParam, directoriesParam, filesParam, httpParam, authParam);
-		requestHandler.setupElementsAndEvents();
+		requestHandler.setupElementsAndEvents(isTest);
 	}
 
 	function load(modalBoxParams) {

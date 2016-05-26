@@ -23,7 +23,7 @@ describe("File browser should be able to manage directories and ", function() {
     
     	var directory = element.getDirectories().find('li').eq(1);
         element.select(directory.closest('ul'), directory);
-    	setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData());
+    	setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData(directory.text()));
     	
     	expect(directory.find('ul').length).toBe(1);
     
@@ -32,7 +32,7 @@ describe("File browser should be able to manage directories and ", function() {
     it("should be able to hide directories when already sub directories are shown.", function() {
     	
     	var directory = element.getDirectories().find('li').eq(1);
-    	setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData());
+    	setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData(directory.text()));
     	setup.getDirHandler().hideSubDirectories(directory);
 
     	expect(directory.find('ul').length).toBe(0);
@@ -95,7 +95,7 @@ describe("File browser should be able to manage directories and ", function() {
 		var directory = element.getDirectories().find('li').eq(1);
         element.select(directory.closest('ul'), directory);
         
-		setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData());
+		setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData(directory.text()));
 		expect(setup.getDirHandler().childDirOpen(directory)).toBe(true);
 
 		setup.getDirHandler().hideSubDirectories(directory);
@@ -119,13 +119,14 @@ describe("File browser should be able to manage directories and ", function() {
 
 		var directory = element.getDirectories().find('li').eq(1);
 		element.select(directory.closest('ul'), directory);
-		setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData());
+
+		setup.getDirHandler().showSubDirectories(directory, stub.getSubDirectoryData(directory.text()));
 
 		var subDirectories = directory.find('ul').find('li');
 
 		var totalDirectoriesBeforeDelete = subDirectories.length;
 
-		var subDirectory = subDirectories.eq(1);
+		var subDirectory = subDirectories.eq(0);
 
 		setup.getDirHandler().removeDirectory(subDirectory);
 		var totalDirectoriesAfterDelete = directory.find('ul').find('li').length;

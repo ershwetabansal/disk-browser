@@ -8,14 +8,19 @@ describe("File browser should be able to manage files and ", function() {
 	beforeEach(function() {
 	
 		stub.setUpHTMLFixture();
+		element.getFileWindow().width(500);
+		element.getFileWindow().height(500);
+
 		setup.setupHandlers(stub.getSetupObject());
-		setup.getFileHandler().loadFiles(stub.getFilesData());
-    
+		setup.getFileHandler().loadFiles(stub.getFilesData('cats'));
+
     });
     
     it("should be able to load files when directory is selected.", function() {
 
-    	expect(element.getFilesGrid().children.length).toBeGreaterThan(0); 	
+		setup.getFileHandler().showFileGrid();
+
+    	expect(element.getFilesGrid().find('li').length).toBeGreaterThan(0);
 
     });
 
@@ -25,6 +30,8 @@ describe("File browser should be able to manage files and ", function() {
 
     	expect(element.getFilesList().attr('class')).not.toContain('hidden');
     	expect(element.getFilesGrid().attr('class')).toContain('hidden');
+
+		expect(element.getFilesList().find('tr').length).toBeGreaterThan(0);
 
     });
 
@@ -63,12 +70,14 @@ describe("File browser should be able to manage files and ", function() {
 
     it("should allow files to be searched.", function() {
 
+		setup.getFileHandler().showFileGrid();
+
     	var numberOfFilesBeforeSearch =  element.getFilesGrid().find('li').length;
 
     	setup.getFileHandler().searchFiles('cat');
     	
     	var numberOfFilesAfterSearch =  element.getFilesGrid().find('li').length;
-    	
+
     	expect(numberOfFilesBeforeSearch).toBeGreaterThan(numberOfFilesAfterSearch);
 
     });
@@ -78,6 +87,7 @@ describe("File browser should be able to manage files and ", function() {
 		setup.getFileHandler().showFileGrid();
 
 		var fileElement = element.getFilesGrid().find('li').eq(0);
+
     	element.select(element.getFilesGrid(), fileElement);
 
 		expect(setup.getFileHandler().getCurrentFileDetails().name).toBe(fileElement.text());

@@ -1,6 +1,8 @@
 
 function setUpHTMLFixture() {
-	document.body.innerHTML = '<div class="modal fade file-manager" id="FileBrowser" tabindex="-1" role="dialog"> ' +
+    $('body').empty();
+
+	document.body.innerHTML = '<div id="disk-browser"><div class="modal fade file-manager" id="FileBrowser" tabindex="-1" role="dialog"> ' +
         '<nav id="file-context-menu" class="context-menu hidden"> ' +
         '<ul class="list-unstyled"> ' +
         '<li><a href="#" id="view-file"><i class="fa fa-eye"></i> View</a></li> ' +
@@ -95,7 +97,8 @@ function setUpHTMLFixture() {
         '<button type="button" class="btn btn-primary hidden" id="fb-primary-btn"></button> ' +
         '</div> ' +
         '</div> ' +
-        '</div> </div>';
+        '</div> </div></div>' +
+        '<input id="path_input_box"/>';
 }
 
 function keyPress(key) {
@@ -120,97 +123,380 @@ function getDiskData() {
     ];
 }
 
-function getDirectoryData() {
-	return [
-        {
-            name: 'cats'
-        },
-        {
-            name: 'dogs'
-        },
-        {
-            name: 'monkeys'
-        }
-    ];
+function getDirectoryData(disk) {
+
+    disk = disk || 'images';
+
+    if (disk == 'images') {
+        return [
+            {
+                name: 'cats',
+                path: '/'
+            },
+            {
+                name: 'dogs',
+                path: '/'
+            },
+            {
+                name: 'monkeys',
+                path: '/'
+            }
+        ];
+    } else if (disk == 'documents') {
+        return [
+            {
+                name: '2016',
+                path: '/'
+            },
+            {
+                name: '2015',
+                path: '/'
+            }
+        ];
+
+    } else {
+        return [];
+    }
 }
 
-function getSubDirectoryData() {
-    return [
-                        {name: '01'},
-                        {name: '02'},
-                        {name: '03'},
-                        {name: '04'},
-                        {name: '05'},
-                        {name: '06'},
-                        {name: '07'},
-                        {name: '08'},
-                        {name: '09'},
-                        {name: '10'}
-                    ];
+function getSubDirectoryData(directory, disk) {
+    disk = disk || 'images';
+
+    var directoryStructure;
+
+    if (disk == 'images') {
+
+        directoryStructure = {
+            cats: [
+                {
+                    name: 'cute',
+                    path: '/cats/'
+                },
+                {
+                    name: 'angry',
+                    path: '/cats/'
+                }
+            ],
+            dogs: [],
+            monkeys: [],
+            'cats/cute' : [],
+            'cats/angry' : []
+        };
+    } else if (disk == 'documents') {
+        directoryStructure = {
+            '2016': [
+                {
+                    name : '01',
+                    path : '/2016/'
+                },
+                {
+                    name : '02',
+                    path : '/2016/'
+                },
+                {
+                    name : '03',
+                    path : '/2016/'
+                },
+                {
+                    name : '04',
+                    path : '/2016/'
+                },
+                {
+                    name : '05',
+                    path : '/2016/'
+                }
+            ],
+            '2015': [
+                {
+                    name : '01',
+                    path : '/2015/'
+                },
+                {
+                    name : '02',
+                    path : '/2015/'
+                },
+                {
+                    name : '03',
+                    path : '/2015/'
+                },
+                {
+                    name : '04',
+                    path : '/2015/'
+                },
+                {
+                    name : '05',
+                    path : '/2015/'
+                },
+                {
+                    name : '06',
+                    path : '/2015/'
+                },
+                {
+                    name : '07',
+                    path : '/2015/'
+                },
+                {
+                    name : '08',
+                    path : '/2015/'
+                },
+                {
+                    name : '09',
+                    path : '/2015/'
+                },
+                {
+                    name : '10',
+                    path : '/2015/'
+                },
+                {
+                    name : '11',
+                    path : '/2015/'
+                },
+                {
+                    name : '12',
+                    path : '/2015/'
+                }
+            ]
+        };
+
+    }
+
+    return directoryStructure[directory] || [];
 }
 
-function getFilesData() {
-    return [
+function getFilesData(directory, disk) {
+    disk = disk || 'images';
+    var files;
+
+    if (disk == 'images') {
+        files = {
+            cats : [
                 {
                     name: 'Black Cat.jpg',
-                    path: 'https://www.petfinder.com/wp-content/uploads/2013/09/cat-black-superstitious-fcs-cat-myths-162286659.jpg',
+                    path: '/cats/',
                     size: 50,
                     last_modified_date: '2015-01-01 00:00',
                     type: 'jpg'
                 },
                 {
                     name: 'Kitten.jpg',
-                    path: 'http://www.medhatspca.ca/sites/default/files/news_photos/2014-Apr-15/node-147/cute-little-cat.jpg',
+                    path: '/cats/',
                     size: 20,
                     last_modified_date: '2015-01-01 00:00',
                     type: 'jpg'
                 },
                 {
                     name: 'Fat Cat.jpg',
-                    path: 'http://images.thesurge.com/app/uploads/2015/12/cat-.jpg?1bccdf',
+                    path: '/cats/',
                     size: 100,
                     last_modified_date: '2015-01-01 00:00',
                     type: 'jpg'
+                },
+                {
+                    name: 'Cat like dog.jpg',
+                    path: '/cats/',
+                    size: 20,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'jpg'
                 }
-            ];
+            ],
+            dogs : [
+                {
+                    name: 'Black dog.jpg',
+                    path: '/dog/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'jpg'
+                },
+                {
+                    name: 'White dog.jpg',
+                    path: '/dog/',
+                    size: 20,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'jpg'
+                },
+                {
+                    name: 'special breed.jpg',
+                    path: '/dog/',
+                    size: 20,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'jpg'
+                }
+            ],
+            monkeys : [
+
+            ],
+            '--root--' : [
+                {
+                    name: 'dogs_cats_monkeys.jpg',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'jpg'
+                }
+            ]
+        };
+    } else if (disk == 'documents') {
+        files = {
+            2016 : [],
+            2015 : [],
+            '--root--' : [],
+            '2016/01' : [
+                {
+                    name: '2016_01_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                },
+                {
+                    name: '2016_01_02.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2016/02' : [
+                {
+                    name: '2016_02_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2015/01' : [
+                {
+                    name: '2015_01_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2015/02' : [
+                {
+                    name: '2015_02_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2015/03' : [
+                {
+                    name: '2015_03_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ]
+
+        };
+
+    }
+
+    return files[directory] || [];
 }
 
+function getUploadedFile() {
+    return {
+        name: 'new_dog.jpg',
+        path: '/dog/',
+        size: 50,
+        last_modified_date: '2015-01-01 00:00',
+        type: 'jpg'
+    }
+}
+
+function getSearchResults() {
+    return {
+        files: [
+            {
+                name: 'Black dog.jpg',
+                path: '/dog/',
+                size: 50,
+                last_modified_date: '2015-01-01 00:00',
+                type: 'jpg'
+            },
+            {
+                name: 'White dog.jpg',
+                path: '/dog/',
+                size: 20,
+                last_modified_date: '2015-01-01 00:00',
+                type: 'jpg'
+            },
+            {
+                name: 'Cat like dog.jpg',
+                path: '/cats/',
+                size: 20,
+                last_modified_date: '2015-01-01 00:00',
+                type: 'jpg'
+            }
+        ]
+    };
+}
 function getSetupObject() {
 	return {
-		disks : {
-            search_URL : '/asset/file/search',
-	        search : true,
-	        details : [
-	         {
-	             name: 'Images',
-	             label: 'Image Folder',
-	             absolute_path: false
-	         },
-	         {
-	             name: 'S3',
-	             label: 'AWS S3',
-	             absolute_path: false
-	         }
-	      ]
-	    },
-	    directories: {
-	       list: '/asset/directories',
-	       destroy: '/asset/directories/destroy',
-	       create: '/asset/directories/store',
-	       update: '/asset/directories/update'
-	    },
-	    files: {
-	       list: '/asset/files',
-	       destroy: '/asset/file/destroy',
-	       upload: { 
-	            url : '/asset/file/store', 
-	            params : [
-	                {name : 'Name', label : 'File Name' , 'type' : 'text'}
-	            ]},
-	       update: '/asset/file/store',
-	       unit: 'kb'
-	    }
-	};
+
+        disks : {
+            search : true,
+            search_URL: 'http://file-browser.com/api/v1/disk/search',
+            details : [
+                {
+                    //In case of cross origin disk
+                    name: 'images',
+                    label: 'Images',
+                    path : {
+                        relative : true
+                    }
+                },
+                {
+                    //In case of cross origin disk
+                    name: 'documents',
+                    label: 'Documents',
+                    path : {
+                        relative : true
+                    }
+                }
+            ]
+        },
+        directories: {
+            list: 'http://file-browser.com/api/v1/directories',
+            create: 'http://file-browser.com/api/v1/directory/store',
+            delete: '/api/v1/directory/destroy'
+        },
+        files: {
+            list: 'http://file-browser.com/api/v1/files',
+            upload: {
+                url: 'http://file-browser.com/api/v1/file/store',
+                params:[]
+            },
+            thumbnail: {
+                show : true,
+                directory : '/thumbnails',
+                path : '',
+                prefix : '',
+                suffix : ''
+            },
+            size_unit : 'KB'
+        },
+        http : {
+            headers : {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            error : function(status, response) {
+                if (status == '422') {
+                    for (var key in response) {
+                        return response[key][0];
+                    }
+                }
+                return 'Error encountered. ';
+            }
+        },
+        authentication : "session"
+    };
 }
 
 module.exports = {
@@ -220,5 +506,7 @@ module.exports = {
 	getDirectoryData : getDirectoryData,
     getSubDirectoryData : getSubDirectoryData,
     getFilesData : getFilesData,
-	getSetupObject : getSetupObject
-}
+	getSetupObject : getSetupObject,
+    getSearchResults : getSearchResults,
+    getUploadedFile : getUploadedFile
+};

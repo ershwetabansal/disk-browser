@@ -104,11 +104,11 @@ function attachSearchFilesEvent() {
             reqHandler.makeAjaxRequest(url, success, fail, false, params);
 
             function fail() {
-                alert('failed to search disk');
+				alert('failed to search disk');
             }
 
             function success(data) {
-                reqHandler.getFileHandler().showFiles(data.files);
+				reqHandler.getFileHandler().showFiles(data.files);
                 element.select(element.getFileSearchOptions(), liElement);
             }
 		});
@@ -239,9 +239,9 @@ function attachCreateDirectoryEvent(url) {
         }
 
         function focusOutEvent() {
-            var newValue = inputElement.val();
-            if (oldValue != newValue && newValue != '') {
-                var params = reqHandler.getDirHandler().getNewDirectoryData(inputElement);
+			var newValue = inputElement.val();
+			if (oldValue != newValue && newValue != '') {
+			    var params = reqHandler.getDirHandler().getNewDirectoryData(inputElement);
                 reqHandler.makeAjaxRequest(url, success, fail, false, params);
             } else {
                 element.focusAndSelect(inputElement);
@@ -249,11 +249,10 @@ function attachCreateDirectoryEvent(url) {
         }
 
 		function success(response) {
-            if (response.success == true) {
+			if (response.success == true) {
 				var dirElement = reqHandler.getDirHandler().saveDirectory(inputElement, response.directory.name, response.directory.path);
                 reqHandler.attachDirectoryEvents(dirElement);
             } else {
-                alert('Directory already exists');
                 reqHandler.getDirHandler().removeDirectory(inputElement);
             }
 

@@ -54,11 +54,66 @@ var fbElement,
     ;
 
 
+function flush() {
+    fbElement = undefined;
+    primaryBtn = undefined;
+    loadingBar = undefined;
+    errorMessage = undefined;
+    fileBrowserBody = undefined;
+
+    diskDropdown = undefined;
+
+    directoryWindow = undefined;
+    directoriesList = undefined;
+    createNewDirectory = undefined;
+
+    fileWindow = undefined;
+    fileList = undefined;
+    fileGrid = undefined;
+
+    fileContextMenu = undefined;
+    fileRename = undefined;
+    fileRemove = undefined;
+    fileDownload = undefined;
+    fileView = undefined;
+    fileManageMenu = undefined;
+
+    directoryContextMenu = undefined;
+    deleteDirectory = undefined;
+
+    fileRenameBox = undefined;
+    fileRenameClose = undefined;
+    fileRenameOkay = undefined;
+    fileRenameInput = undefined;
+
+    fileRemoveBox = undefined;
+    fileRemoveClose = undefined;
+    fileRemoveOkay = undefined;
+
+    uploadFileBtn = undefined;
+    uploadFileInput = undefined;
+    cancelFileUploadBtn = undefined;
+    uploadFileToServerBtn = undefined;
+    fileBrowserUploadForm = undefined;
+    uploadFileParamContainer = undefined;
+    uploadFileLoadingBar = undefined;
+
+    fileRefreshBtn = undefined;
+    fileAlignListBtn = undefined;
+    fileAlignGridBtn = undefined;
+    sortFilesDropdown = undefined;
+    showFileDetailsDiv = undefined;
+
+    searchBtn = undefined;
+    searchCancelBtn = undefined;
+    searchInput = undefined;
+    fileSearchOptions = undefined;
+}
 /************************************************
 * Browser window
 ************************************************/
 
-function getFileBrowser(callback) {
+function getFileBrowser() {
 
     if (!fbElement || fbElement.length == 0) {
         fbElement= $('#FileBrowser');
@@ -814,5 +869,6 @@ module.exports = {
     closeModal: closeModal,
     activate: activate,
     deactivate: deactivate,
-    getDiskBrowserPath: getDiskBrowserPath
+    getDiskBrowserPath: getDiskBrowserPath,
+    flush: flush
 };

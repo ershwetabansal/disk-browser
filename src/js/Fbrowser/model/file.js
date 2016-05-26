@@ -58,6 +58,7 @@ function file() {
                     gridElements += '</li>';
                     element.getFilesGrid().append($(gridElements));
                 }
+
             }
 
         }

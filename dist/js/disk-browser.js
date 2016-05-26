@@ -843,11 +843,11 @@ function setupElementsAndEvents() {
 function setupFileBrowserModal(callback) {
 	if ($('#disk-browser').length == 0) {
 		$('body').append('<div id="disk-browser"></div>');
+		$('#disk-browser').load(element.getDiskBrowserPath() + '/partials/disk-browser.html', function(){
+			if (callback) callback();
+		});
 	}
 
-	$('#disk-browser').load(element.getDiskBrowserPath() + '/partials/disk-browser.html', function(){
-		if (callback) callback();
-	});
 }
 
 function createDirectorySetup() {
@@ -1102,7 +1102,7 @@ function getCurrentFilePath() {
 
 function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isUpload) {
 
-    var method = 'POST';
+	var method = 'POST';
 
     if (typeof(cache) == 'undefined') {
         cache = true;
@@ -1111,14 +1111,14 @@ function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isU
 
     showLoadingBar(true);
     $.ajax(getAjaxParameters()).success(function (data) {
-        if (successCallback) successCallback(data);
+		if (successCallback) successCallback(data);
         showLoadingBar(false);
 		element.getErrorMessagePlaceHolder().text('');
     }).fail(function (response) {
         if (failureCallback) failureCallback(response);
         showLoadingBar(false);
         updateError(response);
-    });
+	});
 
     function getAjaxParameters() {
         var parameters = {
