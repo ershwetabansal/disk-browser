@@ -124,7 +124,7 @@ function file() {
 
 
         function attachScrollEventToFileWindow(filesArray, metaData, loadImageCallBack) {
-            if (filesArray.length > metaData.stepUpNumber) {
+            if (metaData.stepUpNumber != 0 && filesArray.length > metaData.stepUpNumber) {
                 metaData.length = metaData.stepUpNumber;
 
                 element.getFileWindow().unbind('scroll');
@@ -156,14 +156,19 @@ function file() {
                 metaData.width = fileWindow.width();
                 metaData.height = 37;
             }
-            //Number of images in a row
-            metaData.numberX = fileWindow.width()/metaData.width;
 
-            //Number of rows in a view
-            metaData.numberY = fileWindow.height()/metaData.height;
+            if (fileWindow.width() >= metaData.width) {
+                //Number of images in a row
+                metaData.numberX = fileWindow.width()/metaData.width;
 
-            //Number of images to be loaded in one step
-            metaData.stepUpNumber = metaData.numberX * (metaData.numberY + 1);
+                //Number of rows in a view
+                metaData.numberY = fileWindow.height()/metaData.height;
+
+                //Number of images to be loaded in one step
+                metaData.stepUpNumber = metaData.numberX * (metaData.numberY + 1);
+            } else {
+                metaData.stepUpNumber = 0;
+            }
 
             return metaData;
         }
