@@ -2512,9 +2512,11 @@ var reqHandler = require('../handlers/handler.js');
 
 var directoriesData = {};
 
-/****************************************************
-** Constructor for disk function class
-*****************************************************/
+/**
+ * Constructor for Directory.
+ *
+ * @returns {{loadDirectories: loadDirectories, showSubDirectories: showSubDirectories, hideSubDirectories: hideSubDirectories, addNewDirectoryToSelectedDirectory: addNewDirectoryToSelectedDirectory, getNewDirectoryData: getNewDirectoryData, saveDirectory: saveDirectory, removeDirectory: removeDirectory, renameDirectory: renameDirectory, getCurrentDirectoryElement: getCurrentDirectoryElement, getCurrentDirectoryData: getCurrentDirectoryData, getCurrentDirectoryPath: getCurrentDirectoryPath, getRootDirectory: getRootDirectory, childDirOpen: childDirOpen, isRootDirectory: isRootDirectory}}
+ */
 function directory() {
     return {
         loadDirectories : loadDirectories,
@@ -2539,10 +2541,11 @@ function directory() {
     };
 }
 
-/****************************************************
-** Load directories and sub directories
-*****************************************************/
-
+/**
+ * Load directories and sub directories.
+ *
+ * @param data
+ */
 function loadDirectories(data) {
     directoriesData = {};
     addDirectoriesElements(element.getDirectories(), data, true);
@@ -2550,6 +2553,12 @@ function loadDirectories(data) {
     element.selectFirst(element.getDirectories());
 }
 
+/**
+ * Show all the sub directories for a given directory.
+ *
+ * @param liElement
+ * @param directories
+ */
 function showSubDirectories(liElement, directories) {
     if (liElement.find('ul').length == 0 && !isRootDirectory()) {
         if (directories && directories.length > 0) {
@@ -2560,10 +2569,22 @@ function showSubDirectories(liElement, directories) {
     }
 }
 
+/**
+ * Hide all the sub directories inside a given directory.
+ *
+ * @param liElement
+ */
 function hideSubDirectories(liElement) {
     liElement.find('ul').remove();
 }
 
+/**
+ * Add a directory elements to the parent directory.
+ *
+ * @param directoryUlElement
+ * @param directories
+ * @param isRoot
+ */
 function addDirectoriesElements(directoryUlElement, directories, isRoot) {
     directoryUlElement.empty();
     
@@ -2579,10 +2600,12 @@ function addDirectoriesElements(directoryUlElement, directories, isRoot) {
     }
 }
 
-/****************************************************
-** Rename directory
-*****************************************************/
-
+/**
+ * Allow to rename a directory.
+ *
+ * @param dirElement
+ * @returns {*}
+ */
 function renameDirectory (dirElement) {
     var editable = dirElement.find('span.editable');
     editable.replaceWith('<input value="' + editable.text() + '"/>');
@@ -2590,9 +2613,11 @@ function renameDirectory (dirElement) {
     return inputElement;
 }
 
-/****************************************************
-** Create new directory
-*****************************************************/
+/**
+ * Create a new directory under a root or any other directory.
+ *
+ * @returns {*}
+ */
 function addNewDirectoryToSelectedDirectory() {
     var selectedDir = getCurrentDirectoryElement();
     var parentDir;
@@ -2610,6 +2635,12 @@ function addNewDirectoryToSelectedDirectory() {
     return parentDir.find('input');
 }
 
+/**
+ * Get New directory details.
+ *
+ * @param inputElement
+ * @returns {{name: *}}
+ */
 function getNewDirectoryData(inputElement) {
     var parent_dir = getDirectoryData(inputElement.closest('ul').closest('li'));
     return {
@@ -2617,6 +2648,14 @@ function getNewDirectoryData(inputElement) {
     }
 }
 
+/**
+ * Save details of the newly created or renamed directory.
+ *
+ * @param inputElement
+ * @param value
+ * @param path
+ * @returns {*}
+ */
 function saveDirectory(inputElement, value, path) {
     if (!value) value = inputElement.val();
     var directoryBox = inputElement.closest('div')
@@ -2629,6 +2668,11 @@ function saveDirectory(inputElement, value, path) {
     return directoryBox.closest('li');
 }
 
+/**
+ * Remove a given directory.
+ *
+ * @param element
+ */
 function removeDirectory(element) {
     var liElement = element;
     if (!element.is('li')) {
@@ -2736,9 +2780,11 @@ var defaultPathParam = {
     relative : true
 };
 var defaultSearch = false;
-/****************************************************
-** Constructor for disk function class
-*****************************************************/
+/**
+ * Constructor for Disk.
+ *
+ * @returns {{loadDisks: loadDisks, noDiskSetup: noDiskSetup, getCurrentDisk: getCurrentDisk, getRootPath: getRootPath}}
+ */
 
 function disk() {
     return {
@@ -2749,10 +2795,11 @@ function disk() {
     };
 }
 
-/****************************************************
-** Load Disks as nav bar from user defined disk data
-*****************************************************/
-
+/**
+ * Load Disks as nav bar from user defined disk data.
+ *
+ * @param diskData
+ */
 function loadDisks(diskData) {
 
     addDisksElements();
@@ -2781,7 +2828,11 @@ function loadDisks(diskData) {
 
 }
 
-
+/**
+ * Default disk setup.
+ *
+ * @param object
+ */
 function noDiskSetup(object) {
 
     disks = {
@@ -2793,9 +2844,11 @@ function noDiskSetup(object) {
     };
 }
 
-/****************************************************
-** Get currently selected disk data
-*****************************************************/
+/**
+ * Get currently selected disk data.
+ *
+ * @returns {*}
+ */
 function getCurrentDisk() {
     
     var selectedDisk = element.getDiskDropdown().find('option:selected').attr('id');
@@ -2806,6 +2859,11 @@ function getCurrentDisk() {
     }
 }
 
+/**
+ * Return root path for the disk.
+ *
+ * @returns {*}
+ */
 function getRootPath() {
 
     var currentDisk = getCurrentDisk();
@@ -2836,10 +2894,11 @@ function file() {
 
     var currentView = 'grid';
 
-//----------------------------------------------
-//  Load files
-//----------------------------------------------
-
+    /**
+     * Load all files in the file browser window for a clicked directory.
+     *
+     * @param data
+     */
 	function loadFiles(data) {
         currentView = currentView || 'grid';
         directory_files_array = data;
@@ -3026,10 +3085,9 @@ function file() {
 
     }
 
-//----------------------------------------------
-//  Show files as list and grid
-//----------------------------------------------
-
+    /**
+     * Show files as list and grid.
+     */
     function showFileList() {
         currentView = 'list';
         element.hide(element.getFilesGrid());
@@ -3042,10 +3100,12 @@ function file() {
         element.hide(element.getFilesList());
     }
 
-//----------------------------------------------
-//  Sort files by selected type
-//----------------------------------------------
-
+    /**
+     * Sort files by selected type.
+     *
+     * @param type
+     * @param isAsc
+     */
     function sortFilesBy(type, isAsc) {
         isAsc = (typeof(isAsc) == "undefined") ? true : isAsc;
 
@@ -3074,10 +3134,11 @@ function file() {
     }
 
 
-//----------------------------------------------
-//  Search files
-//----------------------------------------------
-
+    /**
+     * Search files.
+     *
+     * @param text
+     */
     function searchFiles(text) {
         var searchedFiles = [];
         for (var i=0, len = directory_files_array.length; i < len; i++) {
@@ -3089,10 +3150,11 @@ function file() {
         showFiles(searchedFiles);
     }
 
-//----------------------------------------------
-//  Show and hide file details
-//----------------------------------------------
-
+    /**
+     * Show and hide file details.
+     *
+     * @param file
+     */
     function showFileDetails(file) {
         var fileDetails = element.getFileDetailsDiv();
         fileDetails.empty();
@@ -3116,9 +3178,12 @@ function file() {
         element.hide(fileDetails);
     }
 
-//----------------------------------------------
-//  Get current file element and details
-//----------------------------------------------
+
+    /**
+     * Get current file element and details.
+     *
+     * @returns {*}
+     */
     function getCurrentFileDetails() {
 
         var fileList = (currentView =='list') ? element.getFilesList() : element.getFilesGrid();

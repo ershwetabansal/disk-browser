@@ -7,9 +7,11 @@ var defaultPathParam = {
     relative : true
 };
 var defaultSearch = false;
-/****************************************************
-** Constructor for disk function class
-*****************************************************/
+/**
+ * Constructor for Disk.
+ *
+ * @returns {{loadDisks: loadDisks, noDiskSetup: noDiskSetup, getCurrentDisk: getCurrentDisk, getRootPath: getRootPath}}
+ */
 
 function disk() {
     return {
@@ -20,10 +22,11 @@ function disk() {
     };
 }
 
-/****************************************************
-** Load Disks as nav bar from user defined disk data
-*****************************************************/
-
+/**
+ * Load Disks as nav bar from user defined disk data.
+ *
+ * @param diskData
+ */
 function loadDisks(diskData) {
 
     addDisksElements();
@@ -52,7 +55,11 @@ function loadDisks(diskData) {
 
 }
 
-
+/**
+ * Default disk setup.
+ *
+ * @param object
+ */
 function noDiskSetup(object) {
 
     disks = {
@@ -64,9 +71,11 @@ function noDiskSetup(object) {
     };
 }
 
-/****************************************************
-** Get currently selected disk data
-*****************************************************/
+/**
+ * Get currently selected disk data.
+ *
+ * @returns {*}
+ */
 function getCurrentDisk() {
     
     var selectedDisk = element.getDiskDropdown().find('option:selected').attr('id');
@@ -77,6 +86,11 @@ function getCurrentDisk() {
     }
 }
 
+/**
+ * Return root path for the disk.
+ *
+ * @returns {*}
+ */
 function getRootPath() {
 
     var currentDisk = getCurrentDisk();

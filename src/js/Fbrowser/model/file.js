@@ -9,10 +9,11 @@ function file() {
 
     var currentView = 'grid';
 
-//----------------------------------------------
-//  Load files
-//----------------------------------------------
-
+    /**
+     * Load all files in the file browser window for a clicked directory.
+     *
+     * @param data
+     */
 	function loadFiles(data) {
         currentView = currentView || 'grid';
         directory_files_array = data;
@@ -199,10 +200,9 @@ function file() {
 
     }
 
-//----------------------------------------------
-//  Show files as list and grid
-//----------------------------------------------
-
+    /**
+     * Show files as list and grid.
+     */
     function showFileList() {
         currentView = 'list';
         element.hide(element.getFilesGrid());
@@ -215,10 +215,12 @@ function file() {
         element.hide(element.getFilesList());
     }
 
-//----------------------------------------------
-//  Sort files by selected type
-//----------------------------------------------
-
+    /**
+     * Sort files by selected type.
+     *
+     * @param type
+     * @param isAsc
+     */
     function sortFilesBy(type, isAsc) {
         isAsc = (typeof(isAsc) == "undefined") ? true : isAsc;
 
@@ -247,10 +249,11 @@ function file() {
     }
 
 
-//----------------------------------------------
-//  Search files
-//----------------------------------------------
-
+    /**
+     * Search files.
+     *
+     * @param text
+     */
     function searchFiles(text) {
         var searchedFiles = [];
         for (var i=0, len = directory_files_array.length; i < len; i++) {
@@ -262,10 +265,11 @@ function file() {
         showFiles(searchedFiles);
     }
 
-//----------------------------------------------
-//  Show and hide file details
-//----------------------------------------------
-
+    /**
+     * Show and hide file details.
+     *
+     * @param file
+     */
     function showFileDetails(file) {
         var fileDetails = element.getFileDetailsDiv();
         fileDetails.empty();
@@ -289,9 +293,12 @@ function file() {
         element.hide(fileDetails);
     }
 
-//----------------------------------------------
-//  Get current file element and details
-//----------------------------------------------
+
+    /**
+     * Get current file element and details.
+     *
+     * @returns {*}
+     */
     function getCurrentFileDetails() {
 
         var fileList = (currentView =='list') ? element.getFilesList() : element.getFilesGrid();
