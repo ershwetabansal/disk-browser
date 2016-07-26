@@ -71,11 +71,12 @@ describe("File browser should be able to manage disks, directories and files. Us
                 }
             });
 
-            // We have two disks to manage
-            // 1) ea_images
-            // 2) ea_publications
+            // We have three disks to manage
+            // 1) images
+            // 2) documents
+            // 3) restricted
             //
-            // We have following directory structure in disk 'ea_images'
+            // We have following directory structure in disk 'images'
             // Root
             //      cats[3 files, 2 directories]
             //          cute[1 file]
@@ -93,7 +94,7 @@ describe("File browser should be able to manage disks, directories and files. Us
             //      monkeys[0 file, 0 directory]
             //      Animal.jpg
             //
-            // We have following directory structure in disk 'ea_documents'
+            // We have following directory structure in disk 'documents'
             // Root
             //      2016[5 directories]
             //          01
@@ -343,4 +344,46 @@ describe("File browser should be able to manage disks, directories and files. Us
 
     });
 
+
+    it("can browse files in only specified allowed directories while others can not be browsed", function() {
+
+        // Given that a setup has been done to allow browsing only few directories from a restricted disk
+
+        var allowedDirectories = ['/images', '/2016/images', '/2015/images'];
+
+        // When we load a browser
+
+        // And go to the third disk which is a restricted disk
+        element.getDiskDropdown().find('option').eq(2).attr('selected', 'selected').trigger('change');
+
+        // We see directories from documents disk
+        var directories = stub.getDirectoryData('restricted');
+        console.log(directories);
+        element.getDirectories().find('> li').each(function(index){
+            if (index > 0 ) console.log(directories[index - 1]);
+            checkFilesExpecation($(this), (index == 0) ? '..' : directories[index - 1].path, (index == 0) ? '..' : directories[index - 1].name);
+
+        });
+
+        function checkFilesExpecation(directory, path, name) {
+            var fullPath = path + name;
+            directory.find('> div').click();
+
+            if (allowedDirectories.indexOf(fullPath) != -1) {
+                console.log("allowed path :"+fullPath);
+                expect(element.getFilesGrid().find('> li').length).toBeGreaterThan(0);
+            } else {
+                expect(element.getFilesGrid().find('> li').length).toBe(0);
+            }
+
+            directory.find('ul > li').each(function(index) {
+                var subDirectories = stub.getSubDirectoryData(name, 'restricted');
+                console.log(subDirectories[index]);
+                checkFilesExpecation($(this), subDirectories[index].path, subDirectories[index].name);
+            });
+
+            directory.find('> div').click();
+        }
+
+    });
 });
