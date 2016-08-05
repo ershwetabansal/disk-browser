@@ -349,7 +349,15 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         // Given that a setup has been done to allow browsing only few directories from a restricted disk
 
-        var allowedDirectories = ['/images', '/2016/images', '/2015/images'];
+        // images               - should not be allowed
+        // 2016                 - should be allowed
+        //      images          - should be allowed
+        //      documents       - should be allowed
+        // 2015                 - should not be allowed
+        //      images          - should be allowed
+        //      documents       - should not be allowed
+
+        var allowedDirectories = ['/2016', '/2015/images'];
 
         // When we load a browser
 
@@ -359,29 +367,27 @@ describe("File browser should be able to manage disks, directories and files. Us
         // We see directories from restricted disk
         var directories = stub.getDirectoryData('restricted');
         element.getDirectories().find('> li').each(function(index){
-            return checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].path, (index == 0) ? '..' : directories[index - 1].name);
+            checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].path, (index == 0) ? '..' : directories[index - 1].name, false);
         });
 
-        function checkFilesExpectation(directory, path, name) {
+        function checkFilesExpectation(directory, path, name, allowByDefault) {
             var fullPath = path + name;
             directory.find('> div').click();
 
-            if (allowedDirectories.indexOf(fullPath) != -1) {
+            var isAllowed = false;
+            if (allowedDirectories.indexOf(fullPath) != -1 || allowByDefault) {
                 expect(element.getFilesGrid().find('> li').length).toBeGreaterThan(0);
+                isAllowed = true;
             } else {
                 expect(element.getFilesGrid().find('> li').length).toBe(0);
-                if (element.getFilesGrid().find('> li').length != 0 ) {
-                    return false;
-                }
             }
 
             directory.find('ul > li').each(function(index) {
                 var subDirectories = stub.getSubDirectoryData(name, 'restricted');
-                return checkFilesExpectation($(this), subDirectories[index].path, subDirectories[index].name);
+                checkFilesExpectation($(this), subDirectories[index].path, subDirectories[index].name, isAllowed);
             });
 
             directory.find('> div').click();
-            return true;
         }
 
     });

@@ -123,10 +123,21 @@ function isThisDirectoryAllowed(path) {
     var currentDisk = getCurrentDisk();
 
     if (currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
-        return currentDisk.allowed_directories.indexOf(path) != -1;
+        return currentDisk.allowed_directories.indexOf(path) != -1 || checkIfDirectoryParentAllowed(currentDisk, path);
     }
 
     return true;
+}
+
+function checkIfDirectoryParentAllowed(currentDisk, path) {
+
+    var parentDirPath = path.substr(0, path.lastIndexOf('/'));
+
+    if (parentDirPath == '') {
+        return false;
+    }
+
+    return currentDisk.allowed_directories.indexOf(parentDirPath) != -1 || checkIfDirectoryParentAllowed(currentDisk, parentDirPath);
 }
 
 /**

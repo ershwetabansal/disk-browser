@@ -637,7 +637,7 @@ function getSetupObject() {
                 {
                     name: 'restricted',
                     label: 'Restricted',
-                    allowed_directories: ['/images', '/2016/images', '/2015/images']
+                    allowed_directories: ['/2016', '/2015/images']
                 },
                 {
                     name: 'restricted',
