@@ -157,7 +157,12 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-			reqHandler.loadFiles();		
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(reqHandler.getDirHandler().getCurrentDirectoryPath());
+            if (isDirectoryAllowed) {
+                reqHandler.loadFiles();
+            } else {
+                reqHandler.getFileHandler().clearAllFiles();
+            }
 		});
 	});
 }

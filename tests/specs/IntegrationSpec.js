@@ -358,31 +358,30 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         // We see directories from documents disk
         var directories = stub.getDirectoryData('restricted');
-        console.log(directories);
         element.getDirectories().find('> li').each(function(index){
-            if (index > 0 ) console.log(directories[index - 1]);
-            checkFilesExpecation($(this), (index == 0) ? '..' : directories[index - 1].path, (index == 0) ? '..' : directories[index - 1].name);
-
+            return checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].path, (index == 0) ? '..' : directories[index - 1].name);
         });
 
-        function checkFilesExpecation(directory, path, name) {
+        function checkFilesExpectation(directory, path, name) {
             var fullPath = path + name;
             directory.find('> div').click();
 
             if (allowedDirectories.indexOf(fullPath) != -1) {
-                console.log("allowed path :"+fullPath);
                 expect(element.getFilesGrid().find('> li').length).toBeGreaterThan(0);
             } else {
                 expect(element.getFilesGrid().find('> li').length).toBe(0);
+                if (element.getFilesGrid().find('> li').length != 0 ) {
+                    return false;
+                }
             }
 
             directory.find('ul > li').each(function(index) {
                 var subDirectories = stub.getSubDirectoryData(name, 'restricted');
-                console.log(subDirectories[index]);
-                checkFilesExpecation($(this), subDirectories[index].path, subDirectories[index].name);
+                return checkFilesExpectation($(this), subDirectories[index].path, subDirectories[index].name);
             });
 
             directory.find('> div').click();
+            return true;
         }
 
     });

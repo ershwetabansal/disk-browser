@@ -138,6 +138,7 @@ function loadFiles(isRefresh) {
 		fileHandler.loadFiles(data);
 		setupSortDropdown();
 	}
+
 	function fail() {
 	}
 }

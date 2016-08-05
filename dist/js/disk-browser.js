@@ -274,7 +274,12 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-			reqHandler.loadFiles();		
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(reqHandler.getDirHandler().getCurrentDirectoryPath());
+            if (isDirectoryAllowed) {
+                reqHandler.loadFiles();
+            } else {
+                reqHandler.getFileHandler().clearAllFiles();
+            }
 		});
 	});
 }
@@ -946,6 +951,7 @@ function loadFiles(isRefresh) {
 		fileHandler.loadFiles(data);
 		setupSortDropdown();
 	}
+
 	function fail() {
 	}
 }
@@ -2687,10 +2693,6 @@ function removeDirectory(element) {
 
 function getCurrentDirectoryElement() {
     return element.getDirectories().find('li.active');
-    return {
-        data : getDirectoryData(dir),
-        element : dir
-    }
 }
 
 function getCurrentDirectoryData() {
@@ -2791,7 +2793,8 @@ function disk() {
         loadDisks : loadDisks,
         noDiskSetup : noDiskSetup,
         getCurrentDisk : getCurrentDisk,
-        getRootPath : getRootPath
+        getRootPath : getRootPath,
+        isThisDirectoryAllowed : isThisDirectoryAllowed
     };
 }
 
@@ -2815,6 +2818,7 @@ function loadDisks(diskData) {
             disk.id = 'disk_' + util.slugify(disk.name);
             diskElement.append($(getDiskNavElement(diskData[i])));
             disk.path = disk.path || defaultPathParam;
+            disk.allowed_directories = disk.allow;
             disks[disk.id] = disk;
         }
         diskElement.find("option:first").attr('selected','selected');
@@ -2881,6 +2885,17 @@ function getRootPath() {
     }
 }
 
+function isThisDirectoryAllowed(path) {
+
+    var currentDisk = getCurrentDisk();
+
+    if (currentDisk.allow_directories && currentDisk.allow_directories.length > 0) {
+        return currentDisk.allow_directories.indexOf(path) != -1;
+    }
+
+    return true;
+}
+
 module.exports = disk;
 },{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6}],10:[function(require,module,exports){
 var element = require('../helpers/element.js');
@@ -2893,6 +2908,15 @@ function file() {
     var current_files_array = [];
 
     var currentView = 'grid';
+
+    /**
+     * Remove all the files from the view
+     */
+    function clearAllFiles() {
+        element.getFilesList().empty();
+        element.getFilesGrid().empty();
+        cleanUpView();
+    }
 
     /**
      * Load all files in the file browser window for a clicked directory.
@@ -3249,6 +3273,7 @@ function file() {
         getCurrentFileElement : getCurrentFileElement,
 
         cleanUpView : cleanUpView,
+        clearAllFiles : clearAllFiles,
         focusFirstElement: focusFirstElement,
         addFileOnUpload: addFileOnUpload
         

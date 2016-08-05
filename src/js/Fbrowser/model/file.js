@@ -10,6 +10,15 @@ function file() {
     var currentView = 'grid';
 
     /**
+     * Remove all the files from the view
+     */
+    function clearAllFiles() {
+        element.getFilesList().empty();
+        element.getFilesGrid().empty();
+        cleanUpView();
+    }
+
+    /**
      * Load all files in the file browser window for a clicked directory.
      *
      * @param data
@@ -364,6 +373,7 @@ function file() {
         getCurrentFileElement : getCurrentFileElement,
 
         cleanUpView : cleanUpView,
+        clearAllFiles : clearAllFiles,
         focusFirstElement: focusFirstElement,
         addFileOnUpload: addFileOnUpload
         

@@ -179,10 +179,6 @@ function removeDirectory(element) {
 
 function getCurrentDirectoryElement() {
     return element.getDirectories().find('li.active');
-    return {
-        data : getDirectoryData(dir),
-        element : dir
-    }
 }
 
 function getCurrentDirectoryData() {

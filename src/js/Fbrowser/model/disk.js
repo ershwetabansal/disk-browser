@@ -18,7 +18,8 @@ function disk() {
         loadDisks : loadDisks,
         noDiskSetup : noDiskSetup,
         getCurrentDisk : getCurrentDisk,
-        getRootPath : getRootPath
+        getRootPath : getRootPath,
+        isThisDirectoryAllowed : isThisDirectoryAllowed
     };
 }
 
@@ -42,6 +43,7 @@ function loadDisks(diskData) {
             disk.id = 'disk_' + util.slugify(disk.name);
             diskElement.append($(getDiskNavElement(diskData[i])));
             disk.path = disk.path || defaultPathParam;
+            disk.allowed_directories = disk.allow;
             disks[disk.id] = disk;
         }
         diskElement.find("option:first").attr('selected','selected');
@@ -106,6 +108,17 @@ function getRootPath() {
             return util.getCookie(cookie);
         }
     }
+}
+
+function isThisDirectoryAllowed(path) {
+
+    var currentDisk = getCurrentDisk();
+
+    if (currentDisk.allow_directories && currentDisk.allow_directories.length > 0) {
+        return currentDisk.allow_directories.indexOf(path) != -1;
+    }
+
+    return true;
 }
 
 module.exports = disk;
