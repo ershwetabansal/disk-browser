@@ -109,6 +109,22 @@ function load(modalBoxParameters) {
 		loadDisks();
 		loadDirectories();
 	}
+
+    showHideDisks(modalBoxParameters);
+}
+
+function showHideDisks(modalBoxParameters) {
+
+    if (modalBoxParameters.disks && modalBoxParameters.disks.length > 0) {
+        element.getDiskDropdown().find('option').each(function() {
+            if (modalBoxParameters.disks.indexOf($(this).text())) {
+                element.show($(this));
+            } else {
+                element.hide($(this));
+            }
+        });
+    }
+
 }
 
 function loadDisks() {
