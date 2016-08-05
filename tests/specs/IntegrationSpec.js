@@ -189,7 +189,7 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         // When we load a browser
 
-        // We see the first disk 'images' loaded in disk dropdown
+        // We see the first disk in the dropdown is selected
         expect(element.getDiskDropdown().find('option').eq(0).attr('selected')).toBe('selected');
         expect(element.getDiskDropdown().find('option').eq(1).attr('selected')).not.toBeDefined();
 
@@ -356,7 +356,7 @@ describe("File browser should be able to manage disks, directories and files. Us
         // And go to the third disk which is a restricted disk
         element.getDiskDropdown().find('option').eq(2).attr('selected', 'selected').trigger('change');
 
-        // We see directories from documents disk
+        // We see directories from restricted disk
         var directories = stub.getDirectoryData('restricted');
         element.getDirectories().find('> li').each(function(index){
             return checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].path, (index == 0) ? '..' : directories[index - 1].name);
@@ -385,4 +385,62 @@ describe("File browser should be able to manage disks, directories and files. Us
         }
 
     });
+
+    it("can see files with a defined extensions.", function() {
+
+        // Given that a setup has been done to allow only images
+
+        var allowedExtensions = ['png', 'jpg', 'jpeg'];
+
+        // When we load a browser
+
+        // And go to the fourth disk which is a onlyImages disk
+        element.getDiskDropdown().find('option').eq(3).attr('selected', 'selected').trigger('change');
+
+        // We see directories from onlyImages disk
+        var directories = stub.getDirectoryData('restricted');
+        element.getDirectories().find('> li').each(function(index){
+            return checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].name, allowedExtensions, 'restricted');
+        });
+
+        // Also there is another setup where we want to allow only documents
+
+        allowedExtensions = ['doc', 'docx'];
+        // And go to the fifth disk which is a onlyDocs disk
+        element.getDiskDropdown().find('option').eq(4).attr('selected', 'selected').trigger('change');
+
+        // We see directories from onlyDocs disk
+        directories = stub.getDirectoryData('restricted');
+        element.getDirectories().find('> li').each(function(index){
+            return checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].name, allowedExtensions, 'restricted');
+        });
+
+
+        function checkFilesExpectation(directory, name, allowedExtensions, diskName) {
+            directory.find('> div').click();
+
+            element.getFilesGrid().find('> li').each(function() {
+               expect(allowedExtensions.indexOf(getExtension($(this).text()))).not.toBe(-1);
+            });
+
+            directory.find('ul > li').each(function(index) {
+                var subDirectories = stub.getSubDirectoryData(name, diskName);
+                return checkFilesExpectation($(this), subDirectories[index].name, allowedExtensions, diskName);
+            });
+
+            directory.find('> div').click();
+            return true;
+        }
+
+        function getExtension(fileName) {
+            var array = fileName.split('.');
+            if (array != null && array.length == 2) {
+                return array[1];
+            }
+
+            return '';
+        }
+
+    });
+
 });
