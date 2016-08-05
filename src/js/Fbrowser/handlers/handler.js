@@ -280,6 +280,9 @@ function getDirHandler() {
 function getDiskHandler() {
 	return diskHandler;
 }
+function getEventHandler() {
+	return eventHandler;
+}
 
 function isSearchEnabled() {
 	return disksParam && disksParam.search == true;
@@ -445,6 +448,7 @@ module.exports = {
 	getFileHandler: getFileHandler,
 	getDiskHandler: getDiskHandler,
 	getDirHandler: getDirHandler,
+    getEventHandler: getEventHandler,
 
 	getDiskParameter: getDiskParameter,
 	isSearchEnabled: isSearchEnabled,

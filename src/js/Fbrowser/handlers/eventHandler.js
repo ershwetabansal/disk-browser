@@ -369,23 +369,35 @@ function attachDeleteDirectoryEvent(deleteURL) {
 *****************************************************/
 function attachClickEventOnFiles() {
 
-	element.getFilesGrid().find('li').click(function() {
-		element.select(element.getFilesGrid(), $(this));
-		reqHandler.getFileHandler().showFileDetails(
-			reqHandler.getFileHandler().getCurrentFileDetails()
-		);
+    attachClickEventToFilesInGrid();
+    attachClickEventToFilesInList();
+    attachClickEventToFileWindow();
+
+}
+
+function attachClickEventToFilesInGrid() {
+    element.getFilesGrid().find('li').off('click');
+    element.getFilesGrid().find('li').click(function() {
+        element.select(element.getFilesGrid(), $(this));
+        reqHandler.getFileHandler().showFileDetails(
+            reqHandler.getFileHandler().getCurrentFileDetails()
+        );
         element.show(element.getPrimarySubmitButton());
         element.show(element.getFileManageMenu());
-	});
+    });
+}
 
-	element.getFilesList().find('tbody > tr').click(function() {
-		element.selectTableRow(element.getFilesList(), $(this));
+function attachClickEventToFilesInList() {
+    element.getFilesList().find('tbody > tr').click(function() {
+        element.selectTableRow(element.getFilesList(), $(this));
         element.show(element.getPrimarySubmitButton());
         element.show(element.getFileManageMenu());
-	});
+    });
+}
 
-	element.getFileWindow().click(function(event) {
-		var selectedFile = element.getSelected(element.getFilesGrid());
+function attachClickEventToFileWindow() {
+    element.getFileWindow().click(function(event) {
+        var selectedFile = element.getSelected(element.getFilesGrid());
         if (selectedFile.length > 0 && !$(event.target).closest('li').is(selectedFile)) {
             element.unselect(selectedFile);
             reqHandler.getFileHandler().hideFileDetails();
@@ -399,7 +411,8 @@ function attachClickEventOnFiles() {
             element.hide(element.getPrimarySubmitButton());
             element.hide(element.getFileManageMenu());
         }
-	});
+    });
+
 }
 
 function attachKeysEventOnFiles() {
@@ -683,6 +696,7 @@ module.exports = {
 	attachClickEventOnFiles : attachClickEventOnFiles,
 	attachKeysEventOnFiles : attachKeysEventOnFiles,
 	attachUploadFileEvent : attachUploadFileEvent,
+    attachClickEventToFilesInGrid : attachClickEventToFilesInGrid,
 
 	attachRenameFileEvent : attachRenameFileEvent,
 	attachRemoveFileEvent : attachRemoveFileEvent,

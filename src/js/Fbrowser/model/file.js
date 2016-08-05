@@ -148,6 +148,7 @@ function file() {
                             }
                             metaData.length = metaData.length + metaData.stepUpNumber;
                         }
+                        reqHandler.getEventHandler().attachClickEventToFilesInGrid();
                     } else {
                         element.getFileWindow().off('scroll');
                     }
