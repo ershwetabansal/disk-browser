@@ -179,9 +179,9 @@ $text-top-bottom-padding: 5px;
       }
       td {
         img {
-          width: 18px;
+          max-width: 18px;
+          max-height: 14px;
           margin-right: 5px;
-          height: 14px;
           border: 1px solid grey;
         }
       }
