@@ -637,8 +637,19 @@ function getSetupObject() {
                 {
                     name: 'restricted',
                     label: 'Restricted',
-                    allow_directories: ['/images', '/2016/images', '/2015/images']
+                    allowed_directories: ['/images', '/2016/images', '/2015/images']
+                },
+                {
+                    name: 'restricted',
+                    label: 'onlyImages',
+                    allowed_extensions: ['png', 'jpg', 'jpeg']
+                },
+                {
+                    name: 'restricted',
+                    label: 'onlyDocs',
+                    allowed_extensions: ['docx', 'doc']
                 }
+
             ]
         },
         directories: {

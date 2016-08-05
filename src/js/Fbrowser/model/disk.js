@@ -19,7 +19,9 @@ function disk() {
         noDiskSetup : noDiskSetup,
         getCurrentDisk : getCurrentDisk,
         getRootPath : getRootPath,
-        isThisDirectoryAllowed : isThisDirectoryAllowed
+        isThisDirectoryAllowed : isThisDirectoryAllowed,
+        isThisFileAllowed : isThisFileAllowed,
+        getAllowedFilesFrom : getAllowedFilesFrom
     };
 }
 
@@ -40,10 +42,9 @@ function loadDisks(diskData) {
         disks = {};
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
-            disk.id = 'disk_' + util.slugify(disk.name);
+            disk.id = 'disk_' + util.slugify(disk.label);
             diskElement.append($(getDiskNavElement(diskData[i])));
             disk.path = disk.path || defaultPathParam;
-            disk.allowed_directories = disk.allow;
             disks[disk.id] = disk;
         }
         diskElement.find("option:first").attr('selected','selected');
@@ -51,7 +52,7 @@ function loadDisks(diskData) {
 
     function getDiskNavElement(disk) {
 
-        return '<option id="'+disk.id+'" value="'+disk.id+'">' + disk.label + '</option>';
+        return '<option id="'+disk.id+'" data-name="'+disk.name+'" value="'+disk.id+'">' + disk.label + '</option>';
     
     }
 
@@ -110,15 +111,69 @@ function getRootPath() {
     }
 }
 
+/**
+ * Should we load files for the given directory in a disk? It is decided based upon allowed_directories array
+ * on disk params.
+ *
+ * @param path
+ * @returns {boolean}
+ */
 function isThisDirectoryAllowed(path) {
 
     var currentDisk = getCurrentDisk();
 
-    if (currentDisk.allow_directories && currentDisk.allow_directories.length > 0) {
-        return currentDisk.allow_directories.indexOf(path) != -1;
+    if (currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
+        return currentDisk.allowed_directories.indexOf(path) != -1;
     }
 
     return true;
+}
+
+/**
+ * Return all the files that are allowed for a given disk.
+ *
+ * @param fileArray
+ * @returns {*}
+ */
+function getAllowedFilesFrom(fileArray) {
+
+    var currentDisk = getCurrentDisk();
+
+    var allowedFiles = [];
+    for (var i = 0, len = fileArray.length; i < len; i++) {
+        var file = fileArray[i];
+        if (isThisFileAllowed(file.name, currentDisk)) {
+            allowedFiles.push(file);
+        }
+    }
+
+    return allowedFiles;
+}
+
+/**
+ * Should we show a given file on the disk? It is decided based upon allowed_extensions array
+ * on disk params.
+ *
+ * @param fileName
+ * @returns {boolean}
+ * @param currentDisk
+ */
+function isThisFileAllowed(fileName, currentDisk) {
+
+    if (currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
+        return currentDisk.allowed_extensions.indexOf(getExtension(fileName)) != -1;
+    }
+
+    return true;
+}
+
+function getExtension(fileName) {
+    var array = fileName.split('.');
+    if (array != null && array.length == 2) {
+        return array[1];
+    }
+
+    return '';
 }
 
 module.exports = disk;

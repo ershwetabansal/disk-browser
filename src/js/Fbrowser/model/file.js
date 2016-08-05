@@ -34,8 +34,9 @@ function file() {
     function showFiles(filesArray) {
         resetFiles();
         current_files_array = (filesArray) ? filesArray : JSON.parse(JSON.stringify(directory_files_array));
-        loadFileList(current_files_array);
-        loadFileGrid(current_files_array);
+        var allowed_files_array = reqHandler.getDiskHandler().getAllowedFilesFrom(current_files_array);
+        loadFileList(allowed_files_array);
+        loadFileGrid(allowed_files_array);
         show();
         reqHandler.attachFileEvents();
          
