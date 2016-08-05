@@ -648,6 +648,11 @@ function getSetupObject() {
                     name: 'restricted',
                     label: 'onlyDocs',
                     allowed_extensions: ['docx', 'doc']
+                },
+                {
+                    name: 'restricted',
+                    label: 'readOnly',
+                    read_only: true
                 }
 
             ]

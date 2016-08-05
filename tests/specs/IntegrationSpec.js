@@ -449,4 +449,25 @@ describe("File browser should be able to manage disks, directories and files. Us
 
     });
 
+
+    it("can not upload a file to the read only disk.", function() {
+
+        // Given that a setup has been done to have a read only disk
+
+        // When we load a browser
+
+        // And go to the sixth disk which is a readOnly disk
+        element.getDiskDropdown().find('option').eq(5).attr('selected', 'selected').trigger('change');
+
+        // We see that files can not be uploaded to this disk.
+        expect(element.getUploadFileBtn().hasClass('hidden')).toBeTruthy();
+
+        // And there is no way to create a new folder
+        expect(element.getCreateNewDirectory().hasClass('hidden')).toBeTruthy();
+
+        // TODO We see that none of the directories can be deleted
+
+        // TODO None of the files can be deleted
+
+    });
 });
