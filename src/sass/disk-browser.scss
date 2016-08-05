@@ -102,6 +102,9 @@ $text-top-bottom-padding: 5px;
         background: $selection-color;
         color: $dark-background-text-color;
       }
+      li > div.disabled {
+        color: #afacac !important;
+      }
       li {
         cursor: pointer;
         > div {

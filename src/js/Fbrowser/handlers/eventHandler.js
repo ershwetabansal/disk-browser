@@ -146,11 +146,20 @@ function attachDiskElementEvent(callback) {
 *****************************************************/
 function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 
+
 	dirElement.each(function() {
 		var liElement = $(this);
 		if (showContextMenu) {
 			showDirectoryContextMenu(liElement);
 		}
+
+        liElement.find('> div').each(function() {
+            var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
+            if (!isDirectoryAllowed) {
+                $(this).addClass('disabled');
+            }
+        });
 
 		liElement.find('> div').click(function() {
 

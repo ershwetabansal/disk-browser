@@ -263,11 +263,20 @@ function attachDiskElementEvent(callback) {
 *****************************************************/
 function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 
+
 	dirElement.each(function() {
 		var liElement = $(this);
 		if (showContextMenu) {
 			showDirectoryContextMenu(liElement);
 		}
+
+        liElement.find('> div').each(function() {
+            var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
+            if (!isDirectoryAllowed) {
+                $(this).addClass('disabled');
+            }
+        });
 
 		liElement.find('> div').click(function() {
 
@@ -2585,7 +2594,8 @@ function directory() {
         getCurrentDirectoryPath : getCurrentDirectoryPath,
         getRootDirectory : getRootDirectory,
         childDirOpen : childDirOpen,
-        isRootDirectory : isRootDirectory
+        isRootDirectory : isRootDirectory,
+        getDirectoryPathFor : getDirectoryPathFor
         
     };
 }
@@ -2671,7 +2681,7 @@ function addNewDirectoryToSelectedDirectory() {
     var selectedDir = getCurrentDirectoryElement();
     var parentDir;
 
-    if (isRootDirectory(selectedDir)) {
+    if (isRootDirectory()) {
         parentDir = selectedDir.closest('ul');
     } else {
         if (selectedDir.find('> ul').length == 0) {
@@ -2745,11 +2755,16 @@ function getCurrentDirectoryData() {
 function getCurrentDirectoryPath() {
     var currentElement = getCurrentDirectoryElement();
 
-    if (currentElement && currentElement.length > 0) {
-        if (isRootDirectory(currentElement)) {
+    return getDirectoryPathFor(currentElement);
+}
+
+function getDirectoryPathFor(element) {
+
+    if (element && element.length > 0) {
+        if (isRootDirectory(element)) {
             return '';
         } else {
-            var pathArray = getMainDirectory(currentElement, []);
+            var pathArray = getMainDirectory(element, []);
             var path = '';
             for (var i = pathArray.length - 1; i >= 0; i--) {
                 path += '/' + pathArray[i] ;
@@ -2809,7 +2824,12 @@ function getRootDirectory() {
     return element.getDirectories().find('#-root-').closest('li');
 }
 
-function isRootDirectory() {
+function isRootDirectory(liElement) {
+
+    if (liElement) {
+        return liElement.find('> div').attr('id') == '-root-';
+    }
+
     return (getCurrentDirectoryData().id == '-root-');
 }
 

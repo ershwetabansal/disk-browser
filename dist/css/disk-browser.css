@@ -59,6 +59,8 @@
     .file-manager .directories > ul#directories-list li.active > div {
       background: #337ab7;
       color: white; }
+    .file-manager .directories > ul#directories-list li > div.disabled {
+      color: #afacac !important; }
     .file-manager .directories > ul#directories-list li {
       cursor: pointer; }
       .file-manager .directories > ul#directories-list li > div {
