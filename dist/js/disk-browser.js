@@ -245,7 +245,14 @@ function clearSearch() {
 
 function attachDiskElementEvent(callback) {
 	element.getDiskDropdown().on('change', function() {
-		//TODO Show loading bar
+
+        if (reqHandler.getDiskHandler().isReadOnly()) {
+            element.hide(element.getUploadFileBtn());
+            element.hide(element.getCreateNewDirectory());
+        } else {
+            element.show(element.getUploadFileBtn());
+            element.show(element.getCreateNewDirectory());
+        }
         reqHandler.loadDirectories();
         resetView();
 	});
@@ -751,7 +758,7 @@ function attachFileContextMenuEvent() {
 function showFileManageMenu(target) {
     var menu = element.getFileContextMenu();
     element.show(menu);
-    positionMenu(target, menu);
+    positionMenu(target, menu, 124, 500);
 }
 
 function hideMenuEventListener(target, menu) {
@@ -762,10 +769,10 @@ function hideMenuEventListener(target, menu) {
     });
 }
 
-function positionMenu(target, menu) {
-    // clickCoords = element.getPosition(e);
-    var clickCoordsX = target.offset().left;
-    var clickCoordsY = target.offset().top + (target.height() / 2);
+function positionMenu(target, menu, top, left) {
+
+    var clickCoordsX = left || target.offset().left;
+    var clickCoordsY = top || target.offset().top + (target.height() / 2);
 
     var menuWidth = menu.width() + 4;
     var menuHeight = menu.height() + 4;
@@ -2832,7 +2839,8 @@ function disk() {
         getRootPath : getRootPath,
         isThisDirectoryAllowed : isThisDirectoryAllowed,
         isThisFileAllowed : isThisFileAllowed,
-        getAllowedFilesFrom : getAllowedFilesFrom
+        getAllowedFilesFrom : getAllowedFilesFrom,
+        isReadOnly: isReadOnly
     };
 }
 
@@ -2987,6 +2995,15 @@ function isThisFileAllowed(fileName, currentDisk) {
     }
 
     return true;
+}
+/**
+ * Is this disk read only?
+ *
+ * @returns {boolean}
+ */
+function isReadOnly() {
+
+    return getCurrentDisk().read_only == true;
 }
 
 function getExtension(fileName) {

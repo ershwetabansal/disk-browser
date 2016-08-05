@@ -91,8 +91,8 @@
           background: darkgrey;
           color: white; }
         .file-manager .files #files-grid li img {
-          width: 90px;
-          height: 70px;
+          max-width: 90px;
+          max-height: 70px;
           border: 1px solid lightgrey; }
         .file-manager .files #files-grid li > div {
           text-align: center; }
