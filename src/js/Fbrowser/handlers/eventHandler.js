@@ -615,11 +615,13 @@ function attachFileContextMenuEvent() {
 		});
 	}
 
-	function showFileManageMenu(target) {
-		var menu = element.getFileContextMenu();
-		element.show(menu);
-		positionMenu(target, menu);
-	}
+}
+
+
+function showFileManageMenu(target) {
+    var menu = element.getFileContextMenu();
+    element.show(menu);
+    positionMenu(target, menu);
 }
 
 function hideMenuEventListener(target, menu) {
