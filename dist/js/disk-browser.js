@@ -486,23 +486,35 @@ function attachDeleteDirectoryEvent(deleteURL) {
 *****************************************************/
 function attachClickEventOnFiles() {
 
-	element.getFilesGrid().find('li').click(function() {
-		element.select(element.getFilesGrid(), $(this));
-		reqHandler.getFileHandler().showFileDetails(
-			reqHandler.getFileHandler().getCurrentFileDetails()
-		);
+    attachClickEventToFilesInGrid();
+    attachClickEventToFilesInList();
+    attachClickEventToFileWindow();
+
+}
+
+function attachClickEventToFilesInGrid() {
+    element.getFilesGrid().find('li').off('click');
+    element.getFilesGrid().find('li').click(function() {
+        element.select(element.getFilesGrid(), $(this));
+        reqHandler.getFileHandler().showFileDetails(
+            reqHandler.getFileHandler().getCurrentFileDetails()
+        );
         element.show(element.getPrimarySubmitButton());
         element.show(element.getFileManageMenu());
-	});
+    });
+}
 
-	element.getFilesList().find('tbody > tr').click(function() {
-		element.selectTableRow(element.getFilesList(), $(this));
+function attachClickEventToFilesInList() {
+    element.getFilesList().find('tbody > tr').click(function() {
+        element.selectTableRow(element.getFilesList(), $(this));
         element.show(element.getPrimarySubmitButton());
         element.show(element.getFileManageMenu());
-	});
+    });
+}
 
-	element.getFileWindow().click(function(event) {
-		var selectedFile = element.getSelected(element.getFilesGrid());
+function attachClickEventToFileWindow() {
+    element.getFileWindow().click(function(event) {
+        var selectedFile = element.getSelected(element.getFilesGrid());
         if (selectedFile.length > 0 && !$(event.target).closest('li').is(selectedFile)) {
             element.unselect(selectedFile);
             reqHandler.getFileHandler().hideFileDetails();
@@ -516,7 +528,8 @@ function attachClickEventOnFiles() {
             element.hide(element.getPrimarySubmitButton());
             element.hide(element.getFileManageMenu());
         }
-	});
+    });
+
 }
 
 function attachKeysEventOnFiles() {
@@ -732,11 +745,13 @@ function attachFileContextMenuEvent() {
 		});
 	}
 
-	function showFileManageMenu(target) {
-		var menu = element.getFileContextMenu();
-		element.show(menu);
-		positionMenu(target, menu);
-	}
+}
+
+
+function showFileManageMenu(target) {
+    var menu = element.getFileContextMenu();
+    element.show(menu);
+    positionMenu(target, menu);
 }
 
 function hideMenuEventListener(target, menu) {
@@ -798,6 +813,7 @@ module.exports = {
 	attachClickEventOnFiles : attachClickEventOnFiles,
 	attachKeysEventOnFiles : attachKeysEventOnFiles,
 	attachUploadFileEvent : attachUploadFileEvent,
+    attachClickEventToFilesInGrid : attachClickEventToFilesInGrid,
 
 	attachRenameFileEvent : attachRenameFileEvent,
 	attachRemoveFileEvent : attachRemoveFileEvent,
@@ -922,6 +938,22 @@ function load(modalBoxParameters) {
 		loadDisks();
 		loadDirectories();
 	}
+
+    showHideDisks(modalBoxParameters);
+}
+
+function showHideDisks(modalBoxParameters) {
+
+    if (modalBoxParameters.disks && modalBoxParameters.disks.length > 0) {
+        element.getDiskDropdown().find('option').each(function() {
+            if (modalBoxParameters.disks.indexOf($(this).text())) {
+                element.show($(this));
+            } else {
+                element.hide($(this));
+            }
+        });
+    }
+
 }
 
 function loadDisks() {
@@ -1076,6 +1108,9 @@ function getDirHandler() {
 
 function getDiskHandler() {
 	return diskHandler;
+}
+function getEventHandler() {
+	return eventHandler;
 }
 
 function isSearchEnabled() {
@@ -1242,6 +1277,7 @@ module.exports = {
 	getFileHandler: getFileHandler,
 	getDiskHandler: getDiskHandler,
 	getDirHandler: getDirHandler,
+    getEventHandler: getEventHandler,
 
 	getDiskParameter: getDiskParameter,
 	isSearchEnabled: isSearchEnabled,
@@ -2794,7 +2830,9 @@ function disk() {
         noDiskSetup : noDiskSetup,
         getCurrentDisk : getCurrentDisk,
         getRootPath : getRootPath,
-        isThisDirectoryAllowed : isThisDirectoryAllowed
+        isThisDirectoryAllowed : isThisDirectoryAllowed,
+        isThisFileAllowed : isThisFileAllowed,
+        getAllowedFilesFrom : getAllowedFilesFrom
     };
 }
 
@@ -2815,10 +2853,9 @@ function loadDisks(diskData) {
         disks = {};
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
-            disk.id = 'disk_' + util.slugify(disk.name);
+            disk.id = 'disk_' + util.slugify(disk.label);
             diskElement.append($(getDiskNavElement(diskData[i])));
             disk.path = disk.path || defaultPathParam;
-            disk.allowed_directories = disk.allow;
             disks[disk.id] = disk;
         }
         diskElement.find("option:first").attr('selected','selected');
@@ -2826,7 +2863,7 @@ function loadDisks(diskData) {
 
     function getDiskNavElement(disk) {
 
-        return '<option id="'+disk.id+'" value="'+disk.id+'">' + disk.label + '</option>';
+        return '<option id="'+disk.id+'" data-name="'+disk.name+'" value="'+disk.id+'">' + disk.label + '</option>';
     
     }
 
@@ -2885,15 +2922,80 @@ function getRootPath() {
     }
 }
 
+/**
+ * Should we load files for the given directory in a disk? It is decided based upon allowed_directories array
+ * on disk params.
+ *
+ * @param path
+ * @returns {boolean}
+ */
 function isThisDirectoryAllowed(path) {
 
     var currentDisk = getCurrentDisk();
 
-    if (currentDisk.allow_directories && currentDisk.allow_directories.length > 0) {
-        return currentDisk.allow_directories.indexOf(path) != -1;
+    if (currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
+        return currentDisk.allowed_directories.indexOf(path) != -1 || checkIfDirectoryParentAllowed(currentDisk, path);
     }
 
     return true;
+}
+
+function checkIfDirectoryParentAllowed(currentDisk, path) {
+
+    var parentDirPath = path.substr(0, path.lastIndexOf('/'));
+
+    if (parentDirPath == '') {
+        return false;
+    }
+
+    return currentDisk.allowed_directories.indexOf(parentDirPath) != -1 || checkIfDirectoryParentAllowed(currentDisk, parentDirPath);
+}
+
+/**
+ * Return all the files that are allowed for a given disk.
+ *
+ * @param fileArray
+ * @returns {*}
+ */
+function getAllowedFilesFrom(fileArray) {
+
+    var currentDisk = getCurrentDisk();
+
+    var allowedFiles = [];
+    for (var i = 0, len = fileArray.length; i < len; i++) {
+        var file = fileArray[i];
+        if (isThisFileAllowed(file.name, currentDisk)) {
+            allowedFiles.push(file);
+        }
+    }
+
+    return allowedFiles;
+}
+
+/**
+ * Should we show a given file on the disk? It is decided based upon allowed_extensions array
+ * on disk params.
+ *
+ * @param fileName
+ * @returns {boolean}
+ * @param currentDisk
+ */
+function isThisFileAllowed(fileName, currentDisk) {
+
+    if (currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
+        return currentDisk.allowed_extensions.indexOf(getExtension(fileName)) != -1;
+    }
+
+    return true;
+}
+
+function getExtension(fileName) {
+    var array = fileName.split('.');
+    if (array != null && array.length == 2) {
+        return array[1];
+    }
+
+    return '';
 }
 
 module.exports = disk;
@@ -2934,8 +3036,9 @@ function file() {
     function showFiles(filesArray) {
         resetFiles();
         current_files_array = (filesArray) ? filesArray : JSON.parse(JSON.stringify(directory_files_array));
-        loadFileList(current_files_array);
-        loadFileGrid(current_files_array);
+        var allowed_files_array = reqHandler.getDiskHandler().getAllowedFilesFrom(current_files_array);
+        loadFileList(allowed_files_array);
+        loadFileGrid(allowed_files_array);
         show();
         reqHandler.attachFileEvents();
          
@@ -3047,6 +3150,7 @@ function file() {
                             }
                             metaData.length = metaData.length + metaData.stepUpNumber;
                         }
+                        reqHandler.getEventHandler().attachClickEventToFilesInGrid();
                     } else {
                         element.getFileWindow().off('scroll');
                     }
