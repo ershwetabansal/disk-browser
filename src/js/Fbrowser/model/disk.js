@@ -21,7 +21,8 @@ function disk() {
         getRootPath : getRootPath,
         isThisDirectoryAllowed : isThisDirectoryAllowed,
         isThisFileAllowed : isThisFileAllowed,
-        getAllowedFilesFrom : getAllowedFilesFrom
+        getAllowedFilesFrom : getAllowedFilesFrom,
+        isReadOnly: isReadOnly
     };
 }
 
@@ -176,6 +177,15 @@ function isThisFileAllowed(fileName, currentDisk) {
     }
 
     return true;
+}
+/**
+ * Is this disk read only?
+ *
+ * @returns {boolean}
+ */
+function isReadOnly() {
+
+    return getCurrentDisk().read_only == true;
 }
 
 function getExtension(fileName) {

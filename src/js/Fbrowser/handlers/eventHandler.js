@@ -128,7 +128,14 @@ function clearSearch() {
 
 function attachDiskElementEvent(callback) {
 	element.getDiskDropdown().on('change', function() {
-		//TODO Show loading bar
+
+        if (reqHandler.getDiskHandler().isReadOnly()) {
+            element.hide(element.getUploadFileBtn());
+            element.hide(element.getCreateNewDirectory());
+        } else {
+            element.show(element.getUploadFileBtn());
+            element.show(element.getCreateNewDirectory());
+        }
         reqHandler.loadDirectories();
         resetView();
 	});
