@@ -641,7 +641,7 @@ function attachFileContextMenuEvent() {
 function showFileManageMenu(target) {
     var menu = element.getFileContextMenu();
     element.show(menu);
-    positionMenu(target, menu);
+    positionMenu(target, menu, 124, 500);
 }
 
 function hideMenuEventListener(target, menu) {
@@ -652,10 +652,10 @@ function hideMenuEventListener(target, menu) {
     });
 }
 
-function positionMenu(target, menu) {
-    // clickCoords = element.getPosition(e);
-    var clickCoordsX = target.offset().left;
-    var clickCoordsY = target.offset().top + (target.height() / 2);
+function positionMenu(target, menu, top, left) {
+
+    var clickCoordsX = left || target.offset().left;
+    var clickCoordsY = top || target.offset().top + (target.height() / 2);
 
     var menuWidth = menu.width() + 4;
     var menuHeight = menu.height() + 4;
