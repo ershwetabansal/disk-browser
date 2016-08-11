@@ -274,7 +274,7 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
             var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
             var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
             if (!isDirectoryAllowed) {
-                $(this).addClass('hidden');
+                liElement.remove();
             }
         });
 
@@ -952,7 +952,7 @@ function load(modalBoxParameters) {
     modalBoxParams = modalBoxParameters || {};
 	eventHandler.resetView();
 
-	if (element.getDirectories().find('li').length == 0 ||
+    if (element.getDirectories().find('li').length == 0 ||
         savedDiskParam != modalBoxParameters.disks) {
 		loadDisks(modalBoxParameters);
 	}

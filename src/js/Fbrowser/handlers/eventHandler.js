@@ -157,7 +157,7 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
             var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
             var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
             if (!isDirectoryAllowed) {
-                $(this).addClass('hidden');
+                liElement.remove();
             }
         });
 

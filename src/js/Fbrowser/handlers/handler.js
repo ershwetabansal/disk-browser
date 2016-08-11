@@ -106,7 +106,7 @@ function load(modalBoxParameters) {
     modalBoxParams = modalBoxParameters || {};
 	eventHandler.resetView();
 
-	if (element.getDirectories().find('li').length == 0 ||
+    if (element.getDirectories().find('li').length == 0 ||
         savedDiskParam != modalBoxParameters.disks) {
 		loadDisks(modalBoxParameters);
 	}

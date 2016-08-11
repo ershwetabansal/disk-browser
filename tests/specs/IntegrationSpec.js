@@ -377,8 +377,8 @@ describe("File browser should be able to manage disks, directories and files. Us
             }
 
             checkFilesExpectation($(this),
-                (index == 0) ? '..' : directories[index - 1].path,
-                (index == 0) ? '..' : directories[index - 1].name,
+                (index == 0) ? '/' : directories[index - 1].path,
+                (index == 0) ? $(this).find('> div').text() : directories[index - 1].name,
                 false);
 
         });
