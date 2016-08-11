@@ -345,7 +345,7 @@ describe("File browser should be able to manage disks, directories and files. Us
     });
 
 
-    it("can browse files in only specified allowed directories while others can not be browsed", function() {
+    it("can browse files in only specified allowed directories while others are hidden from the view.", function() {
 
         // Given that a setup has been done to allow browsing only few directories from a restricted disk
 
@@ -357,18 +357,32 @@ describe("File browser should be able to manage disks, directories and files. Us
         //      images          - should be allowed
         //      documents       - should not be allowed
 
-        var allowedDirectories = ['/2016', '/2015/images'];
+        var allowedDirectories = ['/2016', '/2015'];
 
         // When we load a browser
 
+        element.getDirectories().empty();
+
         // And go to the third disk which is a restricted disk
         element.getDiskDropdown().find('option').eq(2).attr('selected', 'selected').trigger('change');
-
-        // We see directories from restricted disk
+        // We see only allowed directories from restricted disk
         var directories = stub.getDirectoryData('restricted');
+
         element.getDirectories().find('> li').each(function(index){
-            checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].path, (index == 0) ? '..' : directories[index - 1].name, false);
+
+            if (allowedDirectories.indexOf('/' + $(this).find('> div').text()) != -1) {
+                expect($(this).find('> div').hasClass('hidden')).toBeFalsy();
+            } else {
+                expect($(this).find('> div').hasClass('hidden')).toBeTruthy();
+            }
+
+            checkFilesExpectation($(this),
+                (index == 0) ? '..' : directories[index - 1].path,
+                (index == 0) ? '..' : directories[index - 1].name,
+                false);
+
         });
+        
 
         function checkFilesExpectation(directory, path, name, allowByDefault) {
             var fullPath = path + name;
@@ -392,7 +406,7 @@ describe("File browser should be able to manage disks, directories and files. Us
 
     });
 
-    it("can see files with a defined extensions.", function() {
+    it("can see files only with defined extensions.", function() {
 
         // Given that a setup has been done to allow only images
 
