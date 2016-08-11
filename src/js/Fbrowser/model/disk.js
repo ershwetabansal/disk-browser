@@ -123,7 +123,7 @@ function isThisDirectoryAllowed(path) {
 
     var currentDisk = getCurrentDisk();
 
-    if (currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
+    if (currentDisk && currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
         return currentDisk.allowed_directories.indexOf(path) != -1 || checkIfDirectoryParentAllowed(currentDisk, path);
     }
 

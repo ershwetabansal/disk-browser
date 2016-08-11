@@ -157,7 +157,7 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
             var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
             var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
             if (!isDirectoryAllowed) {
-                $(this).addClass('disabled');
+                $(this).addClass('hidden');
             }
         });
 
@@ -173,7 +173,8 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(reqHandler.getDirHandler().getCurrentDirectoryPath());
+            var currentDirectory = reqHandler.getDirHandler().getCurrentDirectoryPath();
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(currentDirectory);
             if (isDirectoryAllowed) {
                 reqHandler.loadFiles();
             } else {

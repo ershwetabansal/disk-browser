@@ -274,7 +274,7 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
             var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
             var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
             if (!isDirectoryAllowed) {
-                $(this).addClass('disabled');
+                $(this).addClass('hidden');
             }
         });
 
@@ -290,7 +290,8 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(reqHandler.getDirHandler().getCurrentDirectoryPath());
+            var currentDirectory = reqHandler.getDirHandler().getCurrentDirectoryPath();
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(currentDirectory);
             if (isDirectoryAllowed) {
                 reqHandler.loadFiles();
             } else {
@@ -847,7 +848,8 @@ var element = require('../helpers/element.js');
 var util = require('../helpers/util.js');
 
 var diskHandler, dirHandler, fileHandler, eventHandler;
-var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {};
+var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {},
+    savedDiskParam = [];
 
 /************************************************
 * Setup
@@ -950,34 +952,34 @@ function load(modalBoxParameters) {
     modalBoxParams = modalBoxParameters || {};
 	eventHandler.resetView();
 
-	if (element.getDirectories().find('li').length == 0) {
-		loadDisks();
-		loadDirectories();
+	if (element.getDirectories().find('li').length == 0 ||
+        savedDiskParam != modalBoxParameters.disks) {
+		loadDisks(modalBoxParameters);
 	}
-
-    showHideDisks(modalBoxParameters);
 }
 
 function showHideDisks(modalBoxParameters) {
 
-    if (modalBoxParameters.disks && modalBoxParameters.disks.length > 0) {
-        element.getDiskDropdown().find('option').each(function() {
-            if (modalBoxParameters.disks.indexOf($(this).text())) {
-                element.show($(this));
-            } else {
-                element.hide($(this));
-            }
-        });
-    }
+    element.getDiskDropdown().find('option').each(function() {
+        if (modalBoxParameters.disks &&
+            modalBoxParameters.disks.length > 0 &&
+            modalBoxParameters.disks.indexOf($(this).text()) == -1) {
+            $(this).remove();
+        }
+    });
 
+    savedDiskParam = modalBoxParameters.disks;
 }
 
-function loadDisks() {
+function loadDisks(modalBoxParameters) {
 	if (disksParam && disksParam.details && disksParam.details.length > 0) {
 		diskHandler.loadDisks(disksParam.details);
 	} else {
         diskHandler.noDiskSetup(disksParam);
     }
+
+    showHideDisks(modalBoxParameters);
+    loadDirectories();
 }
 
 function loadDirectories() {
