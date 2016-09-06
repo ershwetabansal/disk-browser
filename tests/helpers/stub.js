@@ -113,12 +113,17 @@ function getDiskData() {
        {
            name: 'Images',
            label: 'Image Folder',
-           absolute_path: false,
+           absolute_path: false
        },
        {
            name: 'S3',
            label: 'AWS S3',
-           absolute_path: false,
+           absolute_path: false
+       },
+       {
+           name: 'Special',
+           label: 'Special disk',
+           allow: ['/cats/cute', '/dogs']
        }
     ];
 }
@@ -150,6 +155,26 @@ function getDirectoryData(disk) {
             },
             {
                 name: '2015',
+                path: '/'
+            }
+        ];
+
+    } else if (disk == 'restricted') {
+        return [
+            {
+                name: '2016',
+                path: '/'
+            },
+            {
+                name: '2015',
+                path: '/'
+            },
+            {
+                name: '2014',
+                path: '/'
+            },
+            {
+                name: 'images',
                 path: '/'
             }
         ];
@@ -256,6 +281,40 @@ function getSubDirectoryData(directory, disk) {
                     path : '/2015/'
                 }
             ]
+        };
+    } else if (disk == 'restricted') {
+        directoryStructure = {
+            '2016': [
+                {
+                    name : 'images',
+                    path : '/2016/'
+                },
+                {
+                    name : 'documents',
+                    path : '/2016/'
+                }
+            ],
+            '2015': [
+                {
+                    name : 'images',
+                    path : '/2015/'
+                },
+                {
+                    name : 'documents',
+                    path : '/2015/'
+                }
+            ],
+            '2014': [
+                {
+                    name : 'images',
+                    path : '/2014/'
+                },
+                {
+                    name : 'documents',
+                    path : '/2014/'
+                }
+            ],
+            'images' : []
         };
 
     }
@@ -394,6 +453,129 @@ function getFilesData(directory, disk) {
             ]
 
         };
+    } else if (disk == 'restricted') {
+        files = {
+            '--root--' : [],
+            2016 : [
+                {
+                    name: '2016_01_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                },
+                {
+                    name: '2016_01_02.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            2015 : [
+                {
+                    name: '2016_01_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                },
+                {
+                    name: '2016_01_02.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            2014 : [
+                {
+                    name: '2016_01_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                },
+                {
+                    name: '2016_01_02.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2016/documents' : [
+                {
+                    name: '2016_01_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                },
+                {
+                    name: '2016_01_02.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2016/images' : [
+                {
+                    name: '2016_02_01.png',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'png'
+                }
+            ],
+            '2015/documents' : [
+                {
+                    name: '2015_01_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2015/images' : [
+                {
+                    name: '2015_02_01.png',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'png'
+                }
+            ],
+            '2014/documents' : [
+                {
+                    name: '2014_03_01.docx',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'docx'
+                }
+            ],
+            '2014/images' : [
+                {
+                    name: '2014_03_01.png',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'png'
+                }
+            ],
+            'images' : [
+                {
+                    name: 'images.png',
+                    path: '/',
+                    size: 50,
+                    last_modified_date: '2015-01-01 00:00',
+                    type: 'png'
+                }
+            ]
+
+        };
 
     }
 
@@ -445,21 +627,34 @@ function getSetupObject() {
             search_URL: 'http://file-browser.com/api/v1/disk/search',
             details : [
                 {
-                    //In case of cross origin disk
                     name: 'images',
-                    label: 'Images',
-                    path : {
-                        relative : true
-                    }
+                    label: 'Images'
                 },
                 {
-                    //In case of cross origin disk
                     name: 'documents',
-                    label: 'Documents',
-                    path : {
-                        relative : true
-                    }
+                    label: 'Documents'
+                },
+                {
+                    name: 'restricted',
+                    label: 'Restricted',
+                    allowed_directories: ['/2016', '/2015']
+                },
+                {
+                    name: 'restricted',
+                    label: 'onlyImages',
+                    allowed_extensions: ['png', 'jpg', 'jpeg']
+                },
+                {
+                    name: 'restricted',
+                    label: 'onlyDocs',
+                    allowed_extensions: ['docx', 'doc']
+                },
+                {
+                    name: 'restricted',
+                    label: 'readOnly',
+                    read_only: true
                 }
+
             ]
         },
         directories: {

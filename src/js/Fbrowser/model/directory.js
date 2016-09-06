@@ -4,9 +4,11 @@ var reqHandler = require('../handlers/handler.js');
 
 var directoriesData = {};
 
-/****************************************************
-** Constructor for disk function class
-*****************************************************/
+/**
+ * Constructor for Directory.
+ *
+ * @returns {{loadDirectories: loadDirectories, showSubDirectories: showSubDirectories, hideSubDirectories: hideSubDirectories, addNewDirectoryToSelectedDirectory: addNewDirectoryToSelectedDirectory, getNewDirectoryData: getNewDirectoryData, saveDirectory: saveDirectory, removeDirectory: removeDirectory, renameDirectory: renameDirectory, getCurrentDirectoryElement: getCurrentDirectoryElement, getCurrentDirectoryData: getCurrentDirectoryData, getCurrentDirectoryPath: getCurrentDirectoryPath, getRootDirectory: getRootDirectory, childDirOpen: childDirOpen, isRootDirectory: isRootDirectory}}
+ */
 function directory() {
     return {
         loadDirectories : loadDirectories,
@@ -26,15 +28,17 @@ function directory() {
         getCurrentDirectoryPath : getCurrentDirectoryPath,
         getRootDirectory : getRootDirectory,
         childDirOpen : childDirOpen,
-        isRootDirectory : isRootDirectory
+        isRootDirectory : isRootDirectory,
+        getDirectoryPathFor : getDirectoryPathFor
         
     };
 }
 
-/****************************************************
-** Load directories and sub directories
-*****************************************************/
-
+/**
+ * Load directories and sub directories.
+ *
+ * @param data
+ */
 function loadDirectories(data) {
     directoriesData = {};
     addDirectoriesElements(element.getDirectories(), data, true);
@@ -42,6 +46,12 @@ function loadDirectories(data) {
     element.selectFirst(element.getDirectories());
 }
 
+/**
+ * Show all the sub directories for a given directory.
+ *
+ * @param liElement
+ * @param directories
+ */
 function showSubDirectories(liElement, directories) {
     if (liElement.find('ul').length == 0 && !isRootDirectory()) {
         if (directories && directories.length > 0) {
@@ -52,10 +62,22 @@ function showSubDirectories(liElement, directories) {
     }
 }
 
+/**
+ * Hide all the sub directories inside a given directory.
+ *
+ * @param liElement
+ */
 function hideSubDirectories(liElement) {
     liElement.find('ul').remove();
 }
 
+/**
+ * Add a directory elements to the parent directory.
+ *
+ * @param directoryUlElement
+ * @param directories
+ * @param isRoot
+ */
 function addDirectoriesElements(directoryUlElement, directories, isRoot) {
     directoryUlElement.empty();
     
@@ -71,10 +93,12 @@ function addDirectoriesElements(directoryUlElement, directories, isRoot) {
     }
 }
 
-/****************************************************
-** Rename directory
-*****************************************************/
-
+/**
+ * Allow to rename a directory.
+ *
+ * @param dirElement
+ * @returns {*}
+ */
 function renameDirectory (dirElement) {
     var editable = dirElement.find('span.editable');
     editable.replaceWith('<input value="' + editable.text() + '"/>');
@@ -82,14 +106,16 @@ function renameDirectory (dirElement) {
     return inputElement;
 }
 
-/****************************************************
-** Create new directory
-*****************************************************/
+/**
+ * Create a new directory under a root or any other directory.
+ *
+ * @returns {*}
+ */
 function addNewDirectoryToSelectedDirectory() {
     var selectedDir = getCurrentDirectoryElement();
     var parentDir;
 
-    if (isRootDirectory(selectedDir)) {
+    if (isRootDirectory()) {
         parentDir = selectedDir.closest('ul');
     } else {
         if (selectedDir.find('> ul').length == 0) {
@@ -102,6 +128,12 @@ function addNewDirectoryToSelectedDirectory() {
     return parentDir.find('input');
 }
 
+/**
+ * Get New directory details.
+ *
+ * @param inputElement
+ * @returns {{name: *}}
+ */
 function getNewDirectoryData(inputElement) {
     var parent_dir = getDirectoryData(inputElement.closest('ul').closest('li'));
     return {
@@ -109,6 +141,14 @@ function getNewDirectoryData(inputElement) {
     }
 }
 
+/**
+ * Save details of the newly created or renamed directory.
+ *
+ * @param inputElement
+ * @param value
+ * @param path
+ * @returns {*}
+ */
 function saveDirectory(inputElement, value, path) {
     if (!value) value = inputElement.val();
     var directoryBox = inputElement.closest('div')
@@ -121,6 +161,11 @@ function saveDirectory(inputElement, value, path) {
     return directoryBox.closest('li');
 }
 
+/**
+ * Remove a given directory.
+ *
+ * @param element
+ */
 function removeDirectory(element) {
     var liElement = element;
     if (!element.is('li')) {
@@ -135,10 +180,6 @@ function removeDirectory(element) {
 
 function getCurrentDirectoryElement() {
     return element.getDirectories().find('li.active');
-    return {
-        data : getDirectoryData(dir),
-        element : dir
-    }
 }
 
 function getCurrentDirectoryData() {
@@ -148,11 +189,16 @@ function getCurrentDirectoryData() {
 function getCurrentDirectoryPath() {
     var currentElement = getCurrentDirectoryElement();
 
-    if (currentElement && currentElement.length > 0) {
-        if (isRootDirectory(currentElement)) {
+    return getDirectoryPathFor(currentElement);
+}
+
+function getDirectoryPathFor(element) {
+
+    if (element && element.length > 0) {
+        if (isRootDirectory(element)) {
             return '';
         } else {
-            var pathArray = getMainDirectory(currentElement, []);
+            var pathArray = getMainDirectory(element, []);
             var path = '';
             for (var i = pathArray.length - 1; i >= 0; i--) {
                 path += '/' + pathArray[i] ;
@@ -212,7 +258,12 @@ function getRootDirectory() {
     return element.getDirectories().find('#-root-').closest('li');
 }
 
-function isRootDirectory() {
+function isRootDirectory(liElement) {
+
+    if (liElement) {
+        return liElement.find('> div').attr('id') == '-root-';
+    }
+
     return (getCurrentDirectoryData().id == '-root-');
 }
 

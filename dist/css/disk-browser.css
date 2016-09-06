@@ -59,6 +59,8 @@
     .file-manager .directories > ul#directories-list li.active > div {
       background: #337ab7;
       color: white; }
+    .file-manager .directories > ul#directories-list li > div.disabled {
+      color: #afacac !important; }
     .file-manager .directories > ul#directories-list li {
       cursor: pointer; }
       .file-manager .directories > ul#directories-list li > div {
@@ -91,8 +93,8 @@
           background: darkgrey;
           color: white; }
         .file-manager .files #files-grid li img {
-          width: 90px;
-          height: 70px;
+          max-width: 90px;
+          max-height: 70px;
           border: 1px solid lightgrey; }
         .file-manager .files #files-grid li > div {
           text-align: center; }
@@ -112,9 +114,9 @@
       color: white;
       border: none; }
     .file-manager .files #files-list td img {
-      width: 18px;
+      max-width: 18px;
+      max-height: 14px;
       margin-right: 5px;
-      height: 14px;
       border: 1px solid grey; }
     .file-manager .files #files-list td, .file-manager .files #files-list th {
       cursor: pointer; }

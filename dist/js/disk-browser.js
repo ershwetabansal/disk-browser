@@ -245,7 +245,14 @@ function clearSearch() {
 
 function attachDiskElementEvent(callback) {
 	element.getDiskDropdown().on('change', function() {
-		//TODO Show loading bar
+
+        if (reqHandler.getDiskHandler().isReadOnly()) {
+            element.hide(element.getUploadFileBtn());
+            element.hide(element.getCreateNewDirectory());
+        } else {
+            element.show(element.getUploadFileBtn());
+            element.show(element.getCreateNewDirectory());
+        }
         reqHandler.loadDirectories();
         resetView();
 	});
@@ -256,11 +263,20 @@ function attachDiskElementEvent(callback) {
 *****************************************************/
 function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 
+
 	dirElement.each(function() {
 		var liElement = $(this);
 		if (showContextMenu) {
 			showDirectoryContextMenu(liElement);
 		}
+
+        liElement.find('> div').each(function() {
+            var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
+            if (!isDirectoryAllowed) {
+                liElement.remove();
+            }
+        });
 
 		liElement.find('> div').click(function() {
 
@@ -274,7 +290,13 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-			reqHandler.loadFiles();		
+            var currentDirectory = reqHandler.getDirHandler().getCurrentDirectoryPath();
+            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(currentDirectory);
+            if (isDirectoryAllowed) {
+                reqHandler.loadFiles();
+            } else {
+                reqHandler.getFileHandler().clearAllFiles();
+            }
 		});
 	});
 }
@@ -481,23 +503,35 @@ function attachDeleteDirectoryEvent(deleteURL) {
 *****************************************************/
 function attachClickEventOnFiles() {
 
-	element.getFilesGrid().find('li').click(function() {
-		element.select(element.getFilesGrid(), $(this));
-		reqHandler.getFileHandler().showFileDetails(
-			reqHandler.getFileHandler().getCurrentFileDetails()
-		);
+    attachClickEventToFilesInGrid();
+    attachClickEventToFilesInList();
+    attachClickEventToFileWindow();
+
+}
+
+function attachClickEventToFilesInGrid() {
+    element.getFilesGrid().find('li').off('click');
+    element.getFilesGrid().find('li').click(function() {
+        element.select(element.getFilesGrid(), $(this));
+        reqHandler.getFileHandler().showFileDetails(
+            reqHandler.getFileHandler().getCurrentFileDetails()
+        );
         element.show(element.getPrimarySubmitButton());
         element.show(element.getFileManageMenu());
-	});
+    });
+}
 
-	element.getFilesList().find('tbody > tr').click(function() {
-		element.selectTableRow(element.getFilesList(), $(this));
+function attachClickEventToFilesInList() {
+    element.getFilesList().find('tbody > tr').click(function() {
+        element.selectTableRow(element.getFilesList(), $(this));
         element.show(element.getPrimarySubmitButton());
         element.show(element.getFileManageMenu());
-	});
+    });
+}
 
-	element.getFileWindow().click(function(event) {
-		var selectedFile = element.getSelected(element.getFilesGrid());
+function attachClickEventToFileWindow() {
+    element.getFileWindow().click(function(event) {
+        var selectedFile = element.getSelected(element.getFilesGrid());
         if (selectedFile.length > 0 && !$(event.target).closest('li').is(selectedFile)) {
             element.unselect(selectedFile);
             reqHandler.getFileHandler().hideFileDetails();
@@ -511,7 +545,8 @@ function attachClickEventOnFiles() {
             element.hide(element.getPrimarySubmitButton());
             element.hide(element.getFileManageMenu());
         }
-	});
+    });
+
 }
 
 function attachKeysEventOnFiles() {
@@ -727,11 +762,13 @@ function attachFileContextMenuEvent() {
 		});
 	}
 
-	function showFileManageMenu(target) {
-		var menu = element.getFileContextMenu();
-		element.show(menu);
-		positionMenu(target, menu);
-	}
+}
+
+
+function showFileManageMenu(target) {
+    var menu = element.getFileContextMenu();
+    element.show(menu);
+    positionMenu(target, menu, 124, 500);
 }
 
 function hideMenuEventListener(target, menu) {
@@ -742,10 +779,10 @@ function hideMenuEventListener(target, menu) {
     });
 }
 
-function positionMenu(target, menu) {
-    // clickCoords = element.getPosition(e);
-    var clickCoordsX = target.offset().left;
-    var clickCoordsY = target.offset().top + (target.height() / 2);
+function positionMenu(target, menu, top, left) {
+
+    var clickCoordsX = left || target.offset().left;
+    var clickCoordsY = top || target.offset().top + (target.height() / 2);
 
     var menuWidth = menu.width() + 4;
     var menuHeight = menu.height() + 4;
@@ -793,6 +830,7 @@ module.exports = {
 	attachClickEventOnFiles : attachClickEventOnFiles,
 	attachKeysEventOnFiles : attachKeysEventOnFiles,
 	attachUploadFileEvent : attachUploadFileEvent,
+    attachClickEventToFilesInGrid : attachClickEventToFilesInGrid,
 
 	attachRenameFileEvent : attachRenameFileEvent,
 	attachRemoveFileEvent : attachRemoveFileEvent,
@@ -810,7 +848,8 @@ var element = require('../helpers/element.js');
 var util = require('../helpers/util.js');
 
 var diskHandler, dirHandler, fileHandler, eventHandler;
-var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {};
+var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {},
+    savedDiskParam = [];
 
 /************************************************
 * Setup
@@ -913,18 +952,34 @@ function load(modalBoxParameters) {
     modalBoxParams = modalBoxParameters || {};
 	eventHandler.resetView();
 
-	if (element.getDirectories().find('li').length == 0) {
-		loadDisks();
-		loadDirectories();
+    if (element.getDirectories().find('li').length == 0 ||
+        savedDiskParam != modalBoxParameters.disks) {
+		loadDisks(modalBoxParameters);
 	}
 }
 
-function loadDisks() {
+function showHideDisks(modalBoxParameters) {
+
+    element.getDiskDropdown().find('option').each(function() {
+        if (modalBoxParameters.disks &&
+            modalBoxParameters.disks.length > 0 &&
+            modalBoxParameters.disks.indexOf($(this).text()) == -1) {
+            $(this).remove();
+        }
+    });
+
+    savedDiskParam = modalBoxParameters.disks;
+}
+
+function loadDisks(modalBoxParameters) {
 	if (disksParam && disksParam.details && disksParam.details.length > 0) {
 		diskHandler.loadDisks(disksParam.details);
 	} else {
         diskHandler.noDiskSetup(disksParam);
     }
+
+    showHideDisks(modalBoxParameters);
+    loadDirectories();
 }
 
 function loadDirectories() {
@@ -946,6 +1001,7 @@ function loadFiles(isRefresh) {
 		fileHandler.loadFiles(data);
 		setupSortDropdown();
 	}
+
 	function fail() {
 	}
 }
@@ -1070,6 +1126,9 @@ function getDirHandler() {
 
 function getDiskHandler() {
 	return diskHandler;
+}
+function getEventHandler() {
+	return eventHandler;
 }
 
 function isSearchEnabled() {
@@ -1236,6 +1295,7 @@ module.exports = {
 	getFileHandler: getFileHandler,
 	getDiskHandler: getDiskHandler,
 	getDirHandler: getDirHandler,
+    getEventHandler: getEventHandler,
 
 	getDiskParameter: getDiskParameter,
 	isSearchEnabled: isSearchEnabled,
@@ -2512,9 +2572,11 @@ var reqHandler = require('../handlers/handler.js');
 
 var directoriesData = {};
 
-/****************************************************
-** Constructor for disk function class
-*****************************************************/
+/**
+ * Constructor for Directory.
+ *
+ * @returns {{loadDirectories: loadDirectories, showSubDirectories: showSubDirectories, hideSubDirectories: hideSubDirectories, addNewDirectoryToSelectedDirectory: addNewDirectoryToSelectedDirectory, getNewDirectoryData: getNewDirectoryData, saveDirectory: saveDirectory, removeDirectory: removeDirectory, renameDirectory: renameDirectory, getCurrentDirectoryElement: getCurrentDirectoryElement, getCurrentDirectoryData: getCurrentDirectoryData, getCurrentDirectoryPath: getCurrentDirectoryPath, getRootDirectory: getRootDirectory, childDirOpen: childDirOpen, isRootDirectory: isRootDirectory}}
+ */
 function directory() {
     return {
         loadDirectories : loadDirectories,
@@ -2534,15 +2596,17 @@ function directory() {
         getCurrentDirectoryPath : getCurrentDirectoryPath,
         getRootDirectory : getRootDirectory,
         childDirOpen : childDirOpen,
-        isRootDirectory : isRootDirectory
+        isRootDirectory : isRootDirectory,
+        getDirectoryPathFor : getDirectoryPathFor
         
     };
 }
 
-/****************************************************
-** Load directories and sub directories
-*****************************************************/
-
+/**
+ * Load directories and sub directories.
+ *
+ * @param data
+ */
 function loadDirectories(data) {
     directoriesData = {};
     addDirectoriesElements(element.getDirectories(), data, true);
@@ -2550,6 +2614,12 @@ function loadDirectories(data) {
     element.selectFirst(element.getDirectories());
 }
 
+/**
+ * Show all the sub directories for a given directory.
+ *
+ * @param liElement
+ * @param directories
+ */
 function showSubDirectories(liElement, directories) {
     if (liElement.find('ul').length == 0 && !isRootDirectory()) {
         if (directories && directories.length > 0) {
@@ -2560,10 +2630,22 @@ function showSubDirectories(liElement, directories) {
     }
 }
 
+/**
+ * Hide all the sub directories inside a given directory.
+ *
+ * @param liElement
+ */
 function hideSubDirectories(liElement) {
     liElement.find('ul').remove();
 }
 
+/**
+ * Add a directory elements to the parent directory.
+ *
+ * @param directoryUlElement
+ * @param directories
+ * @param isRoot
+ */
 function addDirectoriesElements(directoryUlElement, directories, isRoot) {
     directoryUlElement.empty();
     
@@ -2579,10 +2661,12 @@ function addDirectoriesElements(directoryUlElement, directories, isRoot) {
     }
 }
 
-/****************************************************
-** Rename directory
-*****************************************************/
-
+/**
+ * Allow to rename a directory.
+ *
+ * @param dirElement
+ * @returns {*}
+ */
 function renameDirectory (dirElement) {
     var editable = dirElement.find('span.editable');
     editable.replaceWith('<input value="' + editable.text() + '"/>');
@@ -2590,14 +2674,16 @@ function renameDirectory (dirElement) {
     return inputElement;
 }
 
-/****************************************************
-** Create new directory
-*****************************************************/
+/**
+ * Create a new directory under a root or any other directory.
+ *
+ * @returns {*}
+ */
 function addNewDirectoryToSelectedDirectory() {
     var selectedDir = getCurrentDirectoryElement();
     var parentDir;
 
-    if (isRootDirectory(selectedDir)) {
+    if (isRootDirectory()) {
         parentDir = selectedDir.closest('ul');
     } else {
         if (selectedDir.find('> ul').length == 0) {
@@ -2610,6 +2696,12 @@ function addNewDirectoryToSelectedDirectory() {
     return parentDir.find('input');
 }
 
+/**
+ * Get New directory details.
+ *
+ * @param inputElement
+ * @returns {{name: *}}
+ */
 function getNewDirectoryData(inputElement) {
     var parent_dir = getDirectoryData(inputElement.closest('ul').closest('li'));
     return {
@@ -2617,6 +2709,14 @@ function getNewDirectoryData(inputElement) {
     }
 }
 
+/**
+ * Save details of the newly created or renamed directory.
+ *
+ * @param inputElement
+ * @param value
+ * @param path
+ * @returns {*}
+ */
 function saveDirectory(inputElement, value, path) {
     if (!value) value = inputElement.val();
     var directoryBox = inputElement.closest('div')
@@ -2629,6 +2729,11 @@ function saveDirectory(inputElement, value, path) {
     return directoryBox.closest('li');
 }
 
+/**
+ * Remove a given directory.
+ *
+ * @param element
+ */
 function removeDirectory(element) {
     var liElement = element;
     if (!element.is('li')) {
@@ -2643,10 +2748,6 @@ function removeDirectory(element) {
 
 function getCurrentDirectoryElement() {
     return element.getDirectories().find('li.active');
-    return {
-        data : getDirectoryData(dir),
-        element : dir
-    }
 }
 
 function getCurrentDirectoryData() {
@@ -2656,11 +2757,16 @@ function getCurrentDirectoryData() {
 function getCurrentDirectoryPath() {
     var currentElement = getCurrentDirectoryElement();
 
-    if (currentElement && currentElement.length > 0) {
-        if (isRootDirectory(currentElement)) {
+    return getDirectoryPathFor(currentElement);
+}
+
+function getDirectoryPathFor(element) {
+
+    if (element && element.length > 0) {
+        if (isRootDirectory(element)) {
             return '';
         } else {
-            var pathArray = getMainDirectory(currentElement, []);
+            var pathArray = getMainDirectory(element, []);
             var path = '';
             for (var i = pathArray.length - 1; i >= 0; i--) {
                 path += '/' + pathArray[i] ;
@@ -2720,7 +2826,12 @@ function getRootDirectory() {
     return element.getDirectories().find('#-root-').closest('li');
 }
 
-function isRootDirectory() {
+function isRootDirectory(liElement) {
+
+    if (liElement) {
+        return liElement.find('> div').attr('id') == '-root-';
+    }
+
     return (getCurrentDirectoryData().id == '-root-');
 }
 
@@ -2736,23 +2847,30 @@ var defaultPathParam = {
     relative : true
 };
 var defaultSearch = false;
-/****************************************************
-** Constructor for disk function class
-*****************************************************/
+/**
+ * Constructor for Disk.
+ *
+ * @returns {{loadDisks: loadDisks, noDiskSetup: noDiskSetup, getCurrentDisk: getCurrentDisk, getRootPath: getRootPath}}
+ */
 
 function disk() {
     return {
         loadDisks : loadDisks,
         noDiskSetup : noDiskSetup,
         getCurrentDisk : getCurrentDisk,
-        getRootPath : getRootPath
+        getRootPath : getRootPath,
+        isThisDirectoryAllowed : isThisDirectoryAllowed,
+        isThisFileAllowed : isThisFileAllowed,
+        getAllowedFilesFrom : getAllowedFilesFrom,
+        isReadOnly: isReadOnly
     };
 }
 
-/****************************************************
-** Load Disks as nav bar from user defined disk data
-*****************************************************/
-
+/**
+ * Load Disks as nav bar from user defined disk data.
+ *
+ * @param diskData
+ */
 function loadDisks(diskData) {
 
     addDisksElements();
@@ -2765,7 +2883,7 @@ function loadDisks(diskData) {
         disks = {};
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
-            disk.id = 'disk_' + util.slugify(disk.name);
+            disk.id = 'disk_' + util.slugify(disk.label);
             diskElement.append($(getDiskNavElement(diskData[i])));
             disk.path = disk.path || defaultPathParam;
             disks[disk.id] = disk;
@@ -2775,13 +2893,17 @@ function loadDisks(diskData) {
 
     function getDiskNavElement(disk) {
 
-        return '<option id="'+disk.id+'" value="'+disk.id+'">' + disk.label + '</option>';
+        return '<option id="'+disk.id+'" data-name="'+disk.name+'" value="'+disk.id+'">' + disk.label + '</option>';
     
     }
 
 }
 
-
+/**
+ * Default disk setup.
+ *
+ * @param object
+ */
 function noDiskSetup(object) {
 
     disks = {
@@ -2793,9 +2915,11 @@ function noDiskSetup(object) {
     };
 }
 
-/****************************************************
-** Get currently selected disk data
-*****************************************************/
+/**
+ * Get currently selected disk data.
+ *
+ * @returns {*}
+ */
 function getCurrentDisk() {
     
     var selectedDisk = element.getDiskDropdown().find('option:selected').attr('id');
@@ -2806,6 +2930,11 @@ function getCurrentDisk() {
     }
 }
 
+/**
+ * Return root path for the disk.
+ *
+ * @returns {*}
+ */
 function getRootPath() {
 
     var currentDisk = getCurrentDisk();
@@ -2823,6 +2952,91 @@ function getRootPath() {
     }
 }
 
+/**
+ * Should we load files for the given directory in a disk? It is decided based upon allowed_directories array
+ * on disk params.
+ *
+ * @param path
+ * @returns {boolean}
+ */
+function isThisDirectoryAllowed(path) {
+
+    var currentDisk = getCurrentDisk();
+
+    if (currentDisk && currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
+        return currentDisk.allowed_directories.indexOf(path) != -1 || checkIfDirectoryParentAllowed(currentDisk, path);
+    }
+
+    return true;
+}
+
+function checkIfDirectoryParentAllowed(currentDisk, path) {
+
+    var parentDirPath = path.substr(0, path.lastIndexOf('/'));
+
+    if (parentDirPath == '') {
+        return false;
+    }
+
+    return currentDisk.allowed_directories.indexOf(parentDirPath) != -1 || checkIfDirectoryParentAllowed(currentDisk, parentDirPath);
+}
+
+/**
+ * Return all the files that are allowed for a given disk.
+ *
+ * @param fileArray
+ * @returns {*}
+ */
+function getAllowedFilesFrom(fileArray) {
+
+    var currentDisk = getCurrentDisk();
+
+    var allowedFiles = [];
+    for (var i = 0, len = fileArray.length; i < len; i++) {
+        var file = fileArray[i];
+        if (isThisFileAllowed(file.name, currentDisk)) {
+            allowedFiles.push(file);
+        }
+    }
+
+    return allowedFiles;
+}
+
+/**
+ * Should we show a given file on the disk? It is decided based upon allowed_extensions array
+ * on disk params.
+ *
+ * @param fileName
+ * @returns {boolean}
+ * @param currentDisk
+ */
+function isThisFileAllowed(fileName, currentDisk) {
+
+    if (currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
+        return currentDisk.allowed_extensions.indexOf(getExtension(fileName)) != -1;
+    }
+
+    return true;
+}
+/**
+ * Is this disk read only?
+ *
+ * @returns {boolean}
+ */
+function isReadOnly() {
+
+    return getCurrentDisk().read_only == true;
+}
+
+function getExtension(fileName) {
+    var array = fileName.split('.');
+    if (array != null && array.length == 2) {
+        return array[1];
+    }
+
+    return '';
+}
+
 module.exports = disk;
 },{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6}],10:[function(require,module,exports){
 var element = require('../helpers/element.js');
@@ -2836,10 +3050,20 @@ function file() {
 
     var currentView = 'grid';
 
-//----------------------------------------------
-//  Load files
-//----------------------------------------------
+    /**
+     * Remove all the files from the view
+     */
+    function clearAllFiles() {
+        element.getFilesList().empty();
+        element.getFilesGrid().empty();
+        cleanUpView();
+    }
 
+    /**
+     * Load all files in the file browser window for a clicked directory.
+     *
+     * @param data
+     */
 	function loadFiles(data) {
         currentView = currentView || 'grid';
         directory_files_array = data;
@@ -2851,8 +3075,9 @@ function file() {
     function showFiles(filesArray) {
         resetFiles();
         current_files_array = (filesArray) ? filesArray : JSON.parse(JSON.stringify(directory_files_array));
-        loadFileList(current_files_array);
-        loadFileGrid(current_files_array);
+        var allowed_files_array = reqHandler.getDiskHandler().getAllowedFilesFrom(current_files_array);
+        loadFileList(allowed_files_array);
+        loadFileGrid(allowed_files_array);
         show();
         reqHandler.attachFileEvents();
          
@@ -2964,6 +3189,7 @@ function file() {
                             }
                             metaData.length = metaData.length + metaData.stepUpNumber;
                         }
+                        reqHandler.getEventHandler().attachClickEventToFilesInGrid();
                     } else {
                         element.getFileWindow().off('scroll');
                     }
@@ -3026,10 +3252,9 @@ function file() {
 
     }
 
-//----------------------------------------------
-//  Show files as list and grid
-//----------------------------------------------
-
+    /**
+     * Show files as list and grid.
+     */
     function showFileList() {
         currentView = 'list';
         element.hide(element.getFilesGrid());
@@ -3042,10 +3267,12 @@ function file() {
         element.hide(element.getFilesList());
     }
 
-//----------------------------------------------
-//  Sort files by selected type
-//----------------------------------------------
-
+    /**
+     * Sort files by selected type.
+     *
+     * @param type
+     * @param isAsc
+     */
     function sortFilesBy(type, isAsc) {
         isAsc = (typeof(isAsc) == "undefined") ? true : isAsc;
 
@@ -3074,10 +3301,11 @@ function file() {
     }
 
 
-//----------------------------------------------
-//  Search files
-//----------------------------------------------
-
+    /**
+     * Search files.
+     *
+     * @param text
+     */
     function searchFiles(text) {
         var searchedFiles = [];
         for (var i=0, len = directory_files_array.length; i < len; i++) {
@@ -3089,10 +3317,11 @@ function file() {
         showFiles(searchedFiles);
     }
 
-//----------------------------------------------
-//  Show and hide file details
-//----------------------------------------------
-
+    /**
+     * Show and hide file details.
+     *
+     * @param file
+     */
     function showFileDetails(file) {
         var fileDetails = element.getFileDetailsDiv();
         fileDetails.empty();
@@ -3116,9 +3345,12 @@ function file() {
         element.hide(fileDetails);
     }
 
-//----------------------------------------------
-//  Get current file element and details
-//----------------------------------------------
+
+    /**
+     * Get current file element and details.
+     *
+     * @returns {*}
+     */
     function getCurrentFileDetails() {
 
         var fileList = (currentView =='list') ? element.getFilesList() : element.getFilesGrid();
@@ -3184,6 +3416,7 @@ function file() {
         getCurrentFileElement : getCurrentFileElement,
 
         cleanUpView : cleanUpView,
+        clearAllFiles : clearAllFiles,
         focusFirstElement: focusFirstElement,
         addFileOnUpload: addFileOnUpload
         

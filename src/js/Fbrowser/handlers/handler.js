@@ -2,7 +2,8 @@ var element = require('../helpers/element.js');
 var util = require('../helpers/util.js');
 
 var diskHandler, dirHandler, fileHandler, eventHandler;
-var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {};
+var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {},
+    savedDiskParam = [];
 
 /************************************************
 * Setup
@@ -105,18 +106,34 @@ function load(modalBoxParameters) {
     modalBoxParams = modalBoxParameters || {};
 	eventHandler.resetView();
 
-	if (element.getDirectories().find('li').length == 0) {
-		loadDisks();
-		loadDirectories();
+    if (element.getDirectories().find('li').length == 0 ||
+        savedDiskParam != modalBoxParameters.disks) {
+		loadDisks(modalBoxParameters);
 	}
 }
 
-function loadDisks() {
+function showHideDisks(modalBoxParameters) {
+
+    element.getDiskDropdown().find('option').each(function() {
+        if (modalBoxParameters.disks &&
+            modalBoxParameters.disks.length > 0 &&
+            modalBoxParameters.disks.indexOf($(this).text()) == -1) {
+            $(this).remove();
+        }
+    });
+
+    savedDiskParam = modalBoxParameters.disks;
+}
+
+function loadDisks(modalBoxParameters) {
 	if (disksParam && disksParam.details && disksParam.details.length > 0) {
 		diskHandler.loadDisks(disksParam.details);
 	} else {
         diskHandler.noDiskSetup(disksParam);
     }
+
+    showHideDisks(modalBoxParameters);
+    loadDirectories();
 }
 
 function loadDirectories() {
@@ -138,6 +155,7 @@ function loadFiles(isRefresh) {
 		fileHandler.loadFiles(data);
 		setupSortDropdown();
 	}
+
 	function fail() {
 	}
 }
@@ -262,6 +280,9 @@ function getDirHandler() {
 
 function getDiskHandler() {
 	return diskHandler;
+}
+function getEventHandler() {
+	return eventHandler;
 }
 
 function isSearchEnabled() {
@@ -428,6 +449,7 @@ module.exports = {
 	getFileHandler: getFileHandler,
 	getDiskHandler: getDiskHandler,
 	getDirHandler: getDirHandler,
+    getEventHandler: getEventHandler,
 
 	getDiskParameter: getDiskParameter,
 	isSearchEnabled: isSearchEnabled,

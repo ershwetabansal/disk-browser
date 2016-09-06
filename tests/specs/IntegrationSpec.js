@@ -71,11 +71,12 @@ describe("File browser should be able to manage disks, directories and files. Us
                 }
             });
 
-            // We have two disks to manage
-            // 1) ea_images
-            // 2) ea_publications
+            // We have three disks to manage
+            // 1) images
+            // 2) documents
+            // 3) restricted
             //
-            // We have following directory structure in disk 'ea_images'
+            // We have following directory structure in disk 'images'
             // Root
             //      cats[3 files, 2 directories]
             //          cute[1 file]
@@ -93,7 +94,7 @@ describe("File browser should be able to manage disks, directories and files. Us
             //      monkeys[0 file, 0 directory]
             //      Animal.jpg
             //
-            // We have following directory structure in disk 'ea_documents'
+            // We have following directory structure in disk 'documents'
             // Root
             //      2016[5 directories]
             //          01
@@ -188,7 +189,7 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         // When we load a browser
 
-        // We see the first disk 'images' loaded in disk dropdown
+        // We see the first disk in the dropdown is selected
         expect(element.getDiskDropdown().find('option').eq(0).attr('selected')).toBe('selected');
         expect(element.getDiskDropdown().find('option').eq(1).attr('selected')).not.toBeDefined();
 
@@ -343,4 +344,144 @@ describe("File browser should be able to manage disks, directories and files. Us
 
     });
 
+
+    it("can browse files in only specified allowed directories while others are hidden from the view.", function() {
+
+        // Given that a setup has been done to allow browsing only few directories from a restricted disk
+
+        // images               - should not be allowed
+        // 2016                 - should be allowed
+        //      images          - should be allowed
+        //      documents       - should be allowed
+        // 2015                 - should not be allowed
+        //      images          - should be allowed
+        //      documents       - should not be allowed
+
+        var allowedDirectories = ['/2016', '/2015'];
+
+        // When we load a browser
+
+        element.getDirectories().empty();
+
+        // And go to the third disk which is a restricted disk
+        element.getDiskDropdown().find('option').eq(2).attr('selected', 'selected').trigger('change');
+        // We see only allowed directories from restricted disk
+        var directories = stub.getDirectoryData('restricted');
+
+        element.getDirectories().find('> li').each(function(index){
+
+            if (allowedDirectories.indexOf('/' + $(this).find('> div').text()) != -1) {
+                expect($(this).find('> div').hasClass('hidden')).toBeFalsy();
+            } else {
+                expect($(this).find('> div').hasClass('hidden')).toBeTruthy();
+            }
+
+            checkFilesExpectation($(this),
+                (index == 0) ? '/' : directories[index - 1].path,
+                (index == 0) ? $(this).find('> div').text() : directories[index - 1].name,
+                false);
+
+        });
+        
+
+        function checkFilesExpectation(directory, path, name, allowByDefault) {
+            var fullPath = path + name;
+            directory.find('> div').click();
+
+            var isAllowed = false;
+            if (allowedDirectories.indexOf(fullPath) != -1 || allowByDefault) {
+                expect(element.getFilesGrid().find('> li').length).toBeGreaterThan(0);
+                isAllowed = true;
+            } else {
+                expect(element.getFilesGrid().find('> li').length).toBe(0);
+            }
+
+            directory.find('ul > li').each(function(index) {
+                var subDirectories = stub.getSubDirectoryData(name, 'restricted');
+                checkFilesExpectation($(this), subDirectories[index].path, subDirectories[index].name, isAllowed);
+            });
+
+            directory.find('> div').click();
+        }
+
+    });
+
+    it("can see files only with defined extensions.", function() {
+
+        // Given that a setup has been done to allow only images
+
+        var allowedExtensions = ['png', 'jpg', 'jpeg'];
+
+        // When we load a browser
+
+        // And go to the fourth disk which is a onlyImages disk
+        element.getDiskDropdown().find('option').eq(3).attr('selected', 'selected').trigger('change');
+
+        // We see directories from onlyImages disk
+        var directories = stub.getDirectoryData('restricted');
+        element.getDirectories().find('> li').each(function(index){
+            return checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].name, allowedExtensions, 'restricted');
+        });
+
+        // Also there is another setup where we want to allow only documents
+
+        allowedExtensions = ['doc', 'docx'];
+        // And go to the fifth disk which is a onlyDocs disk
+        element.getDiskDropdown().find('option').eq(4).attr('selected', 'selected').trigger('change');
+
+        // We see directories from onlyDocs disk
+        directories = stub.getDirectoryData('restricted');
+        element.getDirectories().find('> li').each(function(index){
+            return checkFilesExpectation($(this), (index == 0) ? '..' : directories[index - 1].name, allowedExtensions, 'restricted');
+        });
+
+
+        function checkFilesExpectation(directory, name, allowedExtensions, diskName) {
+            directory.find('> div').click();
+
+            element.getFilesGrid().find('> li').each(function() {
+               expect(allowedExtensions.indexOf(getExtension($(this).text()))).not.toBe(-1);
+            });
+
+            directory.find('ul > li').each(function(index) {
+                var subDirectories = stub.getSubDirectoryData(name, diskName);
+                return checkFilesExpectation($(this), subDirectories[index].name, allowedExtensions, diskName);
+            });
+
+            directory.find('> div').click();
+            return true;
+        }
+
+        function getExtension(fileName) {
+            var array = fileName.split('.');
+            if (array != null && array.length == 2) {
+                return array[1];
+            }
+
+            return '';
+        }
+
+    });
+
+
+    it("can not upload a file to the read only disk.", function() {
+
+        // Given that a setup has been done to have a read only disk
+
+        // When we load a browser
+
+        // And go to the sixth disk which is a readOnly disk
+        element.getDiskDropdown().find('option').eq(5).attr('selected', 'selected').trigger('change');
+
+        // We see that files can not be uploaded to this disk.
+        expect(element.getUploadFileBtn().hasClass('hidden')).toBeTruthy();
+
+        // And there is no way to create a new folder
+        expect(element.getCreateNewDirectory().hasClass('hidden')).toBeTruthy();
+
+        // TODO We see that none of the directories can be deleted
+
+        // TODO None of the files can be deleted
+
+    });
 });

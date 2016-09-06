@@ -102,6 +102,9 @@ $text-top-bottom-padding: 5px;
         background: $selection-color;
         color: $dark-background-text-color;
       }
+      li > div.disabled {
+        color: #afacac !important;
+      }
       li {
         cursor: pointer;
         > div {
@@ -143,8 +146,8 @@ $text-top-bottom-padding: 5px;
             color: white;
           }
         img {
-          width: 90px;
-          height: 70px;
+          max-width: 90px;
+          max-height: 70px;
           border: 1px solid $border-color;
         }
         > div {
@@ -176,9 +179,9 @@ $text-top-bottom-padding: 5px;
       }
       td {
         img {
-          width: 18px;
+          max-width: 18px;
+          max-height: 14px;
           margin-right: 5px;
-          height: 14px;
           border: 1px solid grey;
         }
       }
