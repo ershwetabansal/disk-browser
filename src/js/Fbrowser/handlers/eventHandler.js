@@ -153,14 +153,6 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 			showDirectoryContextMenu(liElement);
 		}
 
-        liElement.find('> div').each(function() {
-            var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
-            if (!isDirectoryAllowed) {
-                liElement.remove();
-            }
-        });
-
 		liElement.find('> div').click(function() {
 
             resetView();
@@ -173,13 +165,7 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-            var currentDirectory = reqHandler.getDirHandler().getCurrentDirectoryPath();
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(currentDirectory);
-            if (isDirectoryAllowed) {
-                reqHandler.loadFiles();
-            } else {
-                reqHandler.getFileHandler().clearAllFiles();
-            }
+            reqHandler.loadFiles();
 		});
 	});
 }

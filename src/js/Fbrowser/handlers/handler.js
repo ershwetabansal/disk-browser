@@ -322,7 +322,6 @@ function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isU
         cache = true;
     }
     var params = (isUpload != true) ? addCommonParameters(data) : addCommonParametersToFormData(data);
-
     showLoadingBar(true);
     $.ajax(getAjaxParameters()).success(function (data) {
 		if (successCallback) successCallback(data);
@@ -406,6 +405,11 @@ function addCommonParameters(params) {
 	        params.path = dirPath;
 	    }    	
     }
+
+    var rootDirectoryPath = diskHandler.getRootDirectory();
+	if (rootDirectoryPath) {
+		params.path = rootDirectoryPath + (params.path =='/' ? '' : params.path) ;
+	}
 
     return params;
 }

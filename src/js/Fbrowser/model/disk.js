@@ -19,10 +19,11 @@ function disk() {
         noDiskSetup : noDiskSetup,
         getCurrentDisk : getCurrentDisk,
         getRootPath : getRootPath,
-        isThisDirectoryAllowed : isThisDirectoryAllowed,
+        getRootDirectory : getRootDirectory,
         isThisFileAllowed : isThisFileAllowed,
         getAllowedFilesFrom : getAllowedFilesFrom,
-        isReadOnly: isReadOnly
+        isReadOnly: isReadOnly,
+        getAllowedDirectories : getAllowedDirectories
     };
 }
 
@@ -113,21 +114,27 @@ function getRootPath() {
 }
 
 /**
- * Should we load files for the given directory in a disk? It is decided based upon allowed_directories array
- * on disk params.
+ * Return all the allowed directories on a given disk.
  *
- * @param path
- * @returns {boolean}
+ * @returns {Array}
  */
-function isThisDirectoryAllowed(path) {
-
+function getAllowedDirectories() {
     var currentDisk = getCurrentDisk();
-
-    if (currentDisk && currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
-        return currentDisk.allowed_directories.indexOf(path) != -1 || checkIfDirectoryParentAllowed(currentDisk, path);
+    if (currentDisk) {
+        return currentDisk.allowed_directories;
     }
+}
 
-    return true;
+/**
+ * Return root directory if any.
+ *
+ * @returns {string}
+ */
+function getRootDirectory() {
+    var currentDisk = getCurrentDisk();
+    if (currentDisk) {
+        return currentDisk.root_directory_path;
+    }
 }
 
 function checkIfDirectoryParentAllowed(currentDisk, path) {

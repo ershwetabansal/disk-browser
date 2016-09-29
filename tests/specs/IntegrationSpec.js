@@ -398,13 +398,16 @@ describe("File browser should be able to manage disks, directories and files. Us
 
             directory.find('ul > li').each(function(index) {
                 var subDirectories = stub.getSubDirectoryData(name, 'restricted');
-                checkFilesExpectation($(this), subDirectories[index].path, subDirectories[index].name, isAllowed);
+                if (subDirectories[index]) {
+                    checkFilesExpectation($(this), subDirectories[index].path, subDirectories[index].name, isAllowed);
+                }
             });
 
             directory.find('> div').click();
         }
 
     });
+
 
     it("can see files only with defined extensions.", function() {
 
@@ -445,7 +448,9 @@ describe("File browser should be able to manage disks, directories and files. Us
 
             directory.find('ul > li').each(function(index) {
                 var subDirectories = stub.getSubDirectoryData(name, diskName);
-                return checkFilesExpectation($(this), subDirectories[index].name, allowedExtensions, diskName);
+                if (subDirectories[index]) {
+                    return checkFilesExpectation($(this), subDirectories[index].name, allowedExtensions, diskName);
+                }
             });
 
             directory.find('> div').click();
@@ -484,4 +489,74 @@ describe("File browser should be able to manage disks, directories and files. Us
         // TODO None of the files can be deleted
 
     });
+
+
+    it("can browse files in only specified root directory while others are hidden from the view.", function() {
+
+        // Given that a setup has been done to allow browsing only few directories from a restricted disk
+
+        // images               - should not be allowed
+        // 2016                 - should be allowed
+        //      images          - should be allowed
+        //      documents       - should be allowed
+        // 2015                 - should not be allowed
+        //      images          - should be allowed
+        //      documents       - should not be allowed
+
+        var root_directory_path = '/2016/images';
+
+        // When we load the disk browser
+        element.getDirectories().empty();
+
+        // And go to the fourth disk which is a ImageRoot disk
+        element.getDiskDropdown().find('option').eq(6).attr('selected', 'selected').trigger('change');
+
+        var directories = stub.getSubDirectoryData('2016/images', 'restricted');
+
+        // We should see the directory declared in root path and its first level sub directories
+        expect(element.getDirectories().find('> li').length).toBe(directories.length + 1);
+        element.getDirectories().find('> li').each(function(index) {
+            if (index == 0) {
+                expect($(this).find('> div').text()).toBe('..');
+            } else {
+                expect($(this).find('> div').text()).toBe(directories[index - 1].name);
+            }
+        });
+
+    });
+
+    it("can browse files in only specified root directory while others are hidden from the view.", function() {
+
+        // Given that a setup has been done to allow browsing only few directories from a restricted disk
+
+        // images               - should not be allowed
+        // 2016                 - should be allowed
+        //      images          - should be allowed
+        //      documents       - should be allowed
+        // 2015                 - should not be allowed
+        //      images          - should be allowed
+        //      documents       - should not be allowed
+
+        var root_directory_path = '/2016/images';
+
+        // When we load the disk browser
+        element.getDirectories().empty();
+
+        // And go to the fourth disk which is a ImageRoot disk
+        element.getDiskDropdown().find('option').eq(6).attr('selected', 'selected').trigger('change');
+
+        var directories = stub.getSubDirectoryData('2016/images', 'restricted');
+
+        // We should see the directory declared in root path and its first level sub directories
+        expect(element.getDirectories().find('> li').length).toBe(directories.length + 1);
+        element.getDirectories().find('> li').each(function(index) {
+            if (index == 0) {
+                expect($(this).find('> div').text()).toBe('..');
+            } else {
+                expect($(this).find('> div').text()).toBe(directories[index - 1].name);
+            }
+        });
+
+    });
+
 });

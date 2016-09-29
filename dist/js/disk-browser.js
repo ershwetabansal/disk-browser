@@ -270,14 +270,6 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 			showDirectoryContextMenu(liElement);
 		}
 
-        liElement.find('> div').each(function() {
-            var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
-            if (!isDirectoryAllowed) {
-                liElement.remove();
-            }
-        });
-
 		liElement.find('> div').click(function() {
 
             resetView();
@@ -290,13 +282,7 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-            var currentDirectory = reqHandler.getDirHandler().getCurrentDirectoryPath();
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(currentDirectory);
-            if (isDirectoryAllowed) {
-                reqHandler.loadFiles();
-            } else {
-                reqHandler.getFileHandler().clearAllFiles();
-            }
+            reqHandler.loadFiles();
 		});
 	});
 }
@@ -1168,7 +1154,6 @@ function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isU
         cache = true;
     }
     var params = (isUpload != true) ? addCommonParameters(data) : addCommonParametersToFormData(data);
-
     showLoadingBar(true);
     $.ajax(getAjaxParameters()).success(function (data) {
 		if (successCallback) successCallback(data);
@@ -1252,6 +1237,11 @@ function addCommonParameters(params) {
 	        params.path = dirPath;
 	    }    	
     }
+
+    var rootDirectoryPath = diskHandler.getRootDirectory();
+	if (rootDirectoryPath) {
+		params.path = rootDirectoryPath + (params.path =='/' ? '' : params.path) ;
+	}
 
     return params;
 }
@@ -2609,7 +2599,7 @@ function directory() {
  */
 function loadDirectories(data) {
     directoriesData = {};
-    addDirectoriesElements(element.getDirectories(), data, true);
+    addRootDirectories(element.getDirectories(), data);
     reqHandler.attachDirectoryEvents(element.getDirectories());
     element.selectFirst(element.getDirectories());
 }
@@ -2624,7 +2614,7 @@ function showSubDirectories(liElement, directories) {
     if (liElement.find('ul').length == 0 && !isRootDirectory()) {
         if (directories && directories.length > 0) {
             liElement.append($('<ul></ul>'));
-            addDirectoriesElements(liElement.find('ul'), directories, false);
+            addDirectoriesElements(liElement.find('ul'), directories);
             reqHandler.attachDirectoryEvents(liElement.find('ul'));
         }
     }
@@ -2640,24 +2630,48 @@ function hideSubDirectories(liElement) {
 }
 
 /**
+ * Add root directories.
+ *
+ * @param directoryUlElement
+ * @param directories
+ */
+function addRootDirectories(directoryUlElement, directories)
+{
+    directoryUlElement.empty();
+
+    var allowed_directories = reqHandler.getDiskHandler().getAllowedDirectories();
+
+    // If allowed directories are given, then we assume that they are first level directories and
+    // Load only the allowed once.
+    if (allowed_directories) {
+        addDirectoriesElements(directoryUlElement, directories, allowed_directories);
+        return;
+    }
+
+    // Add a '..' root directory in the disk.
+    var rootDir = {id : '-root-', name : "..", path: ""};
+    directoriesData[rootDir.id] = rootDir;
+    directoryUlElement.append($(getDirectoryElement(rootDir)));
+    addDirectoriesElements(directoryUlElement, directories);
+}
+/**
  * Add a directory elements to the parent directory.
  *
  * @param directoryUlElement
  * @param directories
- * @param isRoot
+ * @param allowed_directories
  */
-function addDirectoriesElements(directoryUlElement, directories, isRoot) {
-    directoryUlElement.empty();
-    
-    if (isRoot) addRootDirTo(directoryUlElement);
+function addDirectoriesElements(directoryUlElement, directories, allowed_directories) {
 
     for (var i=0, len = directories.length; i < len; i++) {
         var directory = directories[i];
-        directory.id = util.slugify(directory.name);
-        var li = getDirectoryElement(directory);
-        directoryUlElement.append($(li));
+        if (!allowed_directories || allowed_directories.indexOf(directory.name) != -1) {
+            directory.id = util.slugify(directory.name);
+            var li = getDirectoryElement(directory);
+            directoryUlElement.append($(li));
 
-        directoriesData[directory.id] = directory;
+            directoriesData[directory.id] = directory;
+        }
     }
 }
 
@@ -2670,8 +2684,7 @@ function addDirectoriesElements(directoryUlElement, directories, isRoot) {
 function renameDirectory (dirElement) {
     var editable = dirElement.find('span.editable');
     editable.replaceWith('<input value="' + editable.text() + '"/>');
-    var inputElement = dirElement.find('input');
-    return inputElement;
+    return dirElement.find('input');
 }
 
 /**
@@ -2768,8 +2781,10 @@ function getDirectoryPathFor(element) {
         } else {
             var pathArray = getMainDirectory(element, []);
             var path = '';
-            for (var i = pathArray.length - 1; i >= 0; i--) {
-                path += '/' + pathArray[i] ;
+            if (pathArray) {
+                for (var i = pathArray.length - 1; i >= 0; i--) {
+                    path += '/' + pathArray[i] ;
+                }
             }
             return path;
         }
@@ -2778,12 +2793,16 @@ function getDirectoryPathFor(element) {
 
 function getMainDirectory(element, path) {
     var parent = element.parent().closest('li');
-    if (parent.length > 0 && !element.is(parent)) {
-        path.push(getDirectoryData(element).name);
-        return getMainDirectory(parent, path);
-    } else {
-        path.push(getDirectoryData(element).name);
-        return path;
+    var dirData = getDirectoryData(element);
+
+    if (dirData) {
+        if (parent.length > 0 && !element.is(parent)) {
+            path.push(dirData.name);
+            return getMainDirectory(parent, path);
+        } else {
+            path.push(dirData.name);
+            return path;
+        }
     }
 }
 
@@ -2796,19 +2815,11 @@ function childDirOpen(liElement) {
     return (liElement.find('ul').length > 0);
 }
 
-function addRootDirTo(directoryUlElement) {
-    var rootDir = {id : '-root-', name : "..", path: ""};
-    directoriesData[rootDir.id] = rootDir;
-
-    var li = getDirectoryElement(rootDir);
-    directoryUlElement.append($(li));
-}
-
 function getDirectoryElement(directory) {
     return '<li tabindex="1" >' +
     '<div id="' + directory.id + '">' +
     '<i class="fa fa-folder"></i>' +
-    '<span class="editable">' + directory.name + '</span>' +
+    '<span class="editable" data-path="'+directory.path+'">' + directory.name + '</span>' +
     '</div>' +
     '</li>';
 }
@@ -2859,10 +2870,11 @@ function disk() {
         noDiskSetup : noDiskSetup,
         getCurrentDisk : getCurrentDisk,
         getRootPath : getRootPath,
-        isThisDirectoryAllowed : isThisDirectoryAllowed,
+        getRootDirectory : getRootDirectory,
         isThisFileAllowed : isThisFileAllowed,
         getAllowedFilesFrom : getAllowedFilesFrom,
-        isReadOnly: isReadOnly
+        isReadOnly: isReadOnly,
+        getAllowedDirectories : getAllowedDirectories
     };
 }
 
@@ -2953,21 +2965,27 @@ function getRootPath() {
 }
 
 /**
- * Should we load files for the given directory in a disk? It is decided based upon allowed_directories array
- * on disk params.
+ * Return all the allowed directories on a given disk.
  *
- * @param path
- * @returns {boolean}
+ * @returns {Array}
  */
-function isThisDirectoryAllowed(path) {
-
+function getAllowedDirectories() {
     var currentDisk = getCurrentDisk();
-
-    if (currentDisk && currentDisk.allowed_directories && currentDisk.allowed_directories.length > 0) {
-        return currentDisk.allowed_directories.indexOf(path) != -1 || checkIfDirectoryParentAllowed(currentDisk, path);
+    if (currentDisk) {
+        return currentDisk.allowed_directories;
     }
+}
 
-    return true;
+/**
+ * Return root directory if any.
+ *
+ * @returns {string}
+ */
+function getRootDirectory() {
+    var currentDisk = getCurrentDisk();
+    if (currentDisk) {
+        return currentDisk.root_directory_path;
+    }
 }
 
 function checkIfDirectoryParentAllowed(currentDisk, path) {
