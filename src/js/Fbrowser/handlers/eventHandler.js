@@ -133,7 +133,11 @@ function attachDiskElementEvent(callback) {
             element.hide(element.getUploadFileBtn());
             element.hide(element.getCreateNewDirectory());
         } else {
-            element.show(element.getUploadFileBtn());
+        	if (reqHandler.getDiskHandler().isRootReadOnly()) {
+				element.hide(element.getUploadFileBtn());
+			} else {
+				element.show(element.getUploadFileBtn());
+			}
             element.show(element.getCreateNewDirectory());
         }
         reqHandler.loadDirectories();
@@ -166,6 +170,16 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 				});
 			}
             reqHandler.loadFiles();
+
+			// If current directory is root directory
+
+			if (reqHandler.getDiskHandler().isRootReadOnly()) {
+				if (reqHandler.getDirHandler().isRootDirectory()) {
+					element.hide(element.getUploadFileBtn());
+				} else {
+					element.show(element.getUploadFileBtn());
+				}
+			}
 		});
 	});
 }

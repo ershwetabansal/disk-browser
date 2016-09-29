@@ -525,7 +525,7 @@ describe("File browser should be able to manage disks, directories and files. Us
 
     });
 
-    it("can browse files in only specified root directory while others are hidden from the view.", function() {
+    it("can not upload a file in the root if configured so.", function() {
 
         // Given that a setup has been done to allow browsing only few directories from a restricted disk
 
@@ -537,25 +537,26 @@ describe("File browser should be able to manage disks, directories and files. Us
         //      images          - should be allowed
         //      documents       - should not be allowed
 
-        var root_directory_path = '/2016/images';
-
         // When we load the disk browser
         element.getDirectories().empty();
 
-        // And go to the fourth disk which is a ImageRoot disk
-        element.getDiskDropdown().find('option').eq(6).attr('selected', 'selected').trigger('change');
+        // And go to the fourth disk which is a read only root disk
+        element.getDiskDropdown().find('option').eq(7).attr('selected', 'selected').trigger('change');
 
-        var directories = stub.getSubDirectoryData('2016/images', 'restricted');
+        // We see that files can not be uploaded to root directory.
+        expect(element.getUploadFileBtn().hasClass('hidden')).toBeTruthy();
 
-        // We should see the directory declared in root path and its first level sub directories
-        expect(element.getDirectories().find('> li').length).toBe(directories.length + 1);
-        element.getDirectories().find('> li').each(function(index) {
-            if (index == 0) {
-                expect($(this).find('> div').text()).toBe('..');
-            } else {
-                expect($(this).find('> div').text()).toBe(directories[index - 1].name);
-            }
-        });
+        // But can create a folder inside this
+        expect(element.getCreateNewDirectory().hasClass('hidden')).toBeFalsy();
+
+        element.getDirectories().find('> li').eq(1).find(' > div').click();
+
+        // We see that files can be uploaded to this directory.
+        expect(element.getUploadFileBtn().hasClass('hidden')).toBeFalsy();
+
+        // and can create a folder inside this
+        expect(element.getCreateNewDirectory().hasClass('hidden')).toBeFalsy();
+
 
     });
 

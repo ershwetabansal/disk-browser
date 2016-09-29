@@ -23,6 +23,7 @@ function disk() {
         isThisFileAllowed : isThisFileAllowed,
         getAllowedFilesFrom : getAllowedFilesFrom,
         isReadOnly: isReadOnly,
+        isRootReadOnly: isRootReadOnly,
         getAllowedDirectories : getAllowedDirectories
     };
 }
@@ -185,6 +186,7 @@ function isThisFileAllowed(fileName, currentDisk) {
 
     return true;
 }
+
 /**
  * Is this disk read only?
  *
@@ -193,6 +195,16 @@ function isThisFileAllowed(fileName, currentDisk) {
 function isReadOnly() {
 
     return getCurrentDisk().read_only == true;
+}
+
+/**
+ * Is root directory ready only for this disk?
+ *
+ * @returns {boolean}
+ */
+function isRootReadOnly() {
+
+    return getCurrentDisk().root_read_only == true;
 }
 
 function getExtension(fileName) {

@@ -250,7 +250,11 @@ function attachDiskElementEvent(callback) {
             element.hide(element.getUploadFileBtn());
             element.hide(element.getCreateNewDirectory());
         } else {
-            element.show(element.getUploadFileBtn());
+        	if (reqHandler.getDiskHandler().isRootReadOnly()) {
+				element.hide(element.getUploadFileBtn());
+			} else {
+				element.show(element.getUploadFileBtn());
+			}
             element.show(element.getCreateNewDirectory());
         }
         reqHandler.loadDirectories();
@@ -283,6 +287,16 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 				});
 			}
             reqHandler.loadFiles();
+
+			// If current directory is root directory
+
+			if (reqHandler.getDiskHandler().isRootReadOnly()) {
+				if (reqHandler.getDirHandler().isRootDirectory()) {
+					element.hide(element.getUploadFileBtn());
+				} else {
+					element.show(element.getUploadFileBtn());
+				}
+			}
 		});
 	});
 }
@@ -2874,6 +2888,7 @@ function disk() {
         isThisFileAllowed : isThisFileAllowed,
         getAllowedFilesFrom : getAllowedFilesFrom,
         isReadOnly: isReadOnly,
+        isRootReadOnly: isRootReadOnly,
         getAllowedDirectories : getAllowedDirectories
     };
 }
@@ -3036,6 +3051,7 @@ function isThisFileAllowed(fileName, currentDisk) {
 
     return true;
 }
+
 /**
  * Is this disk read only?
  *
@@ -3044,6 +3060,16 @@ function isThisFileAllowed(fileName, currentDisk) {
 function isReadOnly() {
 
     return getCurrentDisk().read_only == true;
+}
+
+/**
+ * Is root directory ready only for this disk?
+ *
+ * @returns {boolean}
+ */
+function isRootReadOnly() {
+
+    return getCurrentDisk().root_read_only == true;
 }
 
 function getExtension(fileName) {

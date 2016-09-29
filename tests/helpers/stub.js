@@ -671,6 +671,11 @@ function getSetupObject() {
                     name: 'restricted',
                     label: 'ImageRoot',
                     root_directory_path: '/2016/images'
+                },
+                {
+                    name: 'restricted',
+                    label: 'root_read_only',
+                    root_read_only : true
                 }
             ]
         },
