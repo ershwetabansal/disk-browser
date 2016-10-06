@@ -133,7 +133,11 @@ function attachDiskElementEvent(callback) {
             element.hide(element.getUploadFileBtn());
             element.hide(element.getCreateNewDirectory());
         } else {
-            element.show(element.getUploadFileBtn());
+        	if (reqHandler.getDiskHandler().isRootReadOnly()) {
+				element.hide(element.getUploadFileBtn());
+			} else {
+				element.show(element.getUploadFileBtn());
+			}
             element.show(element.getCreateNewDirectory());
         }
         reqHandler.loadDirectories();
@@ -153,14 +157,6 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 			showDirectoryContextMenu(liElement);
 		}
 
-        liElement.find('> div').each(function() {
-            var path = reqHandler.getDirHandler().getDirectoryPathFor(liElement);
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(path);
-            if (!isDirectoryAllowed) {
-                liElement.remove();
-            }
-        });
-
 		liElement.find('> div').click(function() {
 
             resetView();
@@ -173,13 +169,17 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 					reqHandler.getDirHandler().showSubDirectories(liElement, response);
 				});
 			}
-            var currentDirectory = reqHandler.getDirHandler().getCurrentDirectoryPath();
-            var isDirectoryAllowed = reqHandler.getDiskHandler().isThisDirectoryAllowed(currentDirectory);
-            if (isDirectoryAllowed) {
-                reqHandler.loadFiles();
-            } else {
-                reqHandler.getFileHandler().clearAllFiles();
-            }
+            reqHandler.loadFiles();
+
+			// If current directory is root directory
+
+			if (reqHandler.getDiskHandler().isRootReadOnly()) {
+				if (reqHandler.getDirHandler().isRootDirectory()) {
+					element.hide(element.getUploadFileBtn());
+				} else {
+					element.show(element.getUploadFileBtn());
+				}
+			}
 		});
 	});
 }

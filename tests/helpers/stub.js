@@ -314,7 +314,20 @@ function getSubDirectoryData(directory, disk) {
                     path : '/2014/'
                 }
             ],
-            'images' : []
+            '2016/images' : [
+                {
+                    name : '01',
+                    path : '/2016/images/'
+                },
+                {
+                    name : '02',
+                    path : '/2016/images'
+                },
+                {
+                    name : '03',
+                    path : '/2016/images'
+                }
+            ]
         };
 
     }
@@ -637,7 +650,7 @@ function getSetupObject() {
                 {
                     name: 'restricted',
                     label: 'Restricted',
-                    allowed_directories: ['/2016', '/2015']
+                    allowed_directories: ['2016', '2015']
                 },
                 {
                     name: 'restricted',
@@ -653,8 +666,17 @@ function getSetupObject() {
                     name: 'restricted',
                     label: 'readOnly',
                     read_only: true
+                },
+                {
+                    name: 'restricted',
+                    label: 'ImageRoot',
+                    root_directory_path: '/2016/images'
+                },
+                {
+                    name: 'restricted',
+                    label: 'root_read_only',
+                    root_read_only : true
                 }
-
             ]
         },
         directories: {
