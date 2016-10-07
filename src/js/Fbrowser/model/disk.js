@@ -33,7 +33,7 @@ function disk() {
  *
  * @param diskData
  */
-function loadDisks(diskData) {
+function loadDisks(diskData, modalParameters) {
 
     addDisksElements();
     reqHandler.attachDiskElementEvents();
@@ -45,22 +45,32 @@ function loadDisks(diskData) {
         disks = {};
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
-            disk.id = 'disk_' + util.slugify(disk.label);
-            diskElement.append($(getDiskNavElement(diskData[i])));
-            disk.path = disk.path || defaultPathParam;
-            disks[disk.id] = disk;
+
+            if (!hideDisk(modalParameters, disk.label)) {
+                disk.id = 'disk_' + util.slugify(disk.label);
+                diskElement.append($(getDiskNavElement(diskData[i])));
+                disk.path = disk.path || defaultPathParam;
+                disks[disk.id] = disk;
+            }
         }
+
         diskElement.find("option:first").attr('selected','selected');
     }
 
     function getDiskNavElement(disk) {
 
         return '<option id="'+disk.id+'" data-name="'+disk.name+'" value="'+disk.id+'">' + disk.label + '</option>';
-    
+
     }
 
 }
 
+function hideDisk(modalBoxParameters, disk) {
+
+    return (modalBoxParameters.disks &&
+            modalBoxParameters.disks.length > 0 &&
+            modalBoxParameters.disks.indexOf(disk) == -1);
+}
 /**
  * Default disk setup.
  *

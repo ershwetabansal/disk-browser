@@ -157,7 +157,6 @@ function attachDiskElementEvent(callback) {
         }
 
         reqHandler.loadDirectories();
-        resetView();
 	}
 }
 

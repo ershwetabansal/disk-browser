@@ -112,28 +112,13 @@ function load(modalBoxParameters) {
 	}
 }
 
-function showHideDisks(modalBoxParameters) {
-
-    element.getDiskDropdown().find('option').each(function() {
-        if (modalBoxParameters.disks &&
-            modalBoxParameters.disks.length > 0 &&
-            modalBoxParameters.disks.indexOf($(this).text()) == -1) {
-            $(this).remove();
-        }
-    });
-
-    savedDiskParam = modalBoxParameters.disks;
-}
-
 function loadDisks(modalBoxParameters) {
+	savedDiskParam = modalBoxParameters.disks;
 	if (disksParam && disksParam.details && disksParam.details.length > 0) {
-		diskHandler.loadDisks(disksParam.details);
+		diskHandler.loadDisks(disksParam.details, modalBoxParameters);
 	} else {
         diskHandler.noDiskSetup(disksParam);
     }
-
-    showHideDisks(modalBoxParameters);
-    loadDirectories();
 }
 
 function loadDirectories() {

@@ -274,7 +274,6 @@ function attachDiskElementEvent(callback) {
         }
 
         reqHandler.loadDirectories();
-        resetView();
 	}
 }
 
@@ -974,28 +973,13 @@ function load(modalBoxParameters) {
 	}
 }
 
-function showHideDisks(modalBoxParameters) {
-
-    element.getDiskDropdown().find('option').each(function() {
-        if (modalBoxParameters.disks &&
-            modalBoxParameters.disks.length > 0 &&
-            modalBoxParameters.disks.indexOf($(this).text()) == -1) {
-            $(this).remove();
-        }
-    });
-
-    savedDiskParam = modalBoxParameters.disks;
-}
-
 function loadDisks(modalBoxParameters) {
+	savedDiskParam = modalBoxParameters.disks;
 	if (disksParam && disksParam.details && disksParam.details.length > 0) {
-		diskHandler.loadDisks(disksParam.details);
+		diskHandler.loadDisks(disksParam.details, modalBoxParameters);
 	} else {
         diskHandler.noDiskSetup(disksParam);
     }
-
-    showHideDisks(modalBoxParameters);
-    loadDirectories();
 }
 
 function loadDirectories() {
@@ -2914,7 +2898,7 @@ function disk() {
  *
  * @param diskData
  */
-function loadDisks(diskData) {
+function loadDisks(diskData, modalParameters) {
 
     addDisksElements();
     reqHandler.attachDiskElementEvents();
@@ -2926,22 +2910,32 @@ function loadDisks(diskData) {
         disks = {};
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
-            disk.id = 'disk_' + util.slugify(disk.label);
-            diskElement.append($(getDiskNavElement(diskData[i])));
-            disk.path = disk.path || defaultPathParam;
-            disks[disk.id] = disk;
+
+            if (!hideDisk(modalParameters, disk.label)) {
+                disk.id = 'disk_' + util.slugify(disk.label);
+                diskElement.append($(getDiskNavElement(diskData[i])));
+                disk.path = disk.path || defaultPathParam;
+                disks[disk.id] = disk;
+            }
         }
+
         diskElement.find("option:first").attr('selected','selected');
     }
 
     function getDiskNavElement(disk) {
 
         return '<option id="'+disk.id+'" data-name="'+disk.name+'" value="'+disk.id+'">' + disk.label + '</option>';
-    
+
     }
 
 }
 
+function hideDisk(modalBoxParameters, disk) {
+
+    return (modalBoxParameters.disks &&
+            modalBoxParameters.disks.length > 0 &&
+            modalBoxParameters.disks.indexOf(disk) == -1);
+}
 /**
  * Default disk setup.
  *
