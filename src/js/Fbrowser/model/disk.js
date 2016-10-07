@@ -180,20 +180,23 @@ function getAllowedFilesFrom(fileArray) {
  */
 function isThisFileAllowed(fileName, currentDisk) {
 
-    if (currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
+    if (currentDisk && currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
         return currentDisk.allowed_extensions.indexOf(getExtension(fileName)) != -1;
     }
 
     return true;
 }
 
+function getDiskData(diskLabel) {
+   var id = 'disk_' + util.slugify(diskLabel);
+   return disks[id];
+}
 /**
  * Is this disk read only?
  *
  * @returns {boolean}
  */
 function isReadOnly() {
-
     return getCurrentDisk().read_only == true;
 }
 

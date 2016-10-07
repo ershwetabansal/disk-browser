@@ -108,14 +108,14 @@ function attachSearchFilesEvent() {
             }
 
             function success(data) {
-				reqHandler.getFileHandler().showFiles(data.files);
+				reqHandler.getFileHandler().showFiles(data.files, liElement.attr('data-disk-label'));
                 element.select(element.getFileSearchOptions(), liElement);
             }
 		});
     }
 
     function searchLiElement(id, name, fa_css) {
-    	return '<li id="'+id+'"><i class="fa '+fa_css+'" aria-hidden="true"></i>&nbsp;'+name+'</li>';
+    	return '<li id="'+id+'" data-disk-label="'+name+'"><i class="fa '+fa_css+'" aria-hidden="true"></i>&nbsp;'+name+'</li>';
     }
 }
 
@@ -127,22 +127,38 @@ function clearSearch() {
 *****************************************************/
 
 function attachDiskElementEvent(callback) {
-	element.getDiskDropdown().on('change', function() {
 
-        if (reqHandler.getDiskHandler().isReadOnly()) {
-            element.hide(element.getUploadFileBtn());
+	diskSetup();
+	element.getDiskDropdown().on('change', function() {
+		diskSetup();
+	});
+
+	function diskSetup() {
+		if (reqHandler.getDiskHandler().isReadOnly()) {
+			element.hide(element.getUploadFileBtn());
             element.hide(element.getCreateNewDirectory());
         } else {
         	if (reqHandler.getDiskHandler().isRootReadOnly()) {
-				element.hide(element.getUploadFileBtn());
+        		element.hide(element.getUploadFileBtn());
 			} else {
 				element.show(element.getUploadFileBtn());
 			}
             element.show(element.getCreateNewDirectory());
         }
+
+        // Update allowed extensions on the upload file options.
+        var extensions = reqHandler.getDiskHandler().getCurrentDisk().allowed_extensions;
+        if (extensions && extensions.length > 0) {
+        	var ext = "";
+        	extensions.forEach(function(extension) {
+        		ext += "." + extension + ",";
+        	});
+            element.getUploadFileInput().attr('accept', ext.substring(0, ext.length - 1));
+        }
+
         reqHandler.loadDirectories();
         resetView();
-	});
+	}
 }
 
 /****************************************************

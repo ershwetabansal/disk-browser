@@ -225,14 +225,14 @@ function attachSearchFilesEvent() {
             }
 
             function success(data) {
-				reqHandler.getFileHandler().showFiles(data.files);
+				reqHandler.getFileHandler().showFiles(data.files, liElement.attr('data-disk-label'));
                 element.select(element.getFileSearchOptions(), liElement);
             }
 		});
     }
 
     function searchLiElement(id, name, fa_css) {
-    	return '<li id="'+id+'"><i class="fa '+fa_css+'" aria-hidden="true"></i>&nbsp;'+name+'</li>';
+    	return '<li id="'+id+'" data-disk-label="'+name+'"><i class="fa '+fa_css+'" aria-hidden="true"></i>&nbsp;'+name+'</li>';
     }
 }
 
@@ -244,22 +244,38 @@ function clearSearch() {
 *****************************************************/
 
 function attachDiskElementEvent(callback) {
-	element.getDiskDropdown().on('change', function() {
 
-        if (reqHandler.getDiskHandler().isReadOnly()) {
-            element.hide(element.getUploadFileBtn());
+	diskSetup();
+	element.getDiskDropdown().on('change', function() {
+		diskSetup();
+	});
+
+	function diskSetup() {
+		if (reqHandler.getDiskHandler().isReadOnly()) {
+			element.hide(element.getUploadFileBtn());
             element.hide(element.getCreateNewDirectory());
         } else {
         	if (reqHandler.getDiskHandler().isRootReadOnly()) {
-				element.hide(element.getUploadFileBtn());
+        		element.hide(element.getUploadFileBtn());
 			} else {
 				element.show(element.getUploadFileBtn());
 			}
             element.show(element.getCreateNewDirectory());
         }
+
+        // Update allowed extensions on the upload file options.
+        var extensions = reqHandler.getDiskHandler().getCurrentDisk().allowed_extensions;
+        if (extensions && extensions.length > 0) {
+        	var ext = "";
+        	extensions.forEach(function(extension) {
+        		ext += "." + extension + ",";
+        	});
+            element.getUploadFileInput().attr('accept', ext.substring(0, ext.length - 1));
+        }
+
         reqHandler.loadDirectories();
         resetView();
-	});
+	}
 }
 
 /****************************************************
@@ -3020,10 +3036,9 @@ function checkIfDirectoryParentAllowed(currentDisk, path) {
  * @param fileArray
  * @returns {*}
  */
-function getAllowedFilesFrom(fileArray) {
+function getAllowedFilesFrom(fileArray, diskName) {
 
-    var currentDisk = getCurrentDisk();
-
+    var currentDisk = (typeof(diskName) == "undefined") ? getCurrentDisk() : getDiskData(diskName);
     var allowedFiles = [];
     for (var i = 0, len = fileArray.length; i < len; i++) {
         var file = fileArray[i];
@@ -3045,20 +3060,23 @@ function getAllowedFilesFrom(fileArray) {
  */
 function isThisFileAllowed(fileName, currentDisk) {
 
-    if (currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
+    if (currentDisk && currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
         return currentDisk.allowed_extensions.indexOf(getExtension(fileName)) != -1;
     }
 
     return true;
 }
 
+function getDiskData(diskLabel) {
+   var id = 'disk_' + util.slugify(diskLabel);
+   return disks[id];
+}
 /**
  * Is this disk read only?
  *
  * @returns {boolean}
  */
 function isReadOnly() {
-
     return getCurrentDisk().read_only == true;
 }
 
@@ -3116,10 +3134,10 @@ function file() {
 
     // Show files function can be called when we click on the directory or
     // when we search a file
-    function showFiles(filesArray) {
+    function showFiles(filesArray, diskName) {
         resetFiles();
         current_files_array = (filesArray) ? filesArray : JSON.parse(JSON.stringify(directory_files_array));
-        var allowed_files_array = reqHandler.getDiskHandler().getAllowedFilesFrom(current_files_array);
+        var allowed_files_array = reqHandler.getDiskHandler().getAllowedFilesFrom(current_files_array, diskName);
         loadFileList(allowed_files_array);
         loadFileGrid(allowed_files_array);
         show();
