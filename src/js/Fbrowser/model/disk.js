@@ -155,10 +155,9 @@ function checkIfDirectoryParentAllowed(currentDisk, path) {
  * @param fileArray
  * @returns {*}
  */
-function getAllowedFilesFrom(fileArray) {
+function getAllowedFilesFrom(fileArray, diskName) {
 
-    var currentDisk = getCurrentDisk();
-
+    var currentDisk = (typeof(diskName) == "undefined") ? getCurrentDisk() : getDiskData(diskName);
     var allowedFiles = [];
     for (var i = 0, len = fileArray.length; i < len; i++) {
         var file = fileArray[i];
