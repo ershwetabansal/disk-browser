@@ -271,6 +271,8 @@ function attachDiskElementEvent(callback) {
         		ext += "." + extension + ",";
         	});
             element.getUploadFileInput().attr('accept', ext.substring(0, ext.length - 1));
+        } else {
+        	element.getUploadFileInput().removeAttr('accept');
         }
 
         reqHandler.loadDirectories();
