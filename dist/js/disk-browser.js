@@ -2911,7 +2911,7 @@ function loadDisks(diskData, modalParameters) {
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
 
-            if (!hideDisk(modalParameters, disk.label)) {
+            if (disk && shouldShowDisk(modalParameters, disk.label)) {
                 disk.id = 'disk_' + util.slugify(disk.label);
                 diskElement.append($(getDiskNavElement(diskData[i])));
                 disk.path = disk.path || defaultPathParam;
@@ -2930,11 +2930,11 @@ function loadDisks(diskData, modalParameters) {
 
 }
 
-function hideDisk(modalBoxParameters, disk) {
+function shouldShowDisk(modalBoxParameters, disk) {
 
-    return (modalBoxParameters.disks &&
-            modalBoxParameters.disks.length > 0 &&
-            modalBoxParameters.disks.indexOf(disk) == -1);
+    return (!modalBoxParameters || !modalBoxParameters.disks ||
+            modalBoxParameters.disks.length == 0 ||
+            modalBoxParameters.disks.indexOf(disk) != -1);
 }
 /**
  * Default disk setup.
