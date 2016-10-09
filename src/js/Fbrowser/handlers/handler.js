@@ -414,6 +414,7 @@ function getFileResponseParams() {
 
 function updateButtonDetails(details) {
     if (details && details.text && details.onClick) {
+    	element.forceShow(element.getPrimarySubmitButton());
     	details.text = details.text || 'Fetch path';
         element.getPrimarySubmitButton().text(details.text);
         element.getPrimarySubmitButton().off('click');
@@ -422,6 +423,8 @@ function updateButtonDetails(details) {
             element.hide(element.getPrimarySubmitButton());
             element.closeModal();
         });
+    } else {
+    	element.forceHide(element.getPrimarySubmitButton());
     }
 }
 

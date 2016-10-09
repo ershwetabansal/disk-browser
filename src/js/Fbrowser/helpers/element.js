@@ -572,6 +572,17 @@ function hide(elem) {
 
 }
 
+function forceShow(elem) {
+
+    elem.removeClass('force-hidden');
+
+}
+
+function forceHide(elem) {
+
+    elem.addClass('force-hidden');
+
+}
 function moveUpInTable (table, row) {
     var success = false;
     var elements = table.find('tbody > tr');
@@ -865,6 +876,8 @@ module.exports = {
     unselectTableRow: unselectTableRow,
     show: show,
     hide: hide,
+    forceShow: forceShow,
+    forceHide: forceHide,
     openModal: openModal,
     closeModal: closeModal,
     activate: activate,
