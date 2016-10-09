@@ -306,13 +306,15 @@ function attachCreateDirectoryEvent(url) {
 }
 
 function attachRenameDirectoryEvent(dirElement, url) {
-	dirElement.each(function() {
-		$(this).find('> div').dblclick(function() {
-			var inputElement = reqHandler.getDirHandler().renameDirectory($(this));
-      
-            addFocusoutEventOnDirRenameElement(inputElement);
-		});
-	});
+	if (!reqHandler.getDiskHandler().isReadOnly()) {
+		dirElement.each(function() {
+			$(this).find('> div').dblclick(function() {
+				var inputElement = reqHandler.getDirHandler().renameDirectory($(this));
+	      
+	            addFocusoutEventOnDirRenameElement(inputElement);
+			});
+		});		
+	}
 
 	function addFocusoutEventOnDirRenameElement(inputElement) {
 		element.focusAndSelect(inputElement);
@@ -353,14 +355,15 @@ function attachRenameDirectoryEvent(dirElement, url) {
 
 function showDirectoryContextMenu(directoryElement) {
 
-	directoryElement.find('>div').off('contextmenu');
-	directoryElement.find('>div').on('contextmenu', function(e) {
-		directoryElement.find('> div').click();
-		showDirectoryMenu(directoryElement);
-		hideMenuEventListener(directoryElement, element.getDirectoryContextMenu());
-		e.preventDefault();
-	});
-
+	if (!reqHandler.getDiskHandler().isReadOnly()) {
+		directoryElement.find('>div').off('contextmenu');
+		directoryElement.find('>div').on('contextmenu', function(e) {
+			directoryElement.find('> div').click();
+			showDirectoryMenu(directoryElement);
+			hideMenuEventListener(directoryElement, element.getDirectoryContextMenu());
+			e.preventDefault();
+		});
+	}
 
 	function showDirectoryMenu(target) {
 		var menu = element.getDirectoryContextMenu();
@@ -372,28 +375,31 @@ function showDirectoryContextMenu(directoryElement) {
 function attachDeleteDirectoryEvent(deleteURL) {
 	var deleteBtn = element.getDeleteDirectory();
 
-	deleteBtn.off('click');
-	deleteBtn.on('click', function(){
-		var selected = reqHandler.getDirHandler().getCurrentDirectoryElement();
-		var directoryData = reqHandler.getDirHandler().getCurrentDirectoryData();
-		var data = {
-			name : directoryData.name,
-			path : directoryData.path
-		};
+	if (!reqHandler.getDiskHandler().isReadOnly()) {
+		deleteBtn.off('click');
+		deleteBtn.on('click', function(){
+			var selected = reqHandler.getDirHandler().getCurrentDirectoryElement();
+			var directoryData = reqHandler.getDirHandler().getCurrentDirectoryData();
+			var data = {
+				name : directoryData.name,
+				path : directoryData.path
+			};
 
-		reqHandler.makeAjaxRequest(deleteURL, success, fail, false, data);
+			reqHandler.makeAjaxRequest(deleteURL, success, fail, false, data);
 
-		function success(response) {
-			if (response.success == true) {
-				reqHandler.getDirHandler().removeDirectory(selected);
-				element.select(element.getDirectories(), reqHandler.getDirHandler().getRootDirectory());
+			function success(response) {
+				if (response.success == true) {
+					reqHandler.getDirHandler().removeDirectory(selected);
+					element.select(element.getDirectories(), reqHandler.getDirHandler().getRootDirectory());
+				}
 			}
-		}
 
-		function fail() {
+			function fail() {
 
-		}
-	});
+			}
+		});
+
+	}
 }
 
 
@@ -417,7 +423,9 @@ function attachClickEventToFilesInGrid() {
             reqHandler.getFileHandler().getCurrentFileDetails()
         );
         element.show(element.getPrimarySubmitButton());
-        element.show(element.getFileManageMenu());
+        if (!reqHandler.getDiskHandler().isReadOnly()) {
+	        element.show(element.getFileManageMenu());
+		}
     });
 }
 
