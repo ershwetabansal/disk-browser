@@ -13,6 +13,16 @@
     "directory",
     "image"
   ],
+  "ignore":[
+    "src",
+    "node_modules",
+    "tests",
+    "gulpfile.js",
+    ".gitignore",
+    "karma.conf.js",
+    "package.json",
+    "readme.md"
+  ],
   "moduleType": [],
   "homepage": ""
 }

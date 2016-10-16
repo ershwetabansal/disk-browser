@@ -364,4 +364,7 @@ $text-top-bottom-padding: 5px;
   .force-hidden {
     display: none;
   }
+  #disk_selector:before {
+      content: "\f1c0";
+  }
 }

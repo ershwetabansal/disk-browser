@@ -240,3 +240,5 @@
     white-space: nowrap; }
   .file-manager .force-hidden {
     display: none; }
+  .file-manager #disk_selector:before {
+    content: "\f1c0"; }

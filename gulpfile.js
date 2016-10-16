@@ -3,6 +3,7 @@ var sass = require('gulp-sass');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var runSequence = require('run-sequence');
+var minify = require('gulp-minify');
 
 gulp.task('sass', function(){
     return gulp.src('src/sass/disk-browser.scss')
@@ -44,8 +45,22 @@ gulp.task('copyPartial', function() {
         .pipe(gulp.dest('dist/partials'));
 });
 
+gulp.task('compress', function() {
+  gulp.src('dist/js/disk-browser.js')
+    .pipe(minify({
+        ext:{
+            src:'.js',
+            min:'.min.js'
+        },
+        exclude: ['tasks'],
+        ignoreFiles: []
+    }))
+    .pipe(gulp.dest('dist/js'))
+});
+
 gulp.task('default', function (callback) {
-    runSequence(['sass', 'browserify', 'copyPartial'],
+    runSequence(['sass', 'browserify', 'copyPartial', 'compress'],
         callback
     )
 });
+

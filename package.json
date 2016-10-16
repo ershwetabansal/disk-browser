@@ -16,6 +16,7 @@
   "devDependencies": {
     "bootstrap": "^3.3.6",
     "brfs": "^1.4.3",
+    "gulp-minify": "0.0.14",
     "jasmine-core": "^2.4.1",
     "jquery": "^2.2.2",
     "karma": "^0.13.19",
