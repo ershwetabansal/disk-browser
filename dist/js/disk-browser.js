@@ -707,7 +707,10 @@ function attachRenameFileEvent(url) {
 	});
 
 	element.getRenameFileOkay().on('click', function() {
-		reqHandler.makeAjaxRequest(url, success, fail, false, { name : element.getRenameFileInput().val()});
+		reqHandler.makeAjaxRequest(url, success, fail, false, { 
+			old_name : currentFileDetails.name,
+			new_name : element.getRenameFileInput().val()
+		});
 
 		function success() {
 			element.hide(element.getRenameFileBox());

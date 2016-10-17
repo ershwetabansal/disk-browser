@@ -1,6 +1,6 @@
 {
   "name": "disk-browser",
-  "version": "10.10",
+  "version": "v1.0.10",
   "description": "This package supports the client implementation for browsing files and directories on a disk.",
   "main": "gulpfile.js",
   "authors": [
@@ -14,7 +14,7 @@
     "directory",
     "image"
   ],
-  "ignore":[
+  "ignore": [
     "src",
     "node_modules",
     "tests",
@@ -22,7 +22,10 @@
     ".gitignore",
     "karma.conf.js",
     "package.json",
-    "readme.md"
+    "readme.md",
+    "**/.*",
+    "bower_components",
+    "test"
   ],
   "moduleType": [],
   "homepage": ""
