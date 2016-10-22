@@ -20,6 +20,13 @@ bower install disk-browser --save
 2. Using gulp or grunt task runner, you can copy node_modules/diskbrowser/dist or
  bower_components/diskbrowser/dist folder to the public directory.
 
-3. Clone, fork or download the server component of disk browser.
+3. Clone, fork or download the server component of disk browser. 
+	Git repo for node js -
+	https://github.com/ershwetabansal/disk-browser-nodejs
+	Git repo for Laravel PHP -
+	https://github.com/ershwetabansal/disk-browser-laravel
 
 4. Merge the code with your server component.
+
+5. Demo -
+https://disk-browser.herokuapp.com/
