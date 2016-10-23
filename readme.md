@@ -17,20 +17,24 @@ The application has been written with TDD approach.
 Steps to configure -
 
 1. Use npm or bower to install
-npm install disk-browser --save
-bower install disk-browser --save
+
+   npm install disk-browser --save
+   
+   bower install disk-browser --save
 
 2. Using gulp or grunt task runner, you can copy node_modules/diskbrowser/dist or
  bower_components/diskbrowser/dist folder to the public directory.
 
 3. Clone, fork or download the server component of disk browser. 
 
-	Git repo for node js -
-	https://github.com/ershwetabansal/disk-browser-nodejs
+   Git repo for node js -
+   
+   https://github.com/ershwetabansal/disk-browser-nodejs
 
-	Git repo for Laravel PHP -
-	https://github.com/ershwetabansal/disk-browser-laravel
+   Git repo for Laravel PHP -
+   
+   https://github.com/ershwetabansal/disk-browser-laravel
 
 4. Please refer below link for documentations -
-	https://disk-browser.herokuapp.com/docs
 
+   https://disk-browser.herokuapp.com/docs
