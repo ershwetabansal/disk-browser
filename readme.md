@@ -24,8 +24,10 @@ bower install disk-browser --save
  bower_components/diskbrowser/dist folder to the public directory.
 
 3. Clone, fork or download the server component of disk browser. 
+
 	Git repo for node js -
 	https://github.com/ershwetabansal/disk-browser-nodejs
+
 	Git repo for Laravel PHP -
 	https://github.com/ershwetabansal/disk-browser-laravel
 
