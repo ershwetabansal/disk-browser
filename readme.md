@@ -5,6 +5,9 @@ Disk browser helps in managing files and directories on a disk.
 Disk can be a folder maintained on the server or AWS disk or any other shared disks
 which can be connected through some APIs.
 
+Demo -
+https://disk-browser.herokuapp.com/demo
+
 The client component is written in javascript. Server component is currently 
 available in Laravel PHP and node js. Server component can easily be developed
 in other languages as well.
@@ -26,7 +29,6 @@ bower install disk-browser --save
 	Git repo for Laravel PHP -
 	https://github.com/ershwetabansal/disk-browser-laravel
 
-4. Merge the code with your server component.
+4. Please refer below link for documentations -
+	https://disk-browser.herokuapp.com/docs
 
-5. Demo -
-https://disk-browser.herokuapp.com/
