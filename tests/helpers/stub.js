@@ -688,7 +688,23 @@ function getSetupObject() {
             list: 'http://file-browser.com/api/v1/files',
             upload: {
                 url: 'http://file-browser.com/api/v1/file/store',
-                params:[]
+                params:[
+                    {
+                        id : 'alias_checkbox',
+                        type : 'checkbox',
+                        label : 'URL Alias',
+                        value : false
+                    },
+                    {
+                        id : 'url_alias_label',
+                        name : 'url_alias_label',
+                        label : 'URL alias label',
+                        type : 'text',
+                        class : 'hidden',
+                        show_if : 'alias_checkbox',
+                        value : ''
+                    }
+                ]
             },
             thumbnail: {
                 show : true,
