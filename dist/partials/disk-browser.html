@@ -21,7 +21,6 @@
                 <h4 class="modal-title pull-left" id="myModalLabel">File Manager
                     <i id="loading_bar" class="fa fa-spinner fa-spin hidden"></i>
                 </h4>
-                <div id="error_message" class="text-center error"></div>
             </div>
             <div class="modal-body">
                 <div class="form-inline" role="toolbar" aria-label="...">
@@ -63,6 +62,10 @@
                         </ul>
                     </div>
                     <div class="col-md-9 col-xs-9 files">
+                        <div id="error_message" class="alert alert-danger error hidden">
+                            <button class="close" data-dismiss="error_message">x</button>
+                            <div></div>
+                        </div>
                         <div id="remove-file-box" class="popup form-inline hidden">
                             <div class="align-center">
                                 Are you sure you want to delete the file?

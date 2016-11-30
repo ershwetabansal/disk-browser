@@ -235,7 +235,8 @@
   .file-manager .deactivate {
     pointer-events: none; }
   .file-manager .error {
-    color: darkred;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap; }
+    margin-left: -15px;
+    margin-right: -15px;
+    line-height: 25px; }
+    .file-manager .error > div {
+      white-space: pre-line; }

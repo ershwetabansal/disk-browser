@@ -535,14 +535,13 @@ function attachUploadFileEvent(uploadObj) {
 		element.getUploadFileParameterContainer().find('input').each(function () {
 			if ($(this).attr('required') && !$(this).val()) {
 
-				message += $(this).attr('placeholder') + " is required";
+				message += $(this).attr('placeholder') + " is required." + '\n';
 				$(this).get(0).focus();
 				valid = false;
 			}
 		});
 
-		element.getErrorMessagePlaceHolder().text(message);
-
+		reqHandler.showError(message);
 		return valid;
 	}
 }
@@ -708,7 +707,7 @@ function positionMenu(target, menu, top, left) {
 
  function resetView()
  {
-     element.getErrorMessagePlaceHolder().empty();
+     reqHandler.hideError();
      element.hide(element.getPrimarySubmitButton());
      reqHandler.getFileHandler().cleanUpView();
      closeFileSearch();

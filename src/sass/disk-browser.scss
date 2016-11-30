@@ -357,9 +357,12 @@ $text-top-bottom-padding: 5px;
   }
 
   .error {
-    color: darkred;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
+    margin-left: -15px;
+    margin-right: -15px;
+    line-height: 25px;
+    border-radius: 0;
+   > div {
+     white-space: pre-line;
+   }
   }
 }

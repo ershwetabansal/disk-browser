@@ -150,6 +150,9 @@ function getFileBrowserBody() {
 function getErrorMessagePlaceHolder() {
     if (!errorMessage  || errorMessage.length == 0) {
         errorMessage= getFileBrowser().find('#error_message');
+        errorMessage.find('.close').click(function () {
+           hide($('#' + $(this).data('dismiss')));
+        });
     }
 
     return errorMessage;

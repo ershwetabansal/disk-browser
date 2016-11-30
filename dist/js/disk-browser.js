@@ -652,14 +652,13 @@ function attachUploadFileEvent(uploadObj) {
 		element.getUploadFileParameterContainer().find('input').each(function () {
 			if ($(this).attr('required') && !$(this).val()) {
 
-				message += $(this).attr('placeholder') + " is required";
+				message += $(this).attr('placeholder') + " is required." + '\n';
 				$(this).get(0).focus();
 				valid = false;
 			}
 		});
 
-		element.getErrorMessagePlaceHolder().text(message);
-
+		reqHandler.showError(message);
 		return valid;
 	}
 }
@@ -825,7 +824,7 @@ function positionMenu(target, menu, top, left) {
 
  function resetView()
  {
-     element.getErrorMessagePlaceHolder().empty();
+     reqHandler.hideError();
      element.hide(element.getPrimarySubmitButton());
      reqHandler.getFileHandler().cleanUpView();
      closeFileSearch();
@@ -1215,7 +1214,7 @@ function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isU
     $.ajax(getAjaxParameters()).success(function (data) {
 		if (successCallback) successCallback(data);
         showLoadingBar(false);
-		element.getErrorMessagePlaceHolder().text('');
+		hideError();
     }).fail(function (response) {
         if (failureCallback) {
 			failureCallback(response);
@@ -1261,7 +1260,6 @@ function showLoadingBar(show) {
 }
 
 function updateError(response) {
-    element.getErrorMessagePlaceHolder().empty();
 
     var message = response.statusText;
 
@@ -1269,7 +1267,17 @@ function updateError(response) {
         message = httpParams.error(response.status, JSON.parse(response.responseText)) || message;
     }
 
-    element.getErrorMessagePlaceHolder().text(message);
+	showError(message);
+}
+
+function showError(message) {
+	element.show(element.getErrorMessagePlaceHolder());
+	element.getErrorMessagePlaceHolder().find('div').text(message);
+}
+
+function hideError() {
+	element.hide(element.getErrorMessagePlaceHolder());
+	element.getErrorMessagePlaceHolder().find('div').text('');
 }
 
 function addCommonParametersToFormData(formData) {
@@ -1360,8 +1368,10 @@ module.exports = {
     getRootPathForCurrentDir: getRootPathForCurrentDir,
     getCurrentFilePath: getCurrentFilePath,
     getFileResponseParams: getFileResponseParams,
-    updateButtonDetails : updateButtonDetails
+    updateButtonDetails : updateButtonDetails,
 
+	showError: showError,
+	hideError: hideError
 };
 },{"../helpers/element.js":5,"../helpers/util.js":6}],5:[function(require,module,exports){
 var fbElement,
@@ -1516,6 +1526,9 @@ function getFileBrowserBody() {
 function getErrorMessagePlaceHolder() {
     if (!errorMessage  || errorMessage.length == 0) {
         errorMessage= getFileBrowser().find('#error_message');
+        errorMessage.find('.close').click(function () {
+           hide($('#' + $(this).data('dismiss')));
+        });
     }
 
     return errorMessage;

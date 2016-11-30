@@ -349,7 +349,7 @@ function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isU
     $.ajax(getAjaxParameters()).success(function (data) {
 		if (successCallback) successCallback(data);
         showLoadingBar(false);
-		element.getErrorMessagePlaceHolder().text('');
+		hideError();
     }).fail(function (response) {
         if (failureCallback) {
 			failureCallback(response);
@@ -395,7 +395,6 @@ function showLoadingBar(show) {
 }
 
 function updateError(response) {
-    element.getErrorMessagePlaceHolder().empty();
 
     var message = response.statusText;
 
@@ -403,7 +402,17 @@ function updateError(response) {
         message = httpParams.error(response.status, JSON.parse(response.responseText)) || message;
     }
 
-    element.getErrorMessagePlaceHolder().text(message);
+	showError(message);
+}
+
+function showError(message) {
+	element.show(element.getErrorMessagePlaceHolder());
+	element.getErrorMessagePlaceHolder().find('div').text(message);
+}
+
+function hideError() {
+	element.hide(element.getErrorMessagePlaceHolder());
+	element.getErrorMessagePlaceHolder().find('div').text('');
 }
 
 function addCommonParametersToFormData(formData) {
@@ -494,6 +503,8 @@ module.exports = {
     getRootPathForCurrentDir: getRootPathForCurrentDir,
     getCurrentFilePath: getCurrentFilePath,
     getFileResponseParams: getFileResponseParams,
-    updateButtonDetails : updateButtonDetails
+    updateButtonDetails : updateButtonDetails,
 
+	showError: showError,
+	hideError: hideError
 };
