@@ -1,5 +1,5 @@
 {
-  "name": "disk-browser",
+  "name": "ea-disk-browser",
   "description": "This package supports the client implementation for browsing files and directories on a disk.",
   "main": "gulpfile.js",
   "authors": [

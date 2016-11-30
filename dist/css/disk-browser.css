@@ -1,7 +1,8 @@
 .file-manager {
   z-index: 65537; }
   .file-manager .form-inline .form-group {
-    margin-bottom: 15px; }
+    margin-bottom: 15px;
+    margin-right: 15px; }
   @media (max-width: 768px) {
     .file-manager .form-inline {
       text-align: center; }

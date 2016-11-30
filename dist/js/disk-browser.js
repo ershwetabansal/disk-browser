@@ -909,12 +909,31 @@ function uploadFileSetup() {
 			for (var i=0, len = filesParam.upload.params.length; i <len; i++) {
 				var param = filesParam.upload.params[i];
 				element.getUploadFileParameterContainer().append($(getFormElement(param)));
+				if (param.show_if) {
+					$('#'+param.show_if).on('change', function () {
+						if ($(this).prop('checked')) {
+							$('#'+param.id).removeClass('hidden');
+						} else {
+							$('#'+param.id).addClass('hidden');
+						}
+					});
+
+				}
 			}
 		}
 	}
 
 	function getFormElement(param) {
-		return '<input type="text" placeholder="'+param.label+'" name="'+param.name+'" class="form-control"/>'
+		if (param.type == 'checkbox') {
+			return '<label style="margin-left: 15px;"><input id="'+param.id+'" type="checkbox" '+
+				(param.value ? ' checked ' : '' ) +
+				'style="margin-right: 10px;"' + (param.name ? 'name="'+param.name+'"' : '') + '/>' + param.label +'</label>';
+		}
+
+		return '<input style="margin-left: 15px;" id="'+param.id+'" type="'+ (param.type ? param.type : 'text') +
+			'" placeholder="'+param.label+'" ' +
+			'name="'+param.name+'" ' +
+			'class="form-control '+ (param.class ? param.class : '')+'" ' + (param.required ? 'required' : '')+ ' />'
 	}
 
 	function doesUploadParamExist() {
