@@ -1035,6 +1035,9 @@ function loadDirectories() {
         loadFiles();
 	}
 	function fail() {
+		dirHandler.loadDirectories([]);
+		fileHandler.loadFiles([]);
+		console.error("failed to load directories");
 	}
 }
 
@@ -1048,6 +1051,7 @@ function loadFiles(isRefresh) {
 	}
 
 	function fail() {
+		console.error("failed to load files");
 	}
 }
 
