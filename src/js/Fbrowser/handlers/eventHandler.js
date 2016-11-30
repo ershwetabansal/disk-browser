@@ -188,9 +188,9 @@ function fetchSubdirectories(url, callback) {
 
 	var params =  {};
 	reqHandler.makeAjaxRequest(url, callback, fail, false, params);
-	
+
 	function fail() {
-		alert('failed to get sub directories');
+		console.error('failed to get sub directories');
 	}
 
 }
@@ -499,7 +499,11 @@ function attachUploadFileEvent(uploadObj) {
 	element.getCancelFileUploadBtn().click(closeFileUpload);
 
 	function uploadFile() {
-	
+
+		if (!uploadFormValid()) {
+			return;
+		}
+
 		element.show(element.getUploadFileLoadingBar());
 		element.hide(element.getFileBrowserUploadForm());
 		
@@ -525,13 +529,29 @@ function attachUploadFileEvent(uploadObj) {
 		element.getUploadFileParameterContainer().find('input').val('');
 	}
 
+	function uploadFormValid() {
+		var valid = true;
+		var message = '';
+		element.getUploadFileParameterContainer().find('input').each(function () {
+			if ($(this).attr('required') && !$(this).val()) {
+
+				message += $(this).attr('placeholder') + " is required";
+				$(this).get(0).focus();
+				valid = false;
+			}
+		});
+
+		element.getErrorMessagePlaceHolder().text(message);
+
+		return valid;
+	}
 }
 
 function attachViewFileEvent() {
 	element.getViewFile().on('click', function() {
 		var selected = reqHandler.getFileHandler().getCurrentFileElement();
 		var currentFileDetails = reqHandler.getFileHandler().getCurrentFileDetails();
-		alert("selected"+selected.attr('id')+", details :"+JSON.stringify(currentFileDetails));
+		console.error("selected"+selected.attr('id')+", details :"+JSON.stringify(currentFileDetails));
 	});
 }
 
@@ -574,7 +594,7 @@ function attachRenameFileEvent(url) {
 		}
 
 		function fail() {
-			alert("failed to rename");
+			console.error("failed to rename");
 		}
 	});
 
@@ -605,7 +625,7 @@ function attachRemoveFileEvent(url) {
 		}
 
 		function fail() {
-			alert("failed to remove ");
+			console.error("failed to remove ");
 		}
 	});
 

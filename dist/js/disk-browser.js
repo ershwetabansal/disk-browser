@@ -16,7 +16,7 @@ function openBrowser(modalBoxParams) {
 		element.openModal(modalBoxParams.resize);
 		manager.load(modalBoxParams);
 	} else {
-		alert("Please check consoler errors.");
+		alert("Please check console errors.");
 	}
 }
 
@@ -305,9 +305,9 @@ function fetchSubdirectories(url, callback) {
 
 	var params =  {};
 	reqHandler.makeAjaxRequest(url, callback, fail, false, params);
-	
+
 	function fail() {
-		alert('failed to get sub directories');
+		console.error('failed to get sub directories');
 	}
 
 }
@@ -616,7 +616,11 @@ function attachUploadFileEvent(uploadObj) {
 	element.getCancelFileUploadBtn().click(closeFileUpload);
 
 	function uploadFile() {
-	
+
+		if (!uploadFormValid()) {
+			return;
+		}
+
 		element.show(element.getUploadFileLoadingBar());
 		element.hide(element.getFileBrowserUploadForm());
 		
@@ -642,13 +646,29 @@ function attachUploadFileEvent(uploadObj) {
 		element.getUploadFileParameterContainer().find('input').val('');
 	}
 
+	function uploadFormValid() {
+		var valid = true;
+		var message = '';
+		element.getUploadFileParameterContainer().find('input').each(function () {
+			if ($(this).attr('required') && !$(this).val()) {
+
+				message += $(this).attr('placeholder') + " is required";
+				$(this).get(0).focus();
+				valid = false;
+			}
+		});
+
+		element.getErrorMessagePlaceHolder().text(message);
+
+		return valid;
+	}
 }
 
 function attachViewFileEvent() {
 	element.getViewFile().on('click', function() {
 		var selected = reqHandler.getFileHandler().getCurrentFileElement();
 		var currentFileDetails = reqHandler.getFileHandler().getCurrentFileDetails();
-		alert("selected"+selected.attr('id')+", details :"+JSON.stringify(currentFileDetails));
+		console.error("selected"+selected.attr('id')+", details :"+JSON.stringify(currentFileDetails));
 	});
 }
 
@@ -691,7 +711,7 @@ function attachRenameFileEvent(url) {
 		}
 
 		function fail() {
-			alert("failed to rename");
+			console.error("failed to rename");
 		}
 	});
 
@@ -722,7 +742,7 @@ function attachRemoveFileEvent(url) {
 		}
 
 		function fail() {
-			alert("failed to remove ");
+			console.error("failed to remove ");
 		}
 	});
 
@@ -911,10 +931,14 @@ function uploadFileSetup() {
 				element.getUploadFileParameterContainer().append($(getFormElement(param)));
 				if (param.show_if) {
 					$('#'+param.show_if).on('change', function () {
+						var target = $('#'+param.id);
 						if ($(this).prop('checked')) {
-							$('#'+param.id).removeClass('hidden');
+							target.removeClass('hidden');
+							target.attr('required', true);
+							target.get(0).focus();
 						} else {
-							$('#'+param.id).addClass('hidden');
+							target.addClass('hidden');
+							target.removeAttr('required');
 						}
 					});
 
@@ -933,7 +957,7 @@ function uploadFileSetup() {
 		return '<input style="margin-left: 15px;" id="'+param.id+'" type="'+ (param.type ? param.type : 'text') +
 			'" placeholder="'+param.label+'" ' +
 			'name="'+param.name+'" ' +
-			'class="form-control '+ (param.class ? param.class : '')+'" ' + (param.required ? 'required' : '')+ ' />'
+			'class="form-control '+ (param.class ? param.class : '')+'" ' + (param.required && param.class != "hidden" ? 'required' : '')+ ' />'
 	}
 
 	function doesUploadParamExist() {
@@ -1193,7 +1217,10 @@ function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isU
         showLoadingBar(false);
 		element.getErrorMessagePlaceHolder().text('');
     }).fail(function (response) {
-        if (failureCallback) failureCallback(response);
+        if (failureCallback) {
+			failureCallback(response);
+		}
+
         showLoadingBar(false);
         updateError(response);
 	});
@@ -1235,9 +1262,10 @@ function showLoadingBar(show) {
 
 function updateError(response) {
     element.getErrorMessagePlaceHolder().empty();
-    var message = 'Request could not be completed.';
 
-    if (httpParams.error) {
+    var message = response.statusText;
+
+	if (httpParams.error && response.status == 422) {
         message = httpParams.error(response.status, JSON.parse(response.responseText)) || message;
     }
 

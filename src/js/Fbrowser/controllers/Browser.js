@@ -15,7 +15,7 @@ function openBrowser(modalBoxParams) {
 		element.openModal(modalBoxParams.resize);
 		manager.load(modalBoxParams);
 	} else {
-		alert("Please check consoler errors.");
+		alert("Please check console errors.");
 	}
 }
 

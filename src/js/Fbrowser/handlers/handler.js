@@ -351,7 +351,10 @@ function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isU
         showLoadingBar(false);
 		element.getErrorMessagePlaceHolder().text('');
     }).fail(function (response) {
-        if (failureCallback) failureCallback(response);
+        if (failureCallback) {
+			failureCallback(response);
+		}
+
         showLoadingBar(false);
         updateError(response);
 	});
@@ -393,9 +396,10 @@ function showLoadingBar(show) {
 
 function updateError(response) {
     element.getErrorMessagePlaceHolder().empty();
-    var message = 'Request could not be completed.';
 
-    if (httpParams.error) {
+    var message = response.statusText;
+
+	if (httpParams.error && response.status == 422) {
         message = httpParams.error(response.status, JSON.parse(response.responseText)) || message;
     }
 
