@@ -526,7 +526,8 @@ function attachUploadFileEvent(uploadObj) {
 	function closeFileUpload() {
 		element.hide(element.getFileBrowserUploadForm());
 		element.getUploadFileInput().val('');
-		element.getUploadFileParameterContainer().find('input').val('');
+		element.getUploadFileParameterContainer().find('input[type="text"]').val('');
+		element.getUploadFileParameterContainer().find('input[type="checkbox"]').prop('checked', false);
 	}
 
 	function uploadFormValid() {
@@ -541,7 +542,9 @@ function attachUploadFileEvent(uploadObj) {
 			}
 		});
 
-		reqHandler.showError(message);
+		if (!valid) {
+			reqHandler.showError(message);
+		}
 		return valid;
 	}
 }

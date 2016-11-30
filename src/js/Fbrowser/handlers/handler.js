@@ -83,7 +83,7 @@ function uploadFileSetup() {
 
 	function getFormElement(param) {
 		if (param.type == 'checkbox') {
-			return '<label style="margin-left: 15px;"><input id="'+param.id+'" type="checkbox" '+
+			return '<label style="margin-left: 15px;" class="control-label"><input id="'+param.id+'" type="checkbox" '+
 				(param.value ? ' checked ' : '' ) +
 				'style="margin-right: 10px;"' + (param.name ? 'name="'+param.name+'"' : '') + '/>' + param.label +'</label>';
 		}

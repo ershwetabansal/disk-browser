@@ -643,7 +643,8 @@ function attachUploadFileEvent(uploadObj) {
 	function closeFileUpload() {
 		element.hide(element.getFileBrowserUploadForm());
 		element.getUploadFileInput().val('');
-		element.getUploadFileParameterContainer().find('input').val('');
+		element.getUploadFileParameterContainer().find('input[type="text"]').val('');
+		element.getUploadFileParameterContainer().find('input[type="checkbox"]').prop('checked', false);
 	}
 
 	function uploadFormValid() {
@@ -658,7 +659,9 @@ function attachUploadFileEvent(uploadObj) {
 			}
 		});
 
-		reqHandler.showError(message);
+		if (!valid) {
+			reqHandler.showError(message);
+		}
 		return valid;
 	}
 }
@@ -948,7 +951,7 @@ function uploadFileSetup() {
 
 	function getFormElement(param) {
 		if (param.type == 'checkbox') {
-			return '<label style="margin-left: 15px;"><input id="'+param.id+'" type="checkbox" '+
+			return '<label style="margin-left: 15px;" class="control-label"><input id="'+param.id+'" type="checkbox" '+
 				(param.value ? ' checked ' : '' ) +
 				'style="margin-right: 10px;"' + (param.name ? 'name="'+param.name+'"' : '') + '/>' + param.label +'</label>';
 		}
