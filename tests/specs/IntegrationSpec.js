@@ -591,6 +591,11 @@ describe("File browser should be able to manage disks, directories and files. Us
         aliasCheckbox.prop('checked', true).trigger('change');
 
         expect(aliasLabel.hasClass('hidden')).toBeFalsy();
+
+        element.getUploadFileToServerBtn().click();
+
+        expect(element.getErrorMessagePlaceHolder().text()).toBe('URL alias label is required');
+
         element.getUploadFileParameterContainer().find('input[type="text"]').val('some_value');
 
         element.getUploadFileToServerBtn().click();

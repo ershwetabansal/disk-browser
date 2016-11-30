@@ -65,10 +65,14 @@ function uploadFileSetup() {
 				element.getUploadFileParameterContainer().append($(getFormElement(param)));
 				if (param.show_if) {
 					$('#'+param.show_if).on('change', function () {
+						var target = $('#'+param.id);
 						if ($(this).prop('checked')) {
-							$('#'+param.id).removeClass('hidden');
+							target.removeClass('hidden');
+							target.attr('required', true);
+							target.get(0).focus();
 						} else {
-							$('#'+param.id).addClass('hidden');
+							target.addClass('hidden');
+							target.removeAttr('required');
 						}
 					});
 
@@ -87,7 +91,7 @@ function uploadFileSetup() {
 		return '<input style="margin-left: 15px;" id="'+param.id+'" type="'+ (param.type ? param.type : 'text') +
 			'" placeholder="'+param.label+'" ' +
 			'name="'+param.name+'" ' +
-			'class="form-control '+ (param.class ? param.class : '')+'" ' + (param.required ? 'required' : '')+ ' />'
+			'class="form-control '+ (param.class ? param.class : '')+'" ' + (param.required && param.class != "hidden" ? 'required' : '')+ ' />'
 	}
 
 	function doesUploadParamExist() {
