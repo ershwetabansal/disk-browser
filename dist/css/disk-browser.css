@@ -243,3 +243,16 @@
       white-space: pre-line; }
   .file-manager .control-label {
     cursor: pointer; }
+  .file-manager .bottom {
+    position: absolute;
+    bottom: 0; }
+  .file-manager .list-types {
+    margin-left: 10px; }
+    .file-manager .list-types li {
+      padding: 0px 7px;
+      border: 1px solid #d1e3f3;
+      margin-right: 8px;
+      background: #E1ECF4;
+      color: #5da1dc;
+      margin-bottom: 7px;
+      line-height: 18px; }

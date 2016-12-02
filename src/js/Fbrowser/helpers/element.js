@@ -5,6 +5,7 @@ var fbElement,
     fileBrowserBody,
 
     diskDropdown,
+    diskTypes,
 
     directoryWindow,
     directoriesList,
@@ -62,6 +63,7 @@ function flush() {
     fileBrowserBody = undefined;
 
     diskDropdown = undefined;
+    diskTypes = undefined;
 
     directoryWindow = undefined;
     directoriesList = undefined;
@@ -174,6 +176,13 @@ function getDiskDropdown() {
 
 }
 
+function getDiskTypes() {
+    if (!diskTypes || diskTypes.length == 0) {
+        diskTypes= getFileBrowser().find('#disk-types');
+    }
+
+    return diskTypes;
+}
 /************************************************
 * Directory Elements
 ************************************************/
@@ -807,7 +816,8 @@ module.exports = {
     getErrorMessagePlaceHolder: getErrorMessagePlaceHolder,
 
     getDiskDropdown: getDiskDropdown,
-    
+    getDiskTypes: getDiskTypes,
+
     getDirectoryWindow: getDirectoryWindow,
     getDirectories: getDirectories,
     getCreateNewDirectory: getCreateNewDirectory,

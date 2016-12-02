@@ -369,4 +369,22 @@ $text-top-bottom-padding: 5px;
   .control-label {
     cursor: pointer;
   }
+
+  .bottom {
+    position: absolute;
+    bottom: 0;
+  }
+
+  .list-types {
+    margin-left: 10px;
+    li {
+      padding: 0px 7px;
+      border: 1px solid #d1e3f3;
+      margin-right: 8px;
+      background: #E1ECF4;
+      color: #5da1dc;
+      margin-bottom: 7px;
+      line-height: 18px;
+    }
+  }
 }

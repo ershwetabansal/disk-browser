@@ -127,9 +127,10 @@ function clearSearch() {
 *****************************************************/
 
 function attachDiskElementEvent(callback) {
+	showDiskDetails();
 	element.getDiskDropdown().on('change', function() {
 
-        if (reqHandler.getDiskHandler().isReadOnly()) {
+		if (reqHandler.getDiskHandler().isReadOnly()) {
             element.hide(element.getUploadFileBtn());
             element.hide(element.getCreateNewDirectory());
         } else {
@@ -140,8 +141,21 @@ function attachDiskElementEvent(callback) {
 			}
             element.show(element.getCreateNewDirectory());
         }
+        if (reqHandler.getDiskParameter().show) {
+			showDiskDetails();
+		}
         reqHandler.loadDirectories();
         resetView();
+	});
+}
+
+function showDiskDetails() {
+	reqHandler.makeAjaxRequest(reqHandler.getDiskParameter().show, function (response) {
+		element.getDiskTypes().empty();
+		response.types.forEach(function (type) {
+			element.getDiskTypes().append($('<li>'+ type +'</li>'));
+		});
+
 	});
 }
 
