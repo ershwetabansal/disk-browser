@@ -1,7 +1,7 @@
 {
   "name": "ea-disk-browser",
   "description": "This package supports the client implementation for browsing files and directories on a disk.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "gulpfile.js",
   "directories": {
     "test": "tests"
