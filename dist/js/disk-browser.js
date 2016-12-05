@@ -269,9 +269,12 @@ function attachDiskElementEvent(callback) {
 function showDiskDetails() {
 	reqHandler.makeAjaxRequest(reqHandler.getDiskParameter().show, function (response) {
 		element.getDiskTypes().empty();
-		response.types.forEach(function (type) {
-			element.getDiskTypes().append($('<li>'+ type +'</li>'));
+		var types = '';
+		response.types.forEach(function (type, index) {
+			types += type + (index < response.types.length - 1 ? ', ' : '');
 		});
+
+		element.getDiskTypes().append(types);
 
 	});
 }
