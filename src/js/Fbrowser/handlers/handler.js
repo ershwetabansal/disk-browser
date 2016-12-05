@@ -37,6 +37,7 @@ function setupFileBrowserModal(callback, isTest) {
 		$('body').append('<div id="disk-browser"></div>');
 		$('#disk-browser').load(element.getDiskBrowserPath() + '/partials/disk-browser.html', function(){
 			if (callback) callback();
+			$('[data-toggle="tooltip"]').tooltip();
 		});
 	} else if (isTest) {
 		callback();

@@ -158,7 +158,7 @@ function showDiskDetails() {
 		});
 
 		element.getDiskTypes().append(types);
-
+		element.getDiskTypes().attr('title', types);
 	});
 }
 

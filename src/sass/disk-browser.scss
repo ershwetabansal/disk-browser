@@ -293,6 +293,9 @@ $text-top-bottom-padding: 5px;
 
     > div {
       padding: 5px 15px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     ul {
@@ -397,4 +400,8 @@ $text-top-bottom-padding: 5px;
       line-height: 18px;
     }
   }
+}
+
+.ui-tooltip {
+  z-index: 65540;
 }
