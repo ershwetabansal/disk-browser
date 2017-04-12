@@ -345,9 +345,6 @@ function getCurrentFilePath() {
 }
 
 function makeRequest(url, successCallback, failureCallback, cache, data, isUpload) {
-
-  var method = 'POST';
-
   if (typeof(cache) === 'undefined') {
     cache = true;
   }
@@ -364,13 +361,15 @@ function makeRequest(url, successCallback, failureCallback, cache, data, isUploa
     showLoadingBar(false);
     updateError(response);
   });
-
   function getAjaxParameters() {
     var parameters = {
       url : url,
-      method : method,
+      type : 'POST',
       data : params,
       cache: cache,
+      xhrFields: {
+      	'withCredentials': true
+			},
       beforeSend: function (request)
       {
         if (httpParams && httpParams.headers) {
