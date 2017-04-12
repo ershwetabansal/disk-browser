@@ -101,7 +101,7 @@ function attachSearchFilesEvent() {
                 'search': element.getSearchInput().val(),
                 'disk': diskName
             };
-            reqHandler.makeAjaxRequest(url, success, fail, false, params);
+            reqHandler.makeRequest(url, success, fail, false, params);
 
             function fail() {
 				alert('failed to search disk');
@@ -150,7 +150,7 @@ function attachDiskElementEvent(callback) {
 }
 
 function showDiskDetails() {
-	reqHandler.makeAjaxRequest(reqHandler.getDiskParameter().show, function (response) {
+	reqHandler.makeRequest(reqHandler.getDiskParameter().show, function (response) {
 		element.getDiskTypes().empty();
 		var types = '';
 		response.types.forEach(function (type, index) {
@@ -204,7 +204,7 @@ function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 function fetchSubdirectories(url, callback) {
 
 	var params =  {};
-	reqHandler.makeAjaxRequest(url, callback, fail, false, params);
+	reqHandler.makeRequest(url, callback, fail, false, params);
 
 	function fail() {
 		console.error('failed to get sub directories');
@@ -281,7 +281,7 @@ function attachCreateDirectoryEvent(url) {
 			var newValue = inputElement.val();
 			if (oldValue != newValue && newValue != '') {
 			    var params = reqHandler.getDirHandler().getNewDirectoryData(inputElement);
-                reqHandler.makeAjaxRequest(url, success, fail, false, params);
+                reqHandler.makeRequest(url, success, fail, false, params);
             } else {
                 element.focusAndSelect(inputElement);
             }
@@ -333,7 +333,7 @@ function attachRenameDirectoryEvent(dirElement, url) {
             if (oldValue != newValue && newValue != '') {
                 var params = reqHandler.getDirHandler().getCurrentDirectoryData();
                 params.new_value = newValue;
-                reqHandler.makeAjaxRequest(url, success, fail, false, params);
+                reqHandler.makeRequest(url, success, fail, false, params);
             } else {
                 reqHandler.getDirHandler().saveDirectory(inputElement, oldValue);
             }
@@ -381,7 +381,7 @@ function attachDeleteDirectoryEvent(deleteURL) {
 			path : directoryData.path
 		};
 
-		reqHandler.makeAjaxRequest(deleteURL, success, fail, false, data);
+		reqHandler.makeRequest(deleteURL, success, fail, false, data);
 
 		function success(response) {
 			if (response.success == true) {
@@ -525,7 +525,7 @@ function attachUploadFileEvent(uploadObj) {
 		element.hide(element.getFileBrowserUploadForm());
 		
 		var formData = new FormData(element.getFileBrowserUploadForm()[0]);
-        reqHandler.makeAjaxRequest(uploadObj.url, success, fail, false, formData, true);
+        reqHandler.makeRequest(uploadObj.url, success, fail, false, formData, true);
 
 		function success(response) {
 			element.hide(element.getUploadFileLoadingBar());
@@ -604,7 +604,7 @@ function attachRenameFileEvent(url) {
 	});
 
 	element.getRenameFileOkay().on('click', function() {
-		reqHandler.makeAjaxRequest(url, success, fail, false, { name : element.getRenameFileInput().val()});
+		reqHandler.makeRequest(url, success, fail, false, { name : element.getRenameFileInput().val()});
 
 		function success() {
 			element.hide(element.getRenameFileBox());
@@ -636,7 +636,7 @@ function attachRemoveFileEvent(url) {
 	});
 
 	element.getRemoveFileOkay().on('click', function() {
-		reqHandler.makeAjaxRequest(url, success, fail, false, reqHandler.getFileHandler().getCurrentFileDetails());
+		reqHandler.makeRequest(url, success, fail, false, reqHandler.getFileHandler().getCurrentFileDetails());
 
 		function success() {
 			element.hide(element.getRemoveFileBox());
