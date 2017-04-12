@@ -141,15 +141,18 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         // and there are two ajax calls
         expect($.ajax).toHaveBeenCalled();
-        expect($.ajax.calls.count()).toBe(2);
+        expect($.ajax.calls.count()).toBe(3);
 
         var arguments = $.ajax.calls.allArgs();
 
-        // Where first ajax call should be for directories
-        expect($.ajax.calls.allArgs()[0][0].url).toContain(setupObject.directories.list);
+        // Where first ajax call should be for disks
+        expect($.ajax.calls.allArgs()[0][0].url).toContain(setupObject.disks.show);
 
-        // And second ajax call should be for files
-        expect($.ajax.calls.allArgs()[1][0].url).toContain(setupObject.files.list);
+        // And second ajax call should be for directories
+        expect($.ajax.calls.allArgs()[1][0].url).toContain(setupObject.directories.list);
+
+        // And third ajax call should be for files
+        expect($.ajax.calls.allArgs()[2][0].url).toContain(setupObject.files.list);
 
         // Also directories and files should get loaded
         expect(element.getDirectories().find('li').length).toBeGreaterThan(0);
@@ -600,7 +603,7 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         element.getUploadFileToServerBtn().click();
 
-        var formData = $.ajax.calls.allArgs()[2][0].data;
+        var formData = $.ajax.calls.allArgs()[3][0].data;
 
         // Then we see that the form data contains the input value.
         expect(formData.has('url_alias_label')).toBeTruthy();
