@@ -636,6 +636,7 @@ function getSetupObject() {
 	return {
 
         disks : {
+            show: 'http://file-browser.com/api/v1/disk/show',
             search : true,
             search_URL: 'http://file-browser.com/api/v1/disk/search',
             details : [

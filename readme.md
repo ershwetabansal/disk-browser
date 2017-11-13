@@ -45,7 +45,18 @@ https://disk-browser.herokuapp.com/demo
 npm install
 ```
 
+* Build files
+```$xslt
+gulp
+```
 * Run tests
 ```$xslt
-karma start
+npm test
 ```
+
+* Run tests with watchers
+```$xslt
+npm run test_watch
+```
+
+
