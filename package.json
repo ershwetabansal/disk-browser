@@ -1,6 +1,6 @@
 {
   "name": "disk-browser",
-  "description": "This package supports the client implementation for browsing files and directories on a disk.",
+  "description": "Manage files and directories on a storage disk such as AWS.",
   "version": "1.0.11",
   "main": "gulpfile.js",
   "directories": {

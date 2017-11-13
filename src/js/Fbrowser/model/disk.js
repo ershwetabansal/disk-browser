@@ -33,7 +33,7 @@ function disk() {
  *
  * @param diskData
  */
-function loadDisks(diskData, modalParameters) {
+function loadDisks(diskData) {
 
     addDisksElements();
     reqHandler.attachDiskElementEvents();
@@ -45,32 +45,22 @@ function loadDisks(diskData, modalParameters) {
         disks = {};
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
-
-            if (disk && shouldShowDisk(modalParameters, disk.label)) {
-                disk.id = 'disk_' + util.slugify(disk.label);
-                diskElement.append($(getDiskNavElement(diskData[i])));
-                disk.path = disk.path || defaultPathParam;
-                disks[disk.id] = disk;
-            }
+            disk.id = 'disk_' + util.slugify(disk.label);
+            diskElement.append($(getDiskNavElement(diskData[i])));
+            disk.path = disk.path || defaultPathParam;
+            disks[disk.id] = disk;
         }
-
         diskElement.find("option:first").attr('selected','selected');
     }
 
     function getDiskNavElement(disk) {
 
         return '<option id="'+disk.id+'" data-name="'+disk.name+'" value="'+disk.id+'">' + disk.label + '</option>';
-
+    
     }
 
 }
 
-function shouldShowDisk(modalBoxParameters, disk) {
-
-    return (!modalBoxParameters || !modalBoxParameters.disks ||
-            modalBoxParameters.disks.length == 0 ||
-            modalBoxParameters.disks.indexOf(disk) != -1);
-}
 /**
  * Default disk setup.
  *
@@ -165,9 +155,10 @@ function checkIfDirectoryParentAllowed(currentDisk, path) {
  * @param fileArray
  * @returns {*}
  */
-function getAllowedFilesFrom(fileArray, diskName) {
+function getAllowedFilesFrom(fileArray) {
 
-    var currentDisk = (typeof(diskName) == "undefined") ? getCurrentDisk() : getDiskData(diskName);
+    var currentDisk = getCurrentDisk();
+
     var allowedFiles = [];
     for (var i = 0, len = fileArray.length; i < len; i++) {
         var file = fileArray[i];
@@ -189,23 +180,20 @@ function getAllowedFilesFrom(fileArray, diskName) {
  */
 function isThisFileAllowed(fileName, currentDisk) {
 
-    if (currentDisk && currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
+    if (currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
         return currentDisk.allowed_extensions.indexOf(getExtension(fileName)) != -1;
     }
 
     return true;
 }
 
-function getDiskData(diskLabel) {
-   var id = 'disk_' + util.slugify(diskLabel);
-   return disks[id];
-}
 /**
  * Is this disk read only?
  *
  * @returns {boolean}
  */
 function isReadOnly() {
+
     return getCurrentDisk().read_only == true;
 }
 

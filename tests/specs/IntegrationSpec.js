@@ -141,15 +141,18 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         // and there are two ajax calls
         expect($.ajax).toHaveBeenCalled();
-        expect($.ajax.calls.count()).toBe(2);
+        expect($.ajax.calls.count()).toBe(3);
 
         var arguments = $.ajax.calls.allArgs();
 
-        // Where first ajax call should be for directories
-        expect($.ajax.calls.allArgs()[0][0].url).toContain(setupObject.directories.list);
+        // Where first ajax call should be for disks
+        expect($.ajax.calls.allArgs()[0][0].url).toContain(setupObject.disks.show);
 
-        // And second ajax call should be for files
-        expect($.ajax.calls.allArgs()[1][0].url).toContain(setupObject.files.list);
+        // And second ajax call should be for directories
+        expect($.ajax.calls.allArgs()[1][0].url).toContain(setupObject.directories.list);
+
+        // And third ajax call should be for files
+        expect($.ajax.calls.allArgs()[2][0].url).toContain(setupObject.files.list);
 
         // Also directories and files should get loaded
         expect(element.getDirectories().find('li').length).toBeGreaterThan(0);
@@ -556,6 +559,54 @@ describe("File browser should be able to manage disks, directories and files. Us
 
         // and can create a folder inside this
         expect(element.getCreateNewDirectory().hasClass('hidden')).toBeFalsy();
+
+
+    });
+
+    it("can displays a form input when configured for file upload.", function() {
+
+        // Given that a setup has been done to send some upload parameters with a upload request
+
+        // images               - should not be allowed
+        // 2016                 - should be allowed
+        //      images          - should be allowed
+        //      documents       - should be allowed
+        // 2015                 - should not be allowed
+        //      images          - should be allowed
+        //      documents       - should not be allowed
+
+        // When we load the disk browser
+        element.getDirectories().empty();
+
+        // And go to the ninth disk which is image upload disk
+        element.getDiskDropdown().find('option').eq(8).attr('selected', 'selected').trigger('change');
+
+        // When we upload  a file
+        element.getUploadFileInput().trigger('change');
+
+        var aliasLabel = element.getUploadFileParameterContainer().find('input[type="text"]');
+        var aliasCheckbox = element.getUploadFileParameterContainer().find('input[type="checkbox"]');
+        expect(aliasLabel.length).toBe(1);
+        expect(aliasCheckbox.length).toBe(1);
+
+        expect(aliasLabel.hasClass('hidden')).toBeTruthy();
+        expect(aliasCheckbox.prop('checked')).toBeFalsy();
+        aliasCheckbox.prop('checked', true).trigger('change');
+
+        expect(aliasLabel.hasClass('hidden')).toBeFalsy();
+
+        element.getUploadFileToServerBtn().click();
+
+        expect(element.getErrorMessagePlaceHolder().text()).toBe('URL alias label is required');
+
+        element.getUploadFileParameterContainer().find('input[type="text"]').val('some_value');
+
+        element.getUploadFileToServerBtn().click();
+
+        var formData = $.ajax.calls.allArgs()[3][0].data;
+
+        // Then we see that the form data contains the input value.
+        expect(formData.has('url_alias_label')).toBeTruthy();
 
 
     });

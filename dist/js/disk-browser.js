@@ -16,7 +16,7 @@ function openBrowser(modalBoxParams) {
 		element.openModal(modalBoxParams.resize);
 		manager.load(modalBoxParams);
 	} else {
-		alert("Please check consoler errors.");
+		alert("Please check console errors.");
 	}
 }
 
@@ -120,756 +120,767 @@ var util = require('../helpers/util.js');
 var reqHandler = require('../handlers/handler.js');
 
 /****************************************************
-** Toolbar Events
-*****************************************************/
+ ** Toolbar Events
+ *****************************************************/
 function attachRefreshFilesEvent() {
-	element.getFileRefreshBtn().click(function() {
-		reqHandler.loadFiles(true);
-		clearSearch();
-	});
+  element.getFileRefreshBtn().click(function() {
+    reqHandler.loadFiles(true);
+    clearSearch();
+  });
 }
 
 function attachAlignFilesAsListEvent() {
-	element.getFileAlignListBtn().click(function() {
-		reqHandler.getFileHandler().showFileList();
-	});
+  element.getFileAlignListBtn().click(function() {
+    reqHandler.getFileHandler().showFileList();
+  });
 }
 
 function attachAlignFilesAsGridEvent() {
-	element.getFileAlignGridBtn().click(function() {
-		reqHandler.getFileHandler().showFileGrid();
-	});
+  element.getFileAlignGridBtn().click(function() {
+    reqHandler.getFileHandler().showFileGrid();
+  });
 }
 
 function attachSortFilesEvent() {
-	element.getSortFilesDropdown().on('change', function() {
-		reqHandler.getFileHandler().sortFilesBy($(this).val());
-	});
+  element.getSortFilesDropdown().on('change', function() {
+    reqHandler.getFileHandler().sortFilesBy($(this).val());
+  });
 }
 
 
 /****************************************************
-** Search functionality
-*****************************************************/
+ ** Search functionality
+ *****************************************************/
 
 function closeFileSearch() {
-	element.getSearchInput().val('');
-	reqHandler.getFileHandler().showFiles();
-	element.hide(element.getSearchCancelBtn());
-	element.hide(element.getFileSearchOptions());
+  element.getSearchInput().val('');
+  reqHandler.getFileHandler().showFiles();
+  element.hide(element.getSearchCancelBtn());
+  element.hide(element.getFileSearchOptions());
 }
 
 function attachSearchFilesEvent() {
-	element.getSearchInput().on('change', searchFiles);
-	element.getSearchBtn().click(searchFiles);
-	element.getSearchCancelBtn().click(closeFileSearch);
+  element.getSearchInput().on('change', searchFiles);
+  element.getSearchBtn().click(searchFiles);
+  element.getSearchCancelBtn().click(closeFileSearch);
 
-	function searchFiles(hasAlreadySearchedOnce) {
-		if (element.getSearchInput().val() == '') {
-            closeFileSearch();
-        } else {
-        	element.show(element.getSearchCancelBtn());
-        	reqHandler.getFileHandler().searchFiles(element.getSearchInput().val());
-        	if (hasAlreadySearchedOnce != true) {
-            	addFileSearchOptions();        		
-        	}
-        }
-	}
-
-    function addFileSearchOptions() {
-    	if (reqHandler.isSearchEnabled()) {
-    		element.show(element.getFileSearchOptions());
-    		element.getFileSearchOptions().empty();
-
-    		addCurrentDirectorySearch();
-    		addDisksSearch();
-    	}
+  function searchFiles(hasAlreadySearchedOnce) {
+    if (element.getSearchInput().val() == '') {
+      closeFileSearch();
+    } else {
+      element.show(element.getSearchCancelBtn());
+      reqHandler.getFileHandler().searchFiles(element.getSearchInput().val());
+      if (hasAlreadySearchedOnce != true) {
+        addFileSearchOptions();
+      }
     }
+  }
 
-    function addCurrentDirectorySearch() {
-    	
-	    var dirName = reqHandler.getDirHandler().getCurrentDirectoryData().name;
-	    if (!dirName) dirName = 'This directory';
-	    var id = (reqHandler.getDirHandler().isRootDirectory()) ? 'root' : util.slugify(dirName);
-	    element.getFileSearchOptions().append($(searchLiElement(id, dirName, 'fa-folder-o')));
-	   	element.selectFirst(element.getFileSearchOptions());
-	   	element.getFileSearchOptions().find('#'+id).click(function() {
-	   		element.selectFirst(element.getFileSearchOptions());
-	    	searchFiles(true);
-		});
+  function addFileSearchOptions() {
+    if (reqHandler.isSearchEnabled()) {
+      element.show(element.getFileSearchOptions());
+      element.getFileSearchOptions().empty();
+
+      addCurrentDirectorySearch();
+      addDisksSearch();
     }
+  }
 
-    function addDisksSearch() {
-    	var disksParam = reqHandler.getDiskParameter();
-		if (disksParam.details && disksParam.search_URL) {
-	    	for (var i=0, len = disksParam.details.length; i < len; i++) {
-	    		var disk = disksParam.details[i];
-	    		var id = 'search_' + util.slugify(disk.label);
-				element.getFileSearchOptions().append($(searchLiElement(id, disk.label, 'fa-server')));
-				attachDiskSearchEvent(id, disksParam.search_URL, disk.name);
-	    	}
-	    }
+  function addCurrentDirectorySearch() {
+
+    var dirName = reqHandler.getDirHandler().getCurrentDirectoryData().name;
+    if (!dirName) dirName = 'This directory';
+    var id = (reqHandler.getDirHandler().isRootDirectory()) ? 'root' : util.slugify(dirName);
+    element.getFileSearchOptions().append($(searchLiElement(id, dirName, 'fa-folder-o')));
+    element.selectFirst(element.getFileSearchOptions());
+    element.getFileSearchOptions().find('#'+id).click(function() {
+      element.selectFirst(element.getFileSearchOptions());
+      searchFiles(true);
+    });
+  }
+
+  function addDisksSearch() {
+    var disksParam = reqHandler.getDiskParameter();
+    if (disksParam.details && disksParam.search_URL) {
+      for (var i=0, len = disksParam.details.length; i < len; i++) {
+        var disk = disksParam.details[i];
+        var id = 'search_' + util.slugify(disk.label);
+        element.getFileSearchOptions().append($(searchLiElement(id, disk.label, 'fa-server')));
+        attachDiskSearchEvent(id, disksParam.search_URL, disk.name);
+      }
     }
+  }
 
-    function attachDiskSearchEvent(id, url, diskName) {
-    	element.getFileSearchOptions().find('#'+id).click(function() {
-			var liElement = $(this);
-            var params = {
-                'search': element.getSearchInput().val(),
-                'disk': diskName
-            };
-            reqHandler.makeAjaxRequest(url, success, fail, false, params);
+  function attachDiskSearchEvent(id, url, diskName) {
+    element.getFileSearchOptions().find('#'+id).click(function() {
+      var liElement = $(this);
+      var params = {
+        'search': element.getSearchInput().val(),
+        'disk': diskName
+      };
+      reqHandler.makeRequest(url, success, fail, false, params);
 
-            function fail() {
-				alert('failed to search disk');
-            }
+      function fail() {
+        alert('failed to search disk');
+      }
 
-            function success(data) {
-				reqHandler.getFileHandler().showFiles(data.files, liElement.attr('data-disk-label'));
-                element.select(element.getFileSearchOptions(), liElement);
-            }
-		});
-    }
+      function success(data) {
+        reqHandler.getFileHandler().showFiles(data.files);
+        element.select(element.getFileSearchOptions(), liElement);
+      }
+    });
+  }
 
-    function searchLiElement(id, name, fa_css) {
-    	return '<li id="'+id+'" data-disk-label="'+name+'"><i class="fa '+fa_css+'" aria-hidden="true"></i>&nbsp;'+name+'</li>';
-    }
+  function searchLiElement(id, name, fa_css) {
+    return '<li id="'+id+'"><i class="fa '+fa_css+'" aria-hidden="true"></i>&nbsp;'+name+'</li>';
+  }
 }
 
 function clearSearch() {
-	element.getSearchInput().val('');
+  element.getSearchInput().val('');
 }
 /****************************************************
-** Disk Events
-*****************************************************/
+ ** Disk Events
+ *****************************************************/
 
 function attachDiskElementEvent(callback) {
+  showDiskDetails();
+  element.getDiskDropdown().on('change', function() {
 
-	diskSetup();
-	element.getDiskDropdown().on('change', function() {
-		diskSetup();
-	});
+    if (reqHandler.getDiskHandler().isReadOnly()) {
+      element.hide(element.getUploadFileBtn());
+      element.hide(element.getCreateNewDirectory());
+    } else {
+      if (reqHandler.getDiskHandler().isRootReadOnly()) {
+        element.hide(element.getUploadFileBtn());
+      } else {
+        element.show(element.getUploadFileBtn());
+      }
+      element.show(element.getCreateNewDirectory());
+    }
+    if (reqHandler.getDiskParameter().show) {
+      showDiskDetails();
+    }
+    reqHandler.loadDirectories();
+    resetView();
+  });
+}
 
-	function diskSetup() {
-		if (reqHandler.getDiskHandler().isReadOnly()) {
-			element.hide(element.getUploadFileBtn());
-            element.hide(element.getCreateNewDirectory());
-        } else {
-        	if (reqHandler.getDiskHandler().isRootReadOnly()) {
-        		element.hide(element.getUploadFileBtn());
-			} else {
-				element.show(element.getUploadFileBtn());
-			}
-            element.show(element.getCreateNewDirectory());
-        }
+function showDiskDetails() {
+  reqHandler.makeRequest(reqHandler.getDiskParameter().show, function (response) {
+    element.getDiskTypes().empty();
+    var types = '';
+    response.types.forEach(function (type, index) {
+      types += type + (index < response.types.length - 1 ? ', ' : '');
+    });
 
-        // Update allowed extensions on the upload file options.
-        var extensions = reqHandler.getDiskHandler().getCurrentDisk().allowed_extensions;
-        if (extensions && extensions.length > 0) {
-        	var ext = "";
-        	extensions.forEach(function(extension) {
-        		ext += "." + extension + ",";
-        	});
-            element.getUploadFileInput().attr('accept', ext.substring(0, ext.length - 1));
-        } else {
-        	element.getUploadFileInput().removeAttr('accept');
-        }
-
-        reqHandler.loadDirectories();
-	}
+    element.getDiskTypes().append(types);
+    element.getDiskTypes().attr('title', types);
+  });
 }
 
 /****************************************************
-** Directory Events
-*****************************************************/
+ ** Directory Events
+ *****************************************************/
 function attachClickEventOnDirectories(dirElement, url, showContextMenu) {
 
 
-	dirElement.each(function() {
-		var liElement = $(this);
-		if (showContextMenu) {
-			showDirectoryContextMenu(liElement);
-		}
+  dirElement.each(function() {
+    var liElement = $(this);
+    if (showContextMenu) {
+      showDirectoryContextMenu(liElement);
+    }
 
-		liElement.find('> div').click(function() {
+    liElement.find('> div').click(function() {
 
-            resetView();
-			element.select(element.getDirectories(), liElement);
+      resetView();
+      element.select(element.getDirectories(), liElement);
 
-			if (reqHandler.getDirHandler().childDirOpen(liElement)) {
-				reqHandler.getDirHandler().hideSubDirectories(liElement);
-			} else {
-				fetchSubdirectories(url, function(response) {
-					reqHandler.getDirHandler().showSubDirectories(liElement, response);
-				});
-			}
-            reqHandler.loadFiles();
+      if (reqHandler.getDirHandler().childDirOpen(liElement)) {
+        reqHandler.getDirHandler().hideSubDirectories(liElement);
+      } else {
+        fetchSubdirectories(url, function(response) {
+          reqHandler.getDirHandler().showSubDirectories(liElement, response);
+        });
+      }
+      reqHandler.loadFiles();
 
-			// If current directory is root directory
+      // If current directory is root directory
 
-			if (reqHandler.getDiskHandler().isRootReadOnly()) {
-				if (reqHandler.getDirHandler().isRootDirectory()) {
-					element.hide(element.getUploadFileBtn());
-				} else {
-					element.show(element.getUploadFileBtn());
-				}
-			}
-		});
-	});
+      if (reqHandler.getDiskHandler().isRootReadOnly()) {
+        if (reqHandler.getDirHandler().isRootDirectory()) {
+          element.hide(element.getUploadFileBtn());
+        } else {
+          element.show(element.getUploadFileBtn());
+        }
+      }
+    });
+  });
 }
 
 function fetchSubdirectories(url, callback) {
 
-	var params =  {};
-	reqHandler.makeAjaxRequest(url, callback, fail, false, params);
-	
-	function fail() {
-		alert('failed to get sub directories');
-	}
+  var params =  {};
+  reqHandler.makeRequest(url, callback, fail, false, params);
+
+  function fail() {
+    console.error('failed to get sub directories');
+  }
 
 }
 function attachKeysEventOnDirectories(dirElement, url) {
-	dirElement.keydown(function(event){
-		if ($(event.target).parent().is(dirElement)) {
-			var keys = new KeyHandler(event); 
-			if (keys[event.which]) keys[event.which]();			
-		}
-	});
+  dirElement.keydown(function(event){
+    if ($(event.target).parent().is(dirElement)) {
+      var keys = new KeyHandler(event);
+      if (keys[event.which]) keys[event.which]();
+    }
+  });
 
-	function KeyHandler(event) {
-		return {
-			//left
-			37 : function() {
-				reqHandler.getDirHandler().hideSubDirectories($(event.target));
-			},
-			//right
-			39 : function() {
-				fetchSubdirectories(url, function(response) {
-					reqHandler.getDirHandler().showSubDirectories($(event.target), response);
-				});
-			},
-			//up
-			38 : function() {
-				element.moveUp(dirElement, $(event.target), function() {
-                    reqHandler.loadFiles();
-                });
-			},
-			//down
-			40 : function() {
-				element.moveDown(dirElement, $(event.target), function() {
-                    reqHandler.loadFiles();
-                });
-			},
-			//tab
-			9 : function() {
-				reqHandler.getFileHandler().focusFirstElement();
-			},
-			13 : function() {
-				reqHandler.loadFiles();
-			}
+  function KeyHandler(event) {
+    return {
+      //left
+      37 : function() {
+        reqHandler.getDirHandler().hideSubDirectories($(event.target));
+      },
+      //right
+      39 : function() {
+        fetchSubdirectories(url, function(response) {
+          reqHandler.getDirHandler().showSubDirectories($(event.target), response);
+        });
+      },
+      //up
+      38 : function() {
+        element.moveUp(dirElement, $(event.target), function() {
+          reqHandler.loadFiles();
+        });
+      },
+      //down
+      40 : function() {
+        element.moveDown(dirElement, $(event.target), function() {
+          reqHandler.loadFiles();
+        });
+      },
+      //tab
+      9 : function() {
+        reqHandler.getFileHandler().focusFirstElement();
+      },
+      13 : function() {
+        reqHandler.loadFiles();
+      }
 
-		}
-	}
+    }
+  }
 }
 
 function attachCreateDirectoryEvent(url) {
-	var createDirBtn = element.getCreateNewDirectory();
-	createDirBtn.click(function(){
-		var inputElement = reqHandler.getDirHandler().addNewDirectoryToSelectedDirectory();
+  var createDirBtn = element.getCreateNewDirectory();
+  createDirBtn.click(function(){
+    var inputElement = reqHandler.getDirHandler().addNewDirectoryToSelectedDirectory();
 
-		addFocusoutEventOnDirCreateElement(inputElement);
-	});
+    addFocusoutEventOnDirCreateElement(inputElement);
+  });
 
-	function addFocusoutEventOnDirCreateElement(inputElement) {
-		element.focusAndSelect(inputElement);
-		element.focusoutOnEnter(inputElement);
+  function addFocusoutEventOnDirCreateElement(inputElement) {
+    element.focusAndSelect(inputElement);
+    element.focusoutOnEnter(inputElement);
 
-        var oldValue = inputElement.val();
-		inputElement.on('focusout', focusOutEvent);
-        $(document).click(onOutsideClick);
+    var oldValue = inputElement.val();
+    inputElement.on('focusout', focusOutEvent);
+    $(document).click(onOutsideClick);
 
-        function onOutsideClick(e) {
-            if ( !$(e.target).is(inputElement)) {
-                focusOutEvent();
-            }
-        }
+    function onOutsideClick(e) {
+      if ( !$(e.target).is(inputElement)) {
+        focusOutEvent();
+      }
+    }
 
-        function focusOutEvent() {
-			var newValue = inputElement.val();
-			if (oldValue != newValue && newValue != '') {
-			    var params = reqHandler.getDirHandler().getNewDirectoryData(inputElement);
-                reqHandler.makeAjaxRequest(url, success, fail, false, params);
-            } else {
-                element.focusAndSelect(inputElement);
-            }
-        }
+    function focusOutEvent() {
+      var newValue = inputElement.val();
+      if (oldValue != newValue && newValue != '') {
+        var params = reqHandler.getDirHandler().getNewDirectoryData(inputElement);
+        reqHandler.makeRequest(url, success, fail, false, params);
+      } else {
+        element.focusAndSelect(inputElement);
+      }
+    }
 
-		function success(response) {
-			if (response.success == true) {
-				var dirElement = reqHandler.getDirHandler().saveDirectory(inputElement, response.directory.name, response.directory.path);
-                reqHandler.attachDirectoryEvents(dirElement);
-            } else {
-                reqHandler.getDirHandler().removeDirectory(inputElement);
-            }
+    function success(response) {
+      if (response.success == true) {
+        var dirElement = reqHandler.getDirHandler().saveDirectory(inputElement, response.directory.name, response.directory.path);
+        reqHandler.attachDirectoryEvents(dirElement);
+      } else {
+        reqHandler.getDirHandler().removeDirectory(inputElement);
+      }
 
-            $(document).off('click', onOutsideClick);
-		}
+      $(document).off('click', onOutsideClick);
+    }
 
-		function fail() {
-			reqHandler.getDirHandler().removeDirectory(inputElement);
-            $(document).off('click', onOutsideClick);
-		}
-	}
+    function fail() {
+      reqHandler.getDirHandler().removeDirectory(inputElement);
+      $(document).off('click', onOutsideClick);
+    }
+  }
 }
 
 function attachRenameDirectoryEvent(dirElement, url) {
-	if (!reqHandler.getDiskHandler().isReadOnly()) {
-		dirElement.each(function() {
-			$(this).find('> div').dblclick(function() {
-				var inputElement = reqHandler.getDirHandler().renameDirectory($(this));
-	      
-	            addFocusoutEventOnDirRenameElement(inputElement);
-			});
-		});		
-	}
+  dirElement.each(function() {
+    $(this).find('> div').dblclick(function() {
+      var inputElement = reqHandler.getDirHandler().renameDirectory($(this));
 
-	function addFocusoutEventOnDirRenameElement(inputElement) {
-		element.focusAndSelect(inputElement);
-		element.focusoutOnEnter(inputElement);
+      addFocusoutEventOnDirRenameElement(inputElement);
+    });
+  });
 
-		var oldValue = inputElement.val();
-        inputElement.on('focusout', focusOutEvent);
-        $(document).click(onOutsideClick);
+  function addFocusoutEventOnDirRenameElement(inputElement) {
+    element.focusAndSelect(inputElement);
+    element.focusoutOnEnter(inputElement);
 
-        function onOutsideClick(e) {
-            if ( !$(e.target).is(inputElement)) {
-                focusOutEvent();
-            }
-        }
+    var oldValue = inputElement.val();
+    inputElement.on('focusout', focusOutEvent);
+    $(document).click(onOutsideClick);
 
-        function focusOutEvent() {
-            var newValue = inputElement.val();
-            if (oldValue != newValue && newValue != '') {
-                var params = reqHandler.getDirHandler().getCurrentDirectoryData();
-                params.new_value = newValue;
-                reqHandler.makeAjaxRequest(url, success, fail, false, params);
-            } else {
-                reqHandler.getDirHandler().saveDirectory(inputElement, oldValue);
-            }
-        }
+    function onOutsideClick(e) {
+      if ( !$(e.target).is(inputElement)) {
+        focusOutEvent();
+      }
+    }
 
-		function success() {
-			reqHandler.getDirHandler().saveDirectory(inputElement);
-            $(document).off('click', onOutsideClick);
-		}
+    function focusOutEvent() {
+      var newValue = inputElement.val();
+      if (oldValue != newValue && newValue != '') {
+        var params = reqHandler.getDirHandler().getCurrentDirectoryData();
+        params.new_value = newValue;
+        reqHandler.makeRequest(url, success, fail, false, params);
+      } else {
+        reqHandler.getDirHandler().saveDirectory(inputElement, oldValue);
+      }
+    }
 
-		function fail() {
-			reqHandler.getDirHandler().saveDirectory(inputElement, oldValue);
-            $(document).off('click', onOutsideClick);
-		}
-	}
+    function success() {
+      reqHandler.getDirHandler().saveDirectory(inputElement);
+      $(document).off('click', onOutsideClick);
+    }
+
+    function fail() {
+      reqHandler.getDirHandler().saveDirectory(inputElement, oldValue);
+      $(document).off('click', onOutsideClick);
+    }
+  }
 }
 
 function showDirectoryContextMenu(directoryElement) {
 
-	if (!reqHandler.getDiskHandler().isReadOnly()) {
-		directoryElement.find('>div').off('contextmenu');
-		directoryElement.find('>div').on('contextmenu', function(e) {
-			directoryElement.find('> div').click();
-			showDirectoryMenu(directoryElement);
-			hideMenuEventListener(directoryElement, element.getDirectoryContextMenu());
-			e.preventDefault();
-		});
-	}
+  directoryElement.find('>div').off('contextmenu');
+  directoryElement.find('>div').on('contextmenu', function(e) {
+    directoryElement.find('> div').click();
+    showDirectoryMenu(directoryElement);
+    hideMenuEventListener(directoryElement, element.getDirectoryContextMenu());
+    e.preventDefault();
+  });
 
-	function showDirectoryMenu(target) {
-		var menu = element.getDirectoryContextMenu();
-		element.show(menu);
-		positionMenu(target, menu);
-	}
+
+  function showDirectoryMenu(target) {
+    var menu = element.getDirectoryContextMenu();
+    element.show(menu);
+    positionMenu(target, menu);
+  }
 }
 
 function attachDeleteDirectoryEvent(deleteURL) {
-	var deleteBtn = element.getDeleteDirectory();
+  var deleteBtn = element.getDeleteDirectory();
 
-	if (!reqHandler.getDiskHandler().isReadOnly()) {
-		deleteBtn.off('click');
-		deleteBtn.on('click', function(){
-			var selected = reqHandler.getDirHandler().getCurrentDirectoryElement();
-			var directoryData = reqHandler.getDirHandler().getCurrentDirectoryData();
-			var data = {
-				name : directoryData.name,
-				path : directoryData.path
-			};
+  deleteBtn.off('click');
+  deleteBtn.on('click', function(){
+    var selected = reqHandler.getDirHandler().getCurrentDirectoryElement();
+    var directoryData = reqHandler.getDirHandler().getCurrentDirectoryData();
+    var data = {
+      name : directoryData.name,
+      path : directoryData.path
+    };
 
-			reqHandler.makeAjaxRequest(deleteURL, success, fail, false, data);
+    reqHandler.makeRequest(deleteURL, success, fail, false, data);
 
-			function success(response) {
-				if (response.success == true) {
-					reqHandler.getDirHandler().removeDirectory(selected);
-					element.select(element.getDirectories(), reqHandler.getDirHandler().getRootDirectory());
-				}
-			}
+    function success(response) {
+      if (response.success == true) {
+        reqHandler.getDirHandler().removeDirectory(selected);
+        element.select(element.getDirectories(), reqHandler.getDirHandler().getRootDirectory());
+      }
+    }
 
-			function fail() {
+    function fail() {
 
-			}
-		});
-
-	}
+    }
+  });
 }
 
 
 
 /****************************************************
-** File Events
-*****************************************************/
+ ** File Events
+ *****************************************************/
 function attachClickEventOnFiles() {
 
-    attachClickEventToFilesInGrid();
-    attachClickEventToFilesInList();
-    attachClickEventToFileWindow();
+  attachClickEventToFilesInGrid();
+  attachClickEventToFilesInList();
+  attachClickEventToFileWindow();
 
 }
 
 function attachClickEventToFilesInGrid() {
-    element.getFilesGrid().find('li').off('click');
-    element.getFilesGrid().find('li').click(function() {
-        element.select(element.getFilesGrid(), $(this));
-        reqHandler.getFileHandler().showFileDetails(
-            reqHandler.getFileHandler().getCurrentFileDetails()
-        );
-        element.show(element.getPrimarySubmitButton());
-        if (!reqHandler.getDiskHandler().isReadOnly()) {
-	        element.show(element.getFileManageMenu());
-		}
-    });
+  element.getFilesGrid().find('li').off('click');
+  element.getFilesGrid().find('li').click(function() {
+    element.select(element.getFilesGrid(), $(this));
+    reqHandler.getFileHandler().showFileDetails(
+      reqHandler.getFileHandler().getCurrentFileDetails()
+    );
+    element.show(element.getPrimarySubmitButton());
+    element.show(element.getFileManageMenu());
+  });
 }
 
 function attachClickEventToFilesInList() {
-    element.getFilesList().find('tbody > tr').click(function() {
-        element.selectTableRow(element.getFilesList(), $(this));
-        element.show(element.getPrimarySubmitButton());
-        element.show(element.getFileManageMenu());
-    });
+  element.getFilesList().find('tbody > tr').click(function() {
+    element.selectTableRow(element.getFilesList(), $(this));
+    element.show(element.getPrimarySubmitButton());
+    element.show(element.getFileManageMenu());
+  });
 }
 
 function attachClickEventToFileWindow() {
-    element.getFileWindow().click(function(event) {
-        var selectedFile = element.getSelected(element.getFilesGrid());
-        if (selectedFile.length > 0 && !$(event.target).closest('li').is(selectedFile)) {
-            element.unselect(selectedFile);
-            reqHandler.getFileHandler().hideFileDetails();
-            element.hide(element.getPrimarySubmitButton());
-            element.hide(element.getFileManageMenu());
-        }
+  element.getFileWindow().click(function(event) {
+    var selectedFile = element.getSelected(element.getFilesGrid());
+    if (selectedFile.length > 0 && !$(event.target).closest('li').is(selectedFile)) {
+      element.unselect(selectedFile);
+      reqHandler.getFileHandler().hideFileDetails();
+      element.hide(element.getPrimarySubmitButton());
+      element.hide(element.getFileManageMenu());
+    }
 
-        selectedFile = element.getSelected(element.getFilesList());
-        if (selectedFile.length > 0 && !$(event.target).closest('tr').is(selectedFile)) {
-            element.unselectTableRow(selectedFile);
-            element.hide(element.getPrimarySubmitButton());
-            element.hide(element.getFileManageMenu());
-        }
-    });
+    selectedFile = element.getSelected(element.getFilesList());
+    if (selectedFile.length > 0 && !$(event.target).closest('tr').is(selectedFile)) {
+      element.unselectTableRow(selectedFile);
+      element.hide(element.getPrimarySubmitButton());
+      element.hide(element.getFileManageMenu());
+    }
+  });
 
 }
 
 function attachKeysEventOnFiles() {
 
-	element.getFilesGrid().find('> li').keydown(function(event){
-		var keys = new GridKeyHandler(event);
-		if (keys[event.which]) keys[event.which]();
-	});
+  element.getFilesGrid().find('> li').keydown(function(event){
+    var keys = new GridKeyHandler(event);
+    if (keys[event.which]) keys[event.which]();
+  });
 
-	element.getFilesList().find('tbody > tr').keydown(function(event){
-		var keys = new ListKeyHandler(event);
-		if (keys[event.which]) keys[event.which]();
-	});
+  element.getFilesList().find('tbody > tr').keydown(function(event){
+    var keys = new ListKeyHandler(event);
+    if (keys[event.which]) keys[event.which]();
+  });
 
-	function GridKeyHandler(event) {
-		return {
-			//left
-			37 : function() {
-				element.moveUp(element.getFilesGrid(), $(event.target));
-			},
-			//right
-			39 : function() {
-				element.moveDown(element.getFilesGrid(), $(event.target));
-			},
-			13 : function() {
-				// reqHandler.loadFiles();
-			}
+  function GridKeyHandler(event) {
+    return {
+      //left
+      37 : function() {
+        element.moveUp(element.getFilesGrid(), $(event.target));
+      },
+      //right
+      39 : function() {
+        element.moveDown(element.getFilesGrid(), $(event.target));
+      },
+      13 : function() {
+        // reqHandler.loadFiles();
+      }
 
-		}
-	}
+    }
+  }
 
-	function ListKeyHandler(event) {
-		return {
-			//up
-			38 : function() {
-				element.moveUpInTable(element.getFilesList(), $(event.target));
-			},
-			//down
-			40 : function() {
-				element.moveDownInTable(element.getFilesList(), $(event.target));
-			},
-			13 : function() {
-				// reqHandler.loadFiles();
-			}
+  function ListKeyHandler(event) {
+    return {
+      //up
+      38 : function() {
+        element.moveUpInTable(element.getFilesList(), $(event.target));
+      },
+      //down
+      40 : function() {
+        element.moveDownInTable(element.getFilesList(), $(event.target));
+      },
+      13 : function() {
+        // reqHandler.loadFiles();
+      }
 
-		}
-	}
+    }
+  }
 
 }
 
 function attachUploadFileEvent(uploadObj) {
-	
-	//Upload File button click event
-	element.getUploadFileBtn().click(function() {
-		element.getUploadFileInput().click();
-	});
 
-	//On file selection for upload
-	element.getUploadFileInput().on('change', function() {
-		element.show(element.getFileBrowserUploadForm());
-	});
+  //Upload File button click event
+  element.getUploadFileBtn().click(function() {
+    element.getUploadFileInput().click();
+  });
 
-	//On click of upload button for finally upload the file to server
-	element.getUploadFileToServerBtn().click(uploadFile);
+  //On file selection for upload
+  element.getUploadFileInput().on('change', function() {
+    element.show(element.getFileBrowserUploadForm());
+  });
 
-	//On click of cancel button for cancelling the file upload
-	element.getCancelFileUploadBtn().click(closeFileUpload);
+  //On click of upload button for finally upload the file to server
+  element.getUploadFileToServerBtn().click(uploadFile);
 
-	function uploadFile() {
-	
-		element.show(element.getUploadFileLoadingBar());
-		element.hide(element.getFileBrowserUploadForm());
-		
-		var formData = new FormData(element.getFileBrowserUploadForm()[0]);
-        reqHandler.makeAjaxRequest(uploadObj.url, success, fail, false, formData, true);
+  //On click of cancel button for cancelling the file upload
+  element.getCancelFileUploadBtn().click(closeFileUpload);
 
-		function success(response) {
-			element.hide(element.getUploadFileLoadingBar());
-            reqHandler.getFileHandler().addFileOnUpload(response);
-			closeFileUpload();
-		}
+  function uploadFile() {
 
-		function fail() {
-			element.hide(element.getUploadFileLoadingBar());
-			element.show(element.getFileBrowserUploadForm());
-        }
-	
-	}
+    if (!uploadFormValid()) {
+      return;
+    }
 
-	function closeFileUpload() {
-		element.hide(element.getFileBrowserUploadForm());
-		element.getUploadFileInput().val('');
-		element.getUploadFileParameterContainer().find('input').val('');
-	}
+    element.show(element.getUploadFileLoadingBar());
+    element.hide(element.getFileBrowserUploadForm());
 
+    var formData = new FormData(element.getFileBrowserUploadForm()[0]);
+    reqHandler.makeRequest(uploadObj.url, success, fail, false, formData, true);
+
+    function success(response) {
+      element.hide(element.getUploadFileLoadingBar());
+      reqHandler.getFileHandler().addFileOnUpload(response);
+      closeFileUpload();
+    }
+
+    function fail() {
+      element.hide(element.getUploadFileLoadingBar());
+      element.show(element.getFileBrowserUploadForm());
+    }
+
+  }
+
+  function closeFileUpload() {
+    element.hide(element.getFileBrowserUploadForm());
+    element.getUploadFileInput().val('');
+    element.getUploadFileParameterContainer().find('input[type="text"]').val('');
+    element.getUploadFileParameterContainer().find('input[type="checkbox"]').prop('checked', false);
+  }
+
+  function uploadFormValid() {
+    var valid = true;
+    var message = '';
+    element.getUploadFileParameterContainer().find('input').each(function () {
+      if ($(this).attr('required') && !$(this).val()) {
+
+        message += $(this).attr('placeholder') + " is required." + '\n';
+        $(this).get(0).focus();
+        valid = false;
+      }
+    });
+
+    if (!valid) {
+      reqHandler.showError(message);
+    }
+    return valid;
+  }
 }
 
 function attachViewFileEvent() {
-	element.getViewFile().on('click', function() {
-		var selected = reqHandler.getFileHandler().getCurrentFileElement();
-		var currentFileDetails = reqHandler.getFileHandler().getCurrentFileDetails();
-		alert("selected"+selected.attr('id')+", details :"+JSON.stringify(currentFileDetails));
-	});
+  element.getViewFile().on('click', function() {
+    var selected = reqHandler.getFileHandler().getCurrentFileElement();
+    var currentFileDetails = reqHandler.getFileHandler().getCurrentFileDetails();
+    console.error("selected"+selected.attr('id')+", details :"+JSON.stringify(currentFileDetails));
+  });
 }
 
 function attachDownloadFileEvent(isAbsolutePath) {
-	var downloadBtn = element.getDownloadFile();
-	downloadBtn.on('click', function() {
-		if (isAbsolutePath == true) {
-			downloadBtn.attr('download', '');
-			downloadBtn.attr('href', reqHandler.getCurrentFilePath());
-		} else {
-			// Call the download url			
-		}
-	});
+  var downloadBtn = element.getDownloadFile();
+  downloadBtn.on('click', function() {
+    if (isAbsolutePath == true) {
+      downloadBtn.attr('download', '');
+      downloadBtn.attr('href', reqHandler.getCurrentFilePath());
+    } else {
+      // Call the download url
+    }
+  });
 }
 
-  
+
 function attachRenameFileEvent(url) {
 
-    element.getRenameFile().off('click');
-    element.getRenameFileOkay().off('click');
-    element.getRenameFileClose().off('click');
+  element.getRenameFile().off('click');
+  element.getRenameFileOkay().off('click');
+  element.getRenameFileClose().off('click');
 
-	var currentFileDetails;
-	var selected;
-	element.getRenameFile().on('click', function() {
-		currentFileDetails = reqHandler.getFileHandler().getCurrentFileDetails();
-		selected = reqHandler.getFileHandler().getCurrentFileElement();
+  var currentFileDetails;
+  var selected;
+  element.getRenameFile().on('click', function() {
+    currentFileDetails = reqHandler.getFileHandler().getCurrentFileDetails();
+    selected = reqHandler.getFileHandler().getCurrentFileElement();
 
-		element.show(element.getRenameFileBox());
-		element.getRenameFileInput().val(currentFileDetails.name);
-	});
+    element.show(element.getRenameFileBox());
+    element.getRenameFileInput().val(currentFileDetails.name);
+  });
 
-	element.getRenameFileOkay().on('click', function() {
-		reqHandler.makeAjaxRequest(url, success, fail, false, { 
-			old_name : currentFileDetails.name,
-			new_name : element.getRenameFileInput().val()
-		});
+  element.getRenameFileOkay().on('click', function() {
+    reqHandler.makeRequest(url, success, fail, false, { name : element.getRenameFileInput().val()});
 
-		function success() {
-			element.hide(element.getRenameFileBox());
-			currentFileDetails.name = element.getRenameFileInput().val();
-			selected.find('> div > div').text(element.getRenameFileInput().val());
-		}
+    function success() {
+      element.hide(element.getRenameFileBox());
+      currentFileDetails.name = element.getRenameFileInput().val();
+      selected.find('> div > div').text(element.getRenameFileInput().val());
+    }
 
-		function fail() {
-			alert("failed to rename");
-		}
-	});
+    function fail() {
+      console.error("failed to rename");
+    }
+  });
 
-	element.getRenameFileClose().on('click', function() {
-		element.hide(element.getRenameFileBox());
-	});
+  element.getRenameFileClose().on('click', function() {
+    element.hide(element.getRenameFileBox());
+  });
 
 }
 
-  
+
 function attachRemoveFileEvent(url) {
-	var selected;
-    element.getRemoveFile().off('click');
-    element.getRemoveFileOkay().off('click');
-    element.getRemoveFileClose().off('click');
+  var selected;
+  element.getRemoveFile().off('click');
+  element.getRemoveFileOkay().off('click');
+  element.getRemoveFileClose().off('click');
 
-	element.getRemoveFile().on('click', function() {
-		selected = reqHandler.getFileHandler().getCurrentFileElement();
-		element.show(element.getRemoveFileBox());
-	});
+  element.getRemoveFile().on('click', function() {
+    selected = reqHandler.getFileHandler().getCurrentFileElement();
+    element.show(element.getRemoveFileBox());
+  });
 
-	element.getRemoveFileOkay().on('click', function() {
-		reqHandler.makeAjaxRequest(url, success, fail, false, reqHandler.getFileHandler().getCurrentFileDetails());
+  element.getRemoveFileOkay().on('click', function() {
+    reqHandler.makeRequest(url, success, fail, false, reqHandler.getFileHandler().getCurrentFileDetails());
 
-		function success() {
-			element.hide(element.getRemoveFileBox());
-			selected.remove();
-		}
+    function success() {
+      element.hide(element.getRemoveFileBox());
+      selected.remove();
+    }
 
-		function fail() {
-			alert("failed to remove ");
-		}
-	});
+    function fail() {
+      console.error("failed to remove ");
+    }
+  });
 
-	element.getRemoveFileClose().on('click', function() {
-		element.hide(element.getRemoveFileBox());
-	});
+  element.getRemoveFileClose().on('click', function() {
+    element.hide(element.getRemoveFileBox());
+  });
 
 }
 
 function attachFileManageMenuEvent() {
 
-    element.getFileManageMenu().on('click', function() {
-        showFileManageMenu($(this));
-    });
+  element.getFileManageMenu().on('click', function() {
+    showFileManageMenu($(this));
+  });
 
-    hideMenuEventListener(element.getFileManageMenu(), element.getFileContextMenu());
+  hideMenuEventListener(element.getFileManageMenu(), element.getFileContextMenu());
 
 }
 
 function attachFileContextMenuEvent() {
 
-	element.getFilesList().find('tbody > tr').each(function() {
-		addContextMenuEventListener($(this), true);
-	});
+  element.getFilesList().find('tbody > tr').each(function() {
+    addContextMenuEventListener($(this), true);
+  });
 
-	element.getFilesGrid().find('li').each(function() {
-		addContextMenuEventListener($(this), false);
-	});
+  element.getFilesGrid().find('li').each(function() {
+    addContextMenuEventListener($(this), false);
+  });
 
-	//hideMenuEventListener($(this));
+  //hideMenuEventListener($(this));
 
-	function addContextMenuEventListener(target, isTable) {
-		target.on('contextmenu', function(e) {
-            target.click();
-            showFileManageMenu(target, isTable);
-			e.preventDefault();
-		});
-	}
+  function addContextMenuEventListener(target, isTable) {
+    target.on('contextmenu', function(e) {
+      target.click();
+      showFileManageMenu(target, isTable);
+      e.preventDefault();
+    });
+  }
 
 }
 
 
 function showFileManageMenu(target) {
-    var menu = element.getFileContextMenu();
-    element.show(menu);
-    positionMenu(target, menu, 124, 500);
+  var menu = element.getFileContextMenu();
+  element.show(menu);
+  positionMenu(target, menu, 124, 500);
 }
 
 function hideMenuEventListener(target, menu) {
-    $(document).on('click', function(e) {
-        if (target && !target.is($(e.target))) {
-            element.hide(menu);
-        }
-    });
+  $(document).on('click', function(e) {
+    if (target && !target.is($(e.target))) {
+      element.hide(menu);
+    }
+  });
 }
 
 function positionMenu(target, menu, top, left) {
 
-    var clickCoordsX = left || target.offset().left;
-    var clickCoordsY = top || target.offset().top + (target.height() / 2);
+  var clickCoordsX = left || target.offset().left;
+  var clickCoordsY = top || target.offset().top + (target.height() / 2);
 
-    var menuWidth = menu.width() + 4;
-    var menuHeight = menu.height() + 4;
+  var menuWidth = menu.width() + 4;
+  var menuHeight = menu.height() + 4;
 
-    var windowWidth = window.innerWidth;
-    var windowHeight = window.innerHeight;
+  var windowWidth = window.innerWidth;
+  var windowHeight = window.innerHeight;
 
-    if ( (windowWidth - clickCoordsX) < menuWidth ) {
-        menu.css("left", windowWidth - menuWidth + "px");
-    } else {
-        menu.css("left", clickCoordsX + "px");
-    }
+  if ( (windowWidth - clickCoordsX) < menuWidth ) {
+    menu.css("left", windowWidth - menuWidth + "px");
+  } else {
+    menu.css("left", clickCoordsX + "px");
+  }
 
-    if ( (windowHeight - clickCoordsY) < menuHeight ) {
-        menu.css("top", windowHeight - menuHeight + "px");
-    } else {
-        menu.css("top", clickCoordsY + "px");
-    }
+  if ( (windowHeight - clickCoordsY) < menuHeight ) {
+    menu.css("top", windowHeight - menuHeight + "px");
+  } else {
+    menu.css("top", clickCoordsY + "px");
+  }
 }
 
- function resetView()
- {
-     element.getErrorMessagePlaceHolder().empty();
-     element.hide(element.getPrimarySubmitButton());
-     reqHandler.getFileHandler().cleanUpView();
-     closeFileSearch();
- }
+function resetView()
+{
+  reqHandler.hideError();
+  element.hide(element.getPrimarySubmitButton());
+  reqHandler.getFileHandler().cleanUpView();
+  closeFileSearch();
+}
 
 module.exports = {
 
-	attachRefreshFilesEvent : attachRefreshFilesEvent,
-	attachAlignFilesAsListEvent : attachAlignFilesAsListEvent,
-	attachAlignFilesAsGridEvent : attachAlignFilesAsGridEvent,
-	attachSortFilesEvent : attachSortFilesEvent,
-	attachSearchFilesEvent : attachSearchFilesEvent,
+  attachRefreshFilesEvent : attachRefreshFilesEvent,
+  attachAlignFilesAsListEvent : attachAlignFilesAsListEvent,
+  attachAlignFilesAsGridEvent : attachAlignFilesAsGridEvent,
+  attachSortFilesEvent : attachSortFilesEvent,
+  attachSearchFilesEvent : attachSearchFilesEvent,
 
-	attachDiskElementEvent : attachDiskElementEvent,
+  attachDiskElementEvent : attachDiskElementEvent,
 
-	attachKeysEventOnDirectories : attachKeysEventOnDirectories,
-	attachClickEventOnDirectories : attachClickEventOnDirectories,
-	attachCreateDirectoryEvent : attachCreateDirectoryEvent,
-	attachRenameDirectoryEvent : attachRenameDirectoryEvent,
-	attachDeleteDirectoryEvent : attachDeleteDirectoryEvent,
+  attachKeysEventOnDirectories : attachKeysEventOnDirectories,
+  attachClickEventOnDirectories : attachClickEventOnDirectories,
+  attachCreateDirectoryEvent : attachCreateDirectoryEvent,
+  attachRenameDirectoryEvent : attachRenameDirectoryEvent,
+  attachDeleteDirectoryEvent : attachDeleteDirectoryEvent,
 
-	attachClickEventOnFiles : attachClickEventOnFiles,
-	attachKeysEventOnFiles : attachKeysEventOnFiles,
-	attachUploadFileEvent : attachUploadFileEvent,
-    attachClickEventToFilesInGrid : attachClickEventToFilesInGrid,
+  attachClickEventOnFiles : attachClickEventOnFiles,
+  attachKeysEventOnFiles : attachKeysEventOnFiles,
+  attachUploadFileEvent : attachUploadFileEvent,
+  attachClickEventToFilesInGrid : attachClickEventToFilesInGrid,
 
-	attachRenameFileEvent : attachRenameFileEvent,
-	attachRemoveFileEvent : attachRemoveFileEvent,
-	attachViewFileEvent : attachViewFileEvent,
-	attachDownloadFileEvent : attachDownloadFileEvent,
+  attachRenameFileEvent : attachRenameFileEvent,
+  attachRemoveFileEvent : attachRemoveFileEvent,
+  attachViewFileEvent : attachViewFileEvent,
+  attachDownloadFileEvent : attachDownloadFileEvent,
 
-	attachFileContextMenuEvent : attachFileContextMenuEvent,
-    attachFileManageMenuEvent : attachFileManageMenuEvent,
+  attachFileContextMenuEvent : attachFileContextMenuEvent,
+  attachFileManageMenuEvent : attachFileManageMenuEvent,
 
-    resetView : resetView
-	
+  resetView : resetView
+
 }
 },{"../handlers/handler.js":4,"../helpers/element.js":5,"../helpers/util.js":6}],4:[function(require,module,exports){
 var element = require('../helpers/element.js');
@@ -877,279 +888,324 @@ var util = require('../helpers/util.js');
 
 var diskHandler, dirHandler, fileHandler, eventHandler;
 var disksParam = {}, directoriesParam = {}, filesParam = {}, httpParams = {}, authParams = {}, modalBoxParams = {},
-    savedDiskParam = [];
+  savedDiskParam = [];
 
 /************************************************
-* Setup
-************************************************/
+ * Setup
+ ************************************************/
 function setupHandlers(disk, dir, file, eventH) {
-	diskHandler = disk;
-	dirHandler = dir;
-	fileHandler = file;
-	eventHandler = eventH;
+  diskHandler = disk;
+  dirHandler = dir;
+  fileHandler = file;
+  eventHandler = eventH;
 }
 
+
 function setupParameters(disk, dir, files, http, auth) {
-	disksParam = disk || {};
-	directoriesParam = dir || {};
-	filesParam = files || {};
-    httpParams = http || {};
-    authParams = auth || {};
+  disksParam = disk || {};
+  directoriesParam = dir || {};
+  filesParam = files || {};
+  httpParams = http || {};
+  authParams = auth || {};
 }
 
 function setupElementsAndEvents(isTest) {
-	setupFileBrowserModal(function() {
-		//Show/Hide manager controls and attach corresponding events
-		createDirectorySetup();
-		uploadFileSetup();
-		setupEvents();
-	}, isTest);
+  setupFileBrowserModal(function() {
+    //Show/Hide manager controls and attach corresponding events
+    createDirectorySetup();
+    uploadFileSetup();
+    setupEvents();
+  }, isTest);
 }
 
+
 function setupFileBrowserModal(callback, isTest) {
-	if ($('#disk-browser').length == 0) {
-		$('body').append('<div id="disk-browser"></div>');
-		$('#disk-browser').load(element.getDiskBrowserPath() + '/partials/disk-browser.html', function(){
-			if (callback) callback();
-		});
-	} else if (isTest) {
-		callback();
-	}
+  if ($('#disk-browser').length === 0) {
+    $('body').append('<div id="disk-browser"></div>');
+    $('#disk-browser').load(element.getDiskBrowserPath() + '/partials/disk-browser.html', function(){
+      if (callback) callback();
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  } else if (isTest) {
+    callback();
+  }
 
 }
 
 function createDirectorySetup() {
-	var createDirBtn = element.getCreateNewDirectory();
-	(directoriesParam.create) ? element.show(createDirBtn) : element.hide(createDirBtn);
+  var createDirBtn = element.getCreateNewDirectory();
+  (directoriesParam.create) ? element.show(createDirBtn) : element.hide(createDirBtn);
 }
 
 function uploadFileSetup() {
-	var uploadBtn = element.getUploadFileBtn();
-	if (filesParam.upload) {
-		loadUploadFormParameters();
-		element.show(uploadBtn);
-	} else {
-		element.hide(uploadBtn);
-	}
+  var uploadBtn = element.getUploadFileBtn();
+  if (filesParam.upload) {
+    loadUploadFormParameters();
+    element.show(uploadBtn);
+  } else {
+    element.hide(uploadBtn);
+  }
 
-	function loadUploadFormParameters() {
-		if (doesUploadParamExist()) {
-			for (var i=0, len = filesParam.upload.params.length; i <len; i++) {
-				var param = filesParam.upload.params[i];
-				element.getUploadFileParameterContainer().append($(getFormElement(param)));
-			}
-		}
-	}
+  function loadUploadFormParameters() {
+    if (doesUploadParamExist()) {
+      for (var i=0, len = filesParam.upload.params.length; i <len; i++) {
+        var param = filesParam.upload.params[i];
+        element.getUploadFileParameterContainer().append($(getFormElement(param)));
+        if (param.show_if) {
+          $('#'+param.show_if).on('change', function () {
+            var target = $('#'+param.id);
+            if ($(this).prop('checked')) {
+              target.removeClass('hidden');
+              target.attr('required', true);
+              target.get(0).focus();
+            } else {
+              target.addClass('hidden');
+              target.removeAttr('required');
+            }
+          });
 
-	function getFormElement(param) {
-		return '<input type="text" placeholder="'+param.label+'" name="'+param.name+'" class="form-control"/>'
-	}
+        }
+      }
+    }
+  }
 
-	function doesUploadParamExist() {
-		return typeof(filesParam.upload) == 'object' && filesParam.upload.params;
-	}
+  function getFormElement(param) {
+    if (param.type === 'checkbox') {
+      return '<label style="margin-left: 15px;" class="control-label"><input id="'+param.id+'" type="checkbox" '+
+        (param.value ? ' checked ' : '' ) +
+        'style="margin-right: 10px;"' + (param.name ? 'name="'+param.name+'"' : '') + '/>' + param.label +'</label>';
+    }
+
+    return '<input style="margin-left: 15px;" id="'+param.id+'" type="'+ (param.type ? param.type : 'text') +
+      '" placeholder="'+param.label+'" ' +
+      'name="'+param.name+'" ' +
+      'class="form-control '+ (param.class ? param.class : '')+'" ' + (param.required && param.class !== "hidden" ? 'required' : '')+ ' />'
+  }
+
+  function doesUploadParamExist() {
+    return typeof(filesParam.upload) === 'object' && filesParam.upload.params;
+  }
 }
 
 function setupEvents() {
-	//Create Directory Event
-	if (directoriesParam.create) {
-		eventHandler.attachCreateDirectoryEvent(directoriesParam.create);
-	}
+  //Create Directory Event
+  if (directoriesParam.create) {
+    eventHandler.attachCreateDirectoryEvent(directoriesParam.create);
+  }
 
-	//upload File event
-	if (filesParam.upload) {
-		eventHandler.attachUploadFileEvent(filesParam.upload);
-	}
-	
-	//Attach events to other toolbar buttons
-	eventHandler.attachRefreshFilesEvent();
-	eventHandler.attachSortFilesEvent();
-	eventHandler.attachAlignFilesAsListEvent();
-	eventHandler.attachAlignFilesAsGridEvent();
+  //upload File event
+  if (filesParam.upload) {
+    eventHandler.attachUploadFileEvent(filesParam.upload);
+  }
 
-	//Setup search events	
-	eventHandler.attachSearchFilesEvent();
+  //Attach events to other toolbar buttons
+  eventHandler.attachRefreshFilesEvent();
+  eventHandler.attachSortFilesEvent();
+  eventHandler.attachAlignFilesAsListEvent();
+  eventHandler.attachAlignFilesAsGridEvent();
+
+  //Setup search events
+  eventHandler.attachSearchFilesEvent();
 
 }
 
 /************************************************
-* Load Disks, directories and files
-************************************************/
+ * Load Disks, directories and files
+ ************************************************/
 
 function load(modalBoxParameters) {
-    modalBoxParams = modalBoxParameters || {};
-	eventHandler.resetView();
+  modalBoxParams = modalBoxParameters || {};
+  eventHandler.resetView();
 
-    if (element.getDirectories().find('li').length == 0 ||
-        savedDiskParam != modalBoxParameters.disks) {
-		loadDisks(modalBoxParameters);
-	}
+  if (element.getDirectories().find('li').length == 0 ||
+    savedDiskParam != modalBoxParameters.disks) {
+    loadDisks(modalBoxParameters);
+  }
+}
+
+function showHideDisks(modalBoxParameters) {
+
+  element.getDiskDropdown().find('option').each(function() {
+    if (modalBoxParameters.disks &&
+      modalBoxParameters.disks.length > 0 &&
+      modalBoxParameters.disks.indexOf($(this).text()) === -1) {
+      $(this).remove();
+    }
+  });
+
+  savedDiskParam = modalBoxParameters.disks;
 }
 
 function loadDisks(modalBoxParameters) {
-	savedDiskParam = modalBoxParameters.disks;
-	if (disksParam && disksParam.details && disksParam.details.length > 0) {
-		diskHandler.loadDisks(disksParam.details, modalBoxParameters);
-	} else {
-        diskHandler.noDiskSetup(disksParam);
-    }
+  if (disksParam && disksParam.details && disksParam.details.length > 0) {
+    diskHandler.loadDisks(disksParam.details);
+  } else {
+    diskHandler.noDiskSetup(disksParam);
+  }
+
+  showHideDisks(modalBoxParameters);
+  loadDirectories();
 }
 
 function loadDirectories() {
-	makeAjaxRequest(directoriesParam.list, success, fail, true, {path : '/'});
+  makeRequest(directoriesParam.list, success, fail, true, {path : '/'});
 
-	function success(data) {
-        dirHandler.loadDirectories(data);
-        loadFiles();
-	}
-	function fail() {
-	}
+  function success(data) {
+    dirHandler.loadDirectories(data);
+    loadFiles();
+  }
+  function fail() {
+    dirHandler.loadDirectories([]);
+    fileHandler.loadFiles([]);
+    console.error("failed to load directories");
+  }
 }
 
 function loadFiles(isRefresh) {
-    var cache = (isRefresh != true);
-	makeAjaxRequest(filesParam.list, success, fail, cache);
+  var cache = (isRefresh !== true);
+  makeRequest(filesParam.list, success, fail, cache);
 
-	function success(data) {
-		fileHandler.loadFiles(data);
-		setupSortDropdown();
-	}
+  function success(data) {
+    fileHandler.loadFiles(data);
+    setupSortDropdown();
+  }
 
-	function fail() {
-	}
+  function fail() {
+    console.error("failed to load files");
+  }
 }
 
 function setupSortDropdown() {
-	element.getSortFilesDropdown().empty();
-	element.getSortFilesDropdown().append(getOptionElement('Sort by', ''));
+  element.getSortFilesDropdown().empty();
+  element.getSortFilesDropdown().append(getOptionElement('Sort by', ''));
 
-	var responseParams = getFileResponseParams();
-	for (var key in responseParams) {
-		var param = responseParams[key];
-		element.getSortFilesDropdown().append(getOptionElement(param, key));
-	}
+  var responseParams = getFileResponseParams();
+  for (var key in responseParams) {
+    var param = responseParams[key];
+    element.getSortFilesDropdown().append(getOptionElement(param, key));
+  }
 
-	function getOptionElement(show, value) {
-		return $('<option value="'+value+'">'+show+'</option>');
-	}
+  function getOptionElement(show, value) {
+    return $('<option value="'+value+'">'+show+'</option>');
+  }
 }
 
 /************************************************
-* Setup events for disks, directories and files
-************************************************/
+ * Setup events for disks, directories and files
+ ************************************************/
 
 function attachDiskElementEvents() {
-	eventHandler.attachDiskElementEvent();
+  eventHandler.attachDiskElementEvent();
 }
 
 function attachDirectoryEvents(dirElement) {
 
-	if (dirElement.is('ul')) {
-		dirElement = dirElement.find('> li');
+  if (dirElement.is('ul')) {
+    dirElement = dirElement.find('> li');
+  }
+
+  eventHandler.attachKeysEventOnDirectories(dirElement, directoriesParam.list);
+  var showContextMenu = (typeof(directoriesParam.delete) !== 'undefined');
+  eventHandler.attachClickEventOnDirectories(dirElement, directoriesParam.list, showContextMenu);
+
+  renameDirectorySetup();
+  deleteDirectorySetup();
+
+  function renameDirectorySetup() {
+    if (directoriesParam.update) {
+      eventHandler.attachRenameDirectoryEvent(dirElement, directoriesParam.update);
     }
+  }
 
-	eventHandler.attachKeysEventOnDirectories(dirElement, directoriesParam.list);
-	var showContextMenu = (typeof(directoriesParam.delete) != 'undefined');
-	eventHandler.attachClickEventOnDirectories(dirElement, directoriesParam.list, showContextMenu);
-
-	renameDirectorySetup();
-	deleteDirectorySetup();
-
-	function renameDirectorySetup() {
-		if (directoriesParam.update) {
-			eventHandler.attachRenameDirectoryEvent(dirElement, directoriesParam.update);
-		}
-	}
-
-	function deleteDirectorySetup() {
-		if (directoriesParam.delete) {
-			eventHandler.attachDeleteDirectoryEvent(directoriesParam.delete);
-		}
-	}
+  function deleteDirectorySetup() {
+    if (directoriesParam.delete) {
+      eventHandler.attachDeleteDirectoryEvent(directoriesParam.delete);
+    }
+  }
 }
 
 function attachFileEvents() {
-	eventHandler.attachKeysEventOnFiles();
-	eventHandler.attachClickEventOnFiles();
+  eventHandler.attachKeysEventOnFiles();
+  eventHandler.attachClickEventOnFiles();
 
-    if (modalBoxParams.context_menu == true) {
-        eventHandler.attachFileContextMenuEvent();
+  if (modalBoxParams.context_menu === true) {
+    eventHandler.attachFileContextMenuEvent();
+  }
+
+  eventHandler.attachFileManageMenuEvent();
+
+  renameFileSetup();
+  deleteFileSetup();
+  downloadFileSetup();
+  viewFileSetup();
+
+  function renameFileSetup() {
+    var renameBtn = element.getRenameFile();
+    if (filesParam.update) {
+      element.show(renameBtn);
+      eventHandler.attachRenameFileEvent(filesParam.update);
+    } else {
+      element.hide(renameBtn);
     }
+  }
 
-	eventHandler.attachFileManageMenuEvent();
+  function deleteFileSetup() {
+    var deleteBtn = element.getRemoveFile();
+    if (filesParam.destroy) {
+      element.show(deleteBtn);
+      eventHandler.attachRemoveFileEvent(filesParam.destroy);
+    } else {
+      element.hide(deleteBtn);
+    }
+  }
 
-	renameFileSetup();	
-	deleteFileSetup();
-	downloadFileSetup();
-	viewFileSetup();
+  function downloadFileSetup() {
+    var downloadBtn = element.getDownloadFile();
+    if (filesParam.absolute_path !== false || filesParam.download) {
+      element.show(downloadBtn);
+      var isAbsolutePath = (filesParam.absolute_path !== false);
+      eventHandler.attachDownloadFileEvent(isAbsolutePath);
+    } else {
+      element.hide(downloadBtn);
+    }
+  }
 
-	function renameFileSetup() {
-		var renameBtn = element.getRenameFile();
-		if (filesParam.update) {
-			element.show(renameBtn);
-			eventHandler.attachRenameFileEvent(filesParam.update);
-		} else {
-			element.hide(renameBtn);
-		}
-	}
-
-	function deleteFileSetup() {
-		var deleteBtn = element.getRemoveFile();
-		if (filesParam.destroy) {
-			element.show(deleteBtn);
-			eventHandler.attachRemoveFileEvent(filesParam.destroy);
-		} else {
-			element.hide(deleteBtn);
-		}
-	}
-
-	function downloadFileSetup() {
-		var downloadBtn = element.getDownloadFile();
-		if (filesParam.absolute_path != false || filesParam.download) {
-			element.show(downloadBtn);
-			var isAbsolutePath = (filesParam.absolute_path != false);
-			eventHandler.attachDownloadFileEvent(isAbsolutePath);
-		} else {
-			element.hide(downloadBtn);
-		}
-	}
-
-	function viewFileSetup() {
-		var viewBtn = element.getViewFile();
-		if (filesParam.view) {
-			element.show(viewBtn);
-			eventHandler.attachViewFileEvent();
-		} else {
-			element.hide(viewBtn);
-		}
-	}
+  function viewFileSetup() {
+    var viewBtn = element.getViewFile();
+    if (filesParam.view) {
+      element.show(viewBtn);
+      eventHandler.attachViewFileEvent();
+    } else {
+      element.hide(viewBtn);
+    }
+  }
 }
 
 /************************************************
-* Return handlers and setup object parameters
-************************************************/
+ * Return handlers and setup object parameters
+ ************************************************/
 
 function getFileHandler() {
-	return fileHandler;
+  return fileHandler;
 }
 
 function getDirHandler() {
-	return dirHandler;
+  return dirHandler;
 }
 
 function getDiskHandler() {
-	return diskHandler;
+  return diskHandler;
 }
 function getEventHandler() {
-	return eventHandler;
+  return eventHandler;
 }
 
 function isSearchEnabled() {
-	return disksParam && disksParam.search == true;
+  return disksParam && disksParam.search === true;
 }
 
 function getDiskParameter() {
-	return disksParam;
+  return disksParam;
 }
 
 /************************************************
@@ -1157,120 +1213,131 @@ function getDiskParameter() {
  ************************************************/
 
 function getAbsolutePath(file, path) {
-	path = file.path || path;
-	return path + ((path.endsWith('/') ? '' : '/')) + file.name;
+  path = file.path || path;
+  return path + ((path.endsWith('/') ? '' : '/')) + file.name;
 }
 
 function getRootPathForCurrentDir() {
 
-    var root = diskHandler.getRootPath();
-    if (typeof(root) != 'undefined') {
-        return root + dirHandler.getCurrentDirectoryPath();
-    }
+  var root = diskHandler.getRootPath();
+  if (typeof(root) !== 'undefined') {
+    return root + dirHandler.getCurrentDirectoryPath();
+  }
 }
 
 function getCurrentFilePath() {
-    return getAbsolutePath(fileHandler.getCurrentFileDetails(), getRootPathForCurrentDir());
+  return getAbsolutePath(fileHandler.getCurrentFileDetails(), getRootPathForCurrentDir());
 }
 
-function makeAjaxRequest(url, successCallback, failureCallback, cache, data, isUpload) {
-
-	var method = 'POST';
-
-    if (typeof(cache) == 'undefined') {
-        cache = true;
+function makeRequest(url, successCallback, failureCallback, cache, data, isUpload) {
+  if (typeof(cache) === 'undefined') {
+    cache = true;
+  }
+  var params = (isUpload !== true) ? addCommonParameters(data) : addCommonParametersToFormData(data);
+  showLoadingBar(true);
+  $.ajax(getAjaxParameters()).success(function (data) {
+    if (successCallback) successCallback(data);
+    showLoadingBar(false);
+    hideError();
+  }).fail(function (response) {
+    if (failureCallback) {
+      failureCallback(response);
     }
-    var params = (isUpload != true) ? addCommonParameters(data) : addCommonParametersToFormData(data);
-    showLoadingBar(true);
-    $.ajax(getAjaxParameters()).success(function (data) {
-		if (successCallback) successCallback(data);
-        showLoadingBar(false);
-		element.getErrorMessagePlaceHolder().text('');
-    }).fail(function (response) {
-        if (failureCallback) failureCallback(response);
-        showLoadingBar(false);
-        updateError(response);
-	});
-
-    function getAjaxParameters() {
-        var parameters = {
-            url : url,
-            method : method,
-            data : params,
-            cache: cache,
-            beforeSend: function (request)
-            {
-                if (httpParams && httpParams.headers) {
-                    for (var key in httpParams.headers) {
-                        request.setRequestHeader(key, httpParams.headers[key]);
-                    }
-                }
-            }
-        };
-
-        if (isUpload == true) {
-            parameters.processData = false;
-            parameters.contentType = false;
+    showLoadingBar(false);
+    updateError(response);
+  });
+  function getAjaxParameters() {
+    var parameters = {
+      url : url,
+      type : 'POST',
+      data : params,
+      cache: cache,
+      xhrFields: {
+      	'withCredentials': true
+			},
+      beforeSend: function (request)
+      {
+        if (httpParams && httpParams.headers) {
+          for (var key in httpParams.headers) {
+            request.setRequestHeader(key, httpParams.headers[key]);
+          }
         }
-        return parameters;
+      }
+    };
+
+    if (isUpload === true) {
+      parameters.processData = false;
+      parameters.contentType = false;
     }
+    return parameters;
+  }
 
 }
 
 function showLoadingBar(show) {
-    if (show == true) {
-        element.show(element.getLoadingBar());
-        element.deactivate(element.getFileBrowserBody());
-    } else {
-        element.hide(element.getLoadingBar());
-        element.activate(element.getFileBrowserBody());
-    }
+  if (show === true) {
+    element.show(element.getLoadingBar());
+    element.deactivate(element.getFileBrowserBody());
+  } else {
+    element.hide(element.getLoadingBar());
+    element.activate(element.getFileBrowserBody());
+  }
 }
 
 function updateError(response) {
-    element.getErrorMessagePlaceHolder().empty();
-    var message = 'Request could not be completed.';
 
-    if (httpParams.error) {
-        message = httpParams.error(response.status, JSON.parse(response.responseText)) || message;
-    }
+  var message = response.statusText;
 
-    element.getErrorMessagePlaceHolder().text(message);
+  if (httpParams.error && response.status === 422) {
+    message = httpParams.error(response.status, JSON.parse(response.responseText)) || message;
+  }
+
+  showError(message);
+}
+
+function showError(message) {
+  element.show(element.getErrorMessagePlaceHolder());
+  element.getErrorMessagePlaceHolder().find('div').text(message);
+}
+
+function hideError() {
+  element.hide(element.getErrorMessagePlaceHolder());
+  element.getErrorMessagePlaceHolder().find('div').text('');
 }
 
 function addCommonParametersToFormData(formData) {
-	var params = addCommonParameters();
-	for (var key in params) {
-		formData.append(key, params[key]);
-	}
+  var params = addCommonParameters();
+  for (var key in params) {
+    formData.append(key, params[key]);
+  }
 
-	return formData;
+  return formData;
 }
 
 function addCommonParameters(params) {
 
-    params = params || {};
-    if (!params.disk) {
-	    var disk = diskHandler.getCurrentDisk();
-	    if (disk) {
-	        params.disk = disk.name;
-	    }    	
+  params = params || {};
+  if (!params.disk) {
+    var disk = diskHandler.getCurrentDisk();
+    if (disk) {
+      params.disk = disk.name;
     }
+  }
 
-    if (!params.path) {
-	    var dirPath = dirHandler.getCurrentDirectoryPath();
-	    dirPath =  dirPath || '/';
-	    if (dirPath) {
-	        params.path = dirPath;
-	    }    	
+  if (!params.path) {
+    var dirPath = dirHandler.getCurrentDirectoryPath();
+    dirPath =  dirPath || '/';
+    if (dirPath) {
+      params.path = dirPath;
     }
+  }
 
-    var rootDirectoryPath = diskHandler.getRootDirectory();
-	if (rootDirectoryPath) {
-		params.path = rootDirectoryPath + (params.path =='/' ? '' : params.path) ;
-	}
+  var rootDirectoryPath = diskHandler.getRootDirectory();
+  if (rootDirectoryPath) {
+    params.path = rootDirectoryPath + (params.path === '/' ? '' : params.path) ;
+  }
 
-    return params;
+  return params;
 }
 
 /****************************************************
@@ -1278,266 +1345,277 @@ function addCommonParameters(params) {
  *****************************************************/
 
 function getFileResponseParams() {
-    return {
-        name : 'Name',
-        type : 'Type',
-        size : 'size' + ((filesParam.size_unit) ? ('('+filesParam.size_unit+')') : ''),
-        modified_at : 'Last Modified Date'
-    };
+  return {
+    name : 'Name',
+    type : 'Type',
+    size : 'size' + ((filesParam.size_unit) ? ('('+filesParam.size_unit+')') : ''),
+    modified_at : 'Last Modified Date'
+  };
 }
 
 function updateButtonDetails(details) {
-    if (details && details.text && details.onClick) {
-    	element.forceShow(element.getPrimarySubmitButton());
-    	details.text = details.text || 'Fetch path';
-        element.getPrimarySubmitButton().text(details.text);
-        element.getPrimarySubmitButton().off('click');
-        element.getPrimarySubmitButton().click(function() {
-            if (details.onClick) {details.onClick(getCurrentFilePath());}
-            element.hide(element.getPrimarySubmitButton());
-            element.closeModal();
-        });
-    } else {
-    	element.forceHide(element.getPrimarySubmitButton());
-    }
+  if (details && details.text && details.onClick) {
+    details.text = details.text || 'Fetch path';
+    element.getPrimarySubmitButton().text(details.text);
+    element.getPrimarySubmitButton().off('click');
+    element.getPrimarySubmitButton().click(function() {
+      if (details.onClick) {details.onClick(getCurrentFilePath());}
+      element.hide(element.getPrimarySubmitButton());
+      element.closeModal();
+    });
+  }
 }
 
 module.exports = {
-	setupHandlers: setupHandlers,
-	setupParameters: setupParameters,
-	setupElementsAndEvents: setupElementsAndEvents,
-	setupEvents: setupEvents,
+  setupHandlers: setupHandlers,
+  setupParameters: setupParameters,
+  setupElementsAndEvents: setupElementsAndEvents,
+  setupEvents: setupEvents,
 
-	load: load,
-	loadFiles: loadFiles,
-    loadDirectories: loadDirectories,
+  load: load,
+  loadFiles: loadFiles,
+  loadDirectories: loadDirectories,
 
-	getFileHandler: getFileHandler,
-	getDiskHandler: getDiskHandler,
-	getDirHandler: getDirHandler,
-    getEventHandler: getEventHandler,
+  getFileHandler: getFileHandler,
+  getDiskHandler: getDiskHandler,
+  getDirHandler: getDirHandler,
+  getEventHandler: getEventHandler,
 
-	getDiskParameter: getDiskParameter,
-	isSearchEnabled: isSearchEnabled,
+  getDiskParameter: getDiskParameter,
+  isSearchEnabled: isSearchEnabled,
 
-	attachDiskElementEvents: attachDiskElementEvents,
-	attachDirectoryEvents: attachDirectoryEvents,
-	attachFileEvents: attachFileEvents,
+  attachDiskElementEvents: attachDiskElementEvents,
+  attachDirectoryEvents: attachDirectoryEvents,
+  attachFileEvents: attachFileEvents,
 
-	getAbsolutePath: getAbsolutePath,
-    makeAjaxRequest: makeAjaxRequest,
-    getRootPathForCurrentDir: getRootPathForCurrentDir,
-    getCurrentFilePath: getCurrentFilePath,
-    getFileResponseParams: getFileResponseParams,
-    updateButtonDetails : updateButtonDetails
+  getAbsolutePath: getAbsolutePath,
+  makeRequest: makeRequest,
+  getRootPathForCurrentDir: getRootPathForCurrentDir,
+  getCurrentFilePath: getCurrentFilePath,
+  getFileResponseParams: getFileResponseParams,
+  updateButtonDetails : updateButtonDetails,
 
+  showError: showError,
+  hideError: hideError
 };
 },{"../helpers/element.js":5,"../helpers/util.js":6}],5:[function(require,module,exports){
 var fbElement,
-    primaryBtn,
-    loadingBar,
-    errorMessage,
-    fileBrowserBody,
+  primaryBtn,
+  loadingBar,
+  errorMessage,
+  fileBrowserBody,
 
-    diskDropdown,
+  diskDropdown,
+  diskTypes,
 
-    directoryWindow,
-    directoriesList,
-    createNewDirectory,
+  directoryWindow,
+  directoriesList,
+  createNewDirectory,
 
-    fileWindow,
-    fileList,
-    fileGrid,
+  fileWindow,
+  fileList,
+  fileGrid,
 
-    fileContextMenu,
-    fileRename,
-    fileRemove,
-    fileDownload,
-    fileView,
-    fileManageMenu,
+  fileContextMenu,
+  fileRename,
+  fileRemove,
+  fileDownload,
+  fileView,
+  fileManageMenu,
 
-    directoryContextMenu,
-    deleteDirectory,
+  directoryContextMenu,
+  deleteDirectory,
 
-    fileRenameBox,
-    fileRenameClose,
-    fileRenameOkay,
-    fileRenameInput,
+  fileRenameBox,
+  fileRenameClose,
+  fileRenameOkay,
+  fileRenameInput,
 
-    fileRemoveBox,
-    fileRemoveClose,
-    fileRemoveOkay,
+  fileRemoveBox,
+  fileRemoveClose,
+  fileRemoveOkay,
 
-    uploadFileBtn,
-    uploadFileInput,
-    cancelFileUploadBtn,
-    uploadFileToServerBtn,
-    fileBrowserUploadForm,
-    uploadFileParamContainer,
-    uploadFileLoadingBar,
+  uploadFileBtn,
+  uploadFileInput,
+  cancelFileUploadBtn,
+  uploadFileToServerBtn,
+  fileBrowserUploadForm,
+  uploadFileParamContainer,
+  uploadFileLoadingBar,
 
-    fileRefreshBtn,
-    fileAlignListBtn,
-    fileAlignGridBtn,
-    sortFilesDropdown,
-    showFileDetailsDiv,
+  fileRefreshBtn,
+  fileAlignListBtn,
+  fileAlignGridBtn,
+  sortFilesDropdown,
+  showFileDetailsDiv,
 
-    searchBtn,
-    searchCancelBtn,
-    searchInput,
-    fileSearchOptions
-    ;
+  searchBtn,
+  searchCancelBtn,
+  searchInput,
+  fileSearchOptions
+;
 
 
 function flush() {
-    fbElement = undefined;
-    primaryBtn = undefined;
-    loadingBar = undefined;
-    errorMessage = undefined;
-    fileBrowserBody = undefined;
+  fbElement = undefined;
+  primaryBtn = undefined;
+  loadingBar = undefined;
+  errorMessage = undefined;
+  fileBrowserBody = undefined;
 
-    diskDropdown = undefined;
+  diskDropdown = undefined;
+  diskTypes = undefined;
 
-    directoryWindow = undefined;
-    directoriesList = undefined;
-    createNewDirectory = undefined;
+  directoryWindow = undefined;
+  directoriesList = undefined;
+  createNewDirectory = undefined;
 
-    fileWindow = undefined;
-    fileList = undefined;
-    fileGrid = undefined;
+  fileWindow = undefined;
+  fileList = undefined;
+  fileGrid = undefined;
 
-    fileContextMenu = undefined;
-    fileRename = undefined;
-    fileRemove = undefined;
-    fileDownload = undefined;
-    fileView = undefined;
-    fileManageMenu = undefined;
+  fileContextMenu = undefined;
+  fileRename = undefined;
+  fileRemove = undefined;
+  fileDownload = undefined;
+  fileView = undefined;
+  fileManageMenu = undefined;
 
-    directoryContextMenu = undefined;
-    deleteDirectory = undefined;
+  directoryContextMenu = undefined;
+  deleteDirectory = undefined;
 
-    fileRenameBox = undefined;
-    fileRenameClose = undefined;
-    fileRenameOkay = undefined;
-    fileRenameInput = undefined;
+  fileRenameBox = undefined;
+  fileRenameClose = undefined;
+  fileRenameOkay = undefined;
+  fileRenameInput = undefined;
 
-    fileRemoveBox = undefined;
-    fileRemoveClose = undefined;
-    fileRemoveOkay = undefined;
+  fileRemoveBox = undefined;
+  fileRemoveClose = undefined;
+  fileRemoveOkay = undefined;
 
-    uploadFileBtn = undefined;
-    uploadFileInput = undefined;
-    cancelFileUploadBtn = undefined;
-    uploadFileToServerBtn = undefined;
-    fileBrowserUploadForm = undefined;
-    uploadFileParamContainer = undefined;
-    uploadFileLoadingBar = undefined;
+  uploadFileBtn = undefined;
+  uploadFileInput = undefined;
+  cancelFileUploadBtn = undefined;
+  uploadFileToServerBtn = undefined;
+  fileBrowserUploadForm = undefined;
+  uploadFileParamContainer = undefined;
+  uploadFileLoadingBar = undefined;
 
-    fileRefreshBtn = undefined;
-    fileAlignListBtn = undefined;
-    fileAlignGridBtn = undefined;
-    sortFilesDropdown = undefined;
-    showFileDetailsDiv = undefined;
+  fileRefreshBtn = undefined;
+  fileAlignListBtn = undefined;
+  fileAlignGridBtn = undefined;
+  sortFilesDropdown = undefined;
+  showFileDetailsDiv = undefined;
 
-    searchBtn = undefined;
-    searchCancelBtn = undefined;
-    searchInput = undefined;
-    fileSearchOptions = undefined;
+  searchBtn = undefined;
+  searchCancelBtn = undefined;
+  searchInput = undefined;
+  fileSearchOptions = undefined;
 }
 /************************************************
-* Browser window
-************************************************/
+ * Browser window
+ ************************************************/
 
 function getFileBrowser() {
 
-    if (!fbElement || fbElement.length == 0) {
-        fbElement= $('#FileBrowser');
-    }
+  if (!fbElement || fbElement.length === 0) {
+    fbElement= $('#FileBrowser');
+  }
 
-    return fbElement;
+  return fbElement;
 
 }
 
 function getPrimarySubmitButton() {
-    if (!primaryBtn  || primaryBtn.length == 0) {
-        primaryBtn= getFileBrowser().find('#fb-primary-btn');
-    }
+  if (!primaryBtn  || primaryBtn.length === 0) {
+    primaryBtn= getFileBrowser().find('#fb-primary-btn');
+  }
 
-    return primaryBtn;
+  return primaryBtn;
 }
 
 function getLoadingBar() {
-    if (!loadingBar  || loadingBar.length == 0) {
-        loadingBar= getFileBrowser().find('#loading_bar');
-    }
+  if (!loadingBar  || loadingBar.length === 0) {
+    loadingBar= getFileBrowser().find('#loading_bar');
+  }
 
-    return loadingBar;
+  return loadingBar;
 }
 
 function getFileBrowserBody() {
-    if (!fileBrowserBody  || fileBrowserBody.length == 0) {
-        fileBrowserBody= getFileBrowser().find('.modal-body');
-    }
+  if (!fileBrowserBody  || fileBrowserBody.length === 0) {
+    fileBrowserBody= getFileBrowser().find('.modal-body');
+  }
 
-    return fileBrowserBody;
+  return fileBrowserBody;
 }
 
 function getErrorMessagePlaceHolder() {
-    if (!errorMessage  || errorMessage.length == 0) {
-        errorMessage= getFileBrowser().find('#error_message');
-    }
+  if (!errorMessage  || errorMessage.length === 0) {
+    errorMessage= getFileBrowser().find('#error_message');
+    errorMessage.find('.close').click(function () {
+      hide($('#' + $(this).data('dismiss')));
+    });
+  }
 
-    return errorMessage;
+  return errorMessage;
 }
 
 
 
 /************************************************
-* Disk Elements
-************************************************/
+ * Disk Elements
+ ************************************************/
 
 function getDiskDropdown() {
 
-    if (!diskDropdown  || diskDropdown.length == 0) {
-        diskDropdown= getFileBrowser().find('#disk_selector');
-    }
+  if (!diskDropdown  || diskDropdown.length === 0) {
+    diskDropdown= getFileBrowser().find('#disk_selector');
+  }
 
-    return diskDropdown;
+  return diskDropdown;
 
 }
 
+function getDiskTypes() {
+  if (!diskTypes || diskTypes.length === 0) {
+    diskTypes= getFileBrowser().find('#disk-types');
+  }
+
+  return diskTypes;
+}
 /************************************************
-* Directory Elements
-************************************************/
+ * Directory Elements
+ ************************************************/
 
 function getDirectoryWindow() {
 
-    if (!directoryWindow || directoryWindow.length == 0) {
-      directoryWindow= getFileBrowser().find('.directories');  
-    } 
+  if (!directoryWindow || directoryWindow.length === 0) {
+    directoryWindow= getFileBrowser().find('.directories');
+  }
 
-    return directoryWindow;
+  return directoryWindow;
 
 }
 
 function getDirectories() {
 
-    if (!directoriesList  || directoriesList.length == 0) {
-        directoriesList= getDirectoryWindow().find('ul#directories-list');
-    }
+  if (!directoriesList  || directoriesList.length === 0) {
+    directoriesList= getDirectoryWindow().find('ul#directories-list');
+  }
 
-    return directoriesList;
+  return directoriesList;
 
 }
 
 
 function getCreateNewDirectory() {
 
-    if(!createNewDirectory || createNewDirectory.length == 0) {
-        createNewDirectory = getFileBrowser().find('#fb_create_new_directory');
-    }
+  if(!createNewDirectory || createNewDirectory.length === 0) {
+    createNewDirectory = getFileBrowser().find('#fb_create_new_directory');
+  }
 
-    return createNewDirectory;
+  return createNewDirectory;
 
 }
 
@@ -1546,679 +1624,667 @@ function getCreateNewDirectory() {
  ************************************************/
 
 function getDirectoryContextMenu() {
-    if(!directoryContextMenu || directoryContextMenu.length == 0) {
-        directoryContextMenu = getFileBrowser().find('#directory-context-menu');
-    }
+  if(!directoryContextMenu || directoryContextMenu.length === 0) {
+    directoryContextMenu = getFileBrowser().find('#directory-context-menu');
+  }
 
-    return directoryContextMenu;
+  return directoryContextMenu;
 
 
 }
 
 function getDeleteDirectory() {
 
-    if(!deleteDirectory || deleteDirectory.length == 0) {
-        deleteDirectory = getDirectoryContextMenu().find('#remove-directory');
-    }
+  if(!deleteDirectory || deleteDirectory.length === 0) {
+    deleteDirectory = getDirectoryContextMenu().find('#remove-directory');
+  }
 
-    return deleteDirectory;
+  return deleteDirectory;
 
 }
 
 /************************************************
-* File Elements
-************************************************/
+ * File Elements
+ ************************************************/
 
 function getFileWindow() {
 
-    if (!fileWindow || fileWindow.length == 0) {
-        fileWindow= getFileBrowser().find('.files');
-    }
+  if (!fileWindow || fileWindow.length === 0) {
+    fileWindow= getFileBrowser().find('.files');
+  }
 
-    return fileWindow;
+  return fileWindow;
 
 }
 
 function getFilesList() {
 
-    if (!fileList || fileList.length == 0) {
-        fileList= getFileWindow().find('#files-list');
-    }
+  if (!fileList || fileList.length === 0) {
+    fileList= getFileWindow().find('#files-list');
+  }
 
-    return fileList;
+  return fileList;
 
 }
 
 function getFilesGrid() {
 
-    if (!fileGrid || fileGrid.length == 0) {
-        fileGrid= getFileWindow().find('#files-grid');
-    }
+  if (!fileGrid || fileGrid.length === 0) {
+    fileGrid= getFileWindow().find('#files-grid');
+  }
 
-    return fileGrid;
+  return fileGrid;
 
 }
 
 function getFileDetailsDiv() {
 
-    if (!showFileDetailsDiv || showFileDetailsDiv.length == 0) {
-        showFileDetailsDiv = getFileBrowser().find('#show-file-details');
-    }
+  if (!showFileDetailsDiv || showFileDetailsDiv.length === 0) {
+    showFileDetailsDiv = getFileBrowser().find('#show-file-details');
+  }
 
-    return showFileDetailsDiv;
+  return showFileDetailsDiv;
 
 }
 
 function getFileManageMenu() {
 
-    if (!fileManageMenu || fileManageMenu.length == 0) {
-        fileManageMenu = getFileBrowser().find('#fb_file_manage');
-    }
+  if (!fileManageMenu || fileManageMenu.length === 0) {
+    fileManageMenu = getFileBrowser().find('#fb_file_manage');
+  }
 
-    return fileManageMenu;
+  return fileManageMenu;
 
 }
 
 /************************************************
-* Elements in file right click menu
-************************************************/
+ * Elements in file right click menu
+ ************************************************/
 
 function getFileContextMenu() {
 
-    if (!fileContextMenu || fileContextMenu.length == 0) {
-        fileContextMenu = getFileBrowser().find('#file-context-menu');
-    }
+  if (!fileContextMenu || fileContextMenu.length === 0) {
+    fileContextMenu = getFileBrowser().find('#file-context-menu');
+  }
 
-    return fileContextMenu;
+  return fileContextMenu;
 
 }
 
 function getViewFile() {
-    if (!fileView || fileView.length == 0) {
-        fileView = getFileContextMenu().find('#view-file');
-    }
+  if (!fileView || fileView.length === 0) {
+    fileView = getFileContextMenu().find('#view-file');
+  }
 
-    return fileView;
+  return fileView;
 }
 
 function getDownloadFile() {
-    if (!fileDownload || fileDownload.length == 0) {
-        fileDownload = getFileContextMenu().find('#download-file');
-    }
+  if (!fileDownload || fileDownload.length === 0) {
+    fileDownload = getFileContextMenu().find('#download-file');
+  }
 
-    return fileDownload;
+  return fileDownload;
 }
 
 function getRenameFile() {
-    if (!fileRename || fileRename.length == 0) {
-        fileRename = getFileContextMenu().find('#rename-file');
-    }
+  if (!fileRename || fileRename.length === 0) {
+    fileRename = getFileContextMenu().find('#rename-file');
+  }
 
-    return fileRename;
+  return fileRename;
 }
 
 function getRemoveFile() {
-    if (!fileRemove || fileRemove.length == 0) {
-        fileRemove = getFileContextMenu().find('#remove-file');
-    }
+  if (!fileRemove || fileRemove.length === 0) {
+    fileRemove = getFileContextMenu().find('#remove-file');
+  }
 
-    return fileRemove;
+  return fileRemove;
 }
 
 /************************************************
-* Rename File elements
-************************************************/
+ * Rename File elements
+ ************************************************/
 
 function getRenameFileBox() {
-    if (!fileRenameBox || fileRenameBox.length == 0) {
-        fileRenameBox = getFileWindow().find('#rename-file-box');
-    }
+  if (!fileRenameBox || fileRenameBox.length === 0) {
+    fileRenameBox = getFileWindow().find('#rename-file-box');
+  }
 
-    return fileRenameBox;
+  return fileRenameBox;
 }
 
 function getRenameFileOkay() {
-    if (!fileRenameOkay || fileRenameOkay.length == 0) {
-        fileRenameOkay = getRenameFileBox().find('#rename-file-ok');
-    }
+  if (!fileRenameOkay || fileRenameOkay.length === 0) {
+    fileRenameOkay = getRenameFileBox().find('#rename-file-ok');
+  }
 
-    return fileRenameOkay;
+  return fileRenameOkay;
 }
 
 function getRenameFileClose() {
-    if (!fileRenameClose || fileRenameClose.length == 0) {
-        fileRenameClose = getRenameFileBox().find('#rename-file-close');
-    }
+  if (!fileRenameClose || fileRenameClose.length === 0) {
+    fileRenameClose = getRenameFileBox().find('#rename-file-close');
+  }
 
-    return fileRenameClose;
+  return fileRenameClose;
 }
 
 function getRenameFileInput() {
-    if (!fileRenameInput || fileRenameInput.length == 0) {
-        fileRenameInput = getRenameFileBox().find('#rename-file-name');
-    }
+  if (!fileRenameInput || fileRenameInput.length === 0) {
+    fileRenameInput = getRenameFileBox().find('#rename-file-name');
+  }
 
-    return fileRenameInput;
+  return fileRenameInput;
 }
 
 /************************************************
-* Remove File elements
-************************************************/
+ * Remove File elements
+ ************************************************/
 
 function getRemoveFileBox() {
-    if (!fileRemoveBox || fileRemoveBox.length == 0) {
-        fileRemoveBox = getFileWindow().find('#remove-file-box');
-    }
+  if (!fileRemoveBox || fileRemoveBox.length === 0) {
+    fileRemoveBox = getFileWindow().find('#remove-file-box');
+  }
 
-    return fileRemoveBox;
+  return fileRemoveBox;
 }
 
 function getRemoveFileOkay() {
-    if (!fileRemoveOkay || fileRemoveOkay.length == 0) {
-        fileRemoveOkay = getRemoveFileBox().find('#remove-file-ok');
-    }
+  if (!fileRemoveOkay || fileRemoveOkay.length === 0) {
+    fileRemoveOkay = getRemoveFileBox().find('#remove-file-ok');
+  }
 
-    return fileRemoveOkay;
+  return fileRemoveOkay;
 }
 
 function getRemoveFileClose() {
-    if (!fileRemoveClose || fileRemoveClose.length == 0) {
-        fileRemoveClose = getRemoveFileBox().find('#remove-file-close');
-    }
+  if (!fileRemoveClose || fileRemoveClose.length === 0) {
+    fileRemoveClose = getRemoveFileBox().find('#remove-file-close');
+  }
 
-    return fileRemoveClose;
+  return fileRemoveClose;
 }
 
 /************************************************
-* Upload File Elements
-************************************************/
+ * Upload File Elements
+ ************************************************/
 
 function getUploadFileInput() {
 
-    if(!uploadFileInput || uploadFileInput.length == 0) {
-        uploadFileInput = getFileBrowser().find('#upload_file');
-    }
+  if(!uploadFileInput || uploadFileInput.length === 0) {
+    uploadFileInput = getFileBrowser().find('#upload_file');
+  }
 
-    return uploadFileInput;
+  return uploadFileInput;
 
 }
 
 function getUploadFileBtn() {
 
-    if(!uploadFileBtn  || uploadFileBtn.length == 0) {
-        uploadFileBtn = getFileBrowser().find('#upload_file_btn');
-    }
+  if(!uploadFileBtn  || uploadFileBtn.length === 0) {
+    uploadFileBtn = getFileBrowser().find('#upload_file_btn');
+  }
 
-    return uploadFileBtn;
+  return uploadFileBtn;
 
 }
 
 function getCancelFileUploadBtn() {
 
-    if(!cancelFileUploadBtn  || cancelFileUploadBtn.length == 0) {
-        cancelFileUploadBtn = getFileBrowser().find('#cancel_file_upload');
-    }
+  if(!cancelFileUploadBtn  || cancelFileUploadBtn.length === 0) {
+    cancelFileUploadBtn = getFileBrowser().find('#cancel_file_upload');
+  }
 
-    return cancelFileUploadBtn;
+  return cancelFileUploadBtn;
 
 }
 
 function getUploadFileParameterContainer() {
 
-    if (!uploadFileParamContainer || uploadFileParamContainer.length == 0) {
-        uploadFileParamContainer = getFileBrowser().find('#upload_file_parameters');
-    }
+  if (!uploadFileParamContainer || uploadFileParamContainer.length === 0) {
+    uploadFileParamContainer = getFileBrowser().find('#upload_file_parameters');
+  }
 
-    return uploadFileParamContainer;
+  return uploadFileParamContainer;
 
 }
 
 function getUploadFileToServerBtn() {
 
-    if(!uploadFileToServerBtn  || uploadFileToServerBtn.length == 0) {
-        uploadFileToServerBtn = getFileBrowser().find('#upload_file_to_Server');
-    }
+  if(!uploadFileToServerBtn  || uploadFileToServerBtn.length === 0) {
+    uploadFileToServerBtn = getFileBrowser().find('#upload_file_to_Server');
+  }
 
-    return uploadFileToServerBtn;
+  return uploadFileToServerBtn;
 
 }
 
 function getFileBrowserUploadForm() {
 
-    if(!fileBrowserUploadForm || fileBrowserUploadForm.length == 0) {
-        fileBrowserUploadForm = getFileWindow().find('#file_browser_upload');
-    }
+  if(!fileBrowserUploadForm || fileBrowserUploadForm.length === 0) {
+    fileBrowserUploadForm = getFileWindow().find('#file_browser_upload');
+  }
 
-    return fileBrowserUploadForm;
+  return fileBrowserUploadForm;
 
 }
 
 function getUploadFileLoadingBar() {
 
-    if(!uploadFileLoadingBar || uploadFileLoadingBar.length == 0) {
-        uploadFileLoadingBar = getFileWindow().find('#upload_file_loading');
-    }
+  if(!uploadFileLoadingBar || uploadFileLoadingBar.length === 0) {
+    uploadFileLoadingBar = getFileWindow().find('#upload_file_loading');
+  }
 
-    return uploadFileLoadingBar;
+  return uploadFileLoadingBar;
 
 }
 
 /************************************************
-* Toolbar elements
-************************************************/
+ * Toolbar elements
+ ************************************************/
 
 function getFileRefreshBtn() {
 
-    if(!fileRefreshBtn  || fileRefreshBtn.length == 0) {
-        fileRefreshBtn = getFileBrowser().find('#fb_refresh');
-    }
+  if(!fileRefreshBtn  || fileRefreshBtn.length === 0) {
+    fileRefreshBtn = getFileBrowser().find('#fb_refresh');
+  }
 
-    return fileRefreshBtn;
+  return fileRefreshBtn;
 
 }
 
 function getFileAlignListBtn() {
 
-    if(!fileAlignListBtn || fileAlignListBtn.length == 0) {
-        fileAlignListBtn = getFileBrowser().find('#fb_align_list');
-    }
+  if(!fileAlignListBtn || fileAlignListBtn.length === 0) {
+    fileAlignListBtn = getFileBrowser().find('#fb_align_list');
+  }
 
-    return fileAlignListBtn;
+  return fileAlignListBtn;
 
 }
 
 function getFileAlignGridBtn() {
 
-    if(!fileAlignGridBtn || fileAlignGridBtn.length == 0) {
-        fileAlignGridBtn = getFileBrowser().find('#fb_align_grid');
-    }
+  if(!fileAlignGridBtn || fileAlignGridBtn.length === 0) {
+    fileAlignGridBtn = getFileBrowser().find('#fb_align_grid');
+  }
 
-    return fileAlignGridBtn;
+  return fileAlignGridBtn;
 
 }
 
 function getSortFilesDropdown() {
 
-    if(!sortFilesDropdown || sortFilesDropdown.length == 0) {
-        sortFilesDropdown = getFileBrowser().find('#fb_sort_files');
-    }
+  if(!sortFilesDropdown || sortFilesDropdown.length === 0) {
+    sortFilesDropdown = getFileBrowser().find('#fb_sort_files');
+  }
 
-    return sortFilesDropdown;
+  return sortFilesDropdown;
 
 }
 
 /************************************************
-* Search file elements
-************************************************/
+ * Search file elements
+ ************************************************/
 
 function getSearchBtn() {
 
-    if(!searchBtn || searchBtn.length == 0) {
-        searchBtn = getFileBrowser().find('#fb_search_submit');
-    }
+  if(!searchBtn || searchBtn.length === 0) {
+    searchBtn = getFileBrowser().find('#fb_search_submit');
+  }
 
-    return searchBtn;
+  return searchBtn;
 
 }
 
 function getSearchCancelBtn() {
 
-    if(!searchCancelBtn || searchCancelBtn.length == 0) {
-        searchCancelBtn = getFileBrowser().find('#fb_search_cancel');
-    }
+  if(!searchCancelBtn || searchCancelBtn.length === 0) {
+    searchCancelBtn = getFileBrowser().find('#fb_search_cancel');
+  }
 
-    return searchCancelBtn;
+  return searchCancelBtn;
 
 }
 
 function getSearchInput() {
 
-    if(!searchInput || searchInput.length == 0) {
-        searchInput = getFileBrowser().find('#fb_search_input');
-    }
+  if(!searchInput || searchInput.length === 0) {
+    searchInput = getFileBrowser().find('#fb_search_input');
+  }
 
-    return searchInput;
+  return searchInput;
 
 }
 
 function getFileSearchOptions() {
 
-    if (!fileSearchOptions || fileSearchOptions.length == 0) {
-        fileSearchOptions = getFileBrowser().find('#fb_file_search_options');
-    }
+  if (!fileSearchOptions || fileSearchOptions.length === 0) {
+    fileSearchOptions = getFileBrowser().find('#fb_file_search_options');
+  }
 
-    return fileSearchOptions;
+  return fileSearchOptions;
 
 }
 
 /************************************************
-* Utility functions on elements
-************************************************/
+ * Utility functions on elements
+ ************************************************/
 
 function show(elem) {
 
-    elem.removeClass('hidden');
+  elem.removeClass('hidden');
 
 }
 
 function hide(elem) {
 
-    elem.addClass('hidden');
+  elem.addClass('hidden');
 
 }
 
-function forceShow(elem) {
-
-    elem.removeClass('force-hidden');
-
-}
-
-function forceHide(elem) {
-
-    elem.addClass('force-hidden');
-
-}
 function moveUpInTable (table, row) {
-    var success = false;
-    var elements = table.find('tbody > tr');
-    elements.each(function (index) {
-        if ($(this).is(row) && index > 0) {
-            var prev = elements[index - 1];
-            focusTableElement(table, $(prev)); 
-            success = true;
-            return false;
-        }
-    });
-    return success;
+  var success = false;
+  var elements = table.find('tbody > tr');
+  elements.each(function (index) {
+    if ($(this).is(row) && index > 0) {
+      var prev = elements[index - 1];
+      focusTableElement(table, $(prev));
+      success = true;
+      return false;
+    }
+  });
+  return success;
 }
 
 function moveDownInTable (table, row) {
-    var success = false;
-    var elements = table.find('tbody > tr');
-    elements.each(function (index) {
-        if ($(this).is(row) && index < elements.length - 1) {
-            var next = elements[index + 1];
-            focusTableElement(table, $(next)); 
-            success = true;
-            return false;
-        }
-    });
-    return success;
+  var success = false;
+  var elements = table.find('tbody > tr');
+  elements.each(function (index) {
+    if ($(this).is(row) && index < elements.length - 1) {
+      var next = elements[index + 1];
+      focusTableElement(table, $(next));
+      success = true;
+      return false;
+    }
+  });
+  return success;
 }
 
 function focusTableElement(table, row) {
-    selectTableRow(table, row);
-    row.click();
-    row.focus();
+  selectTableRow(table, row);
+  row.click();
+  row.focus();
 }
 
 function moveUp(ulElement, liElement, callback) {
 
-    var success = false;
-    var elements = ulElement.find('li');
-    elements.each(function (index) {
-        if ($(this).is(liElement)) {
-            if (index > 0) {
-                //Select previous element 
-                var prev = elements[index - 1];
-                focusElement(ulElement, $(prev));
-            } else {
-                //select parent element
-                selectParentElement(ulElement, liElement);
-            }
-            if (callback) {
-                callback();
-            }
-            success = true;
-            return false;
-        }
-    });
-
-    function selectParentElement(ulElement, liElement) {
-        var parent = ulElement.closest('li');
-        if (parent.length > 0) {
-            unselect(liElement);
-            focusElement(parent.closest('ul'), parent);
-        }       
+  var success = false;
+  var elements = ulElement.find('li');
+  elements.each(function (index) {
+    if ($(this).is(liElement)) {
+      if (index > 0) {
+        //Select previous element
+        var prev = elements[index - 1];
+        focusElement(ulElement, $(prev));
+      } else {
+        //select parent element
+        selectParentElement(ulElement, liElement);
+      }
+      if (callback) {
+        callback();
+      }
+      success = true;
+      return false;
     }
+  });
 
-    return success;
+  function selectParentElement(ulElement, liElement) {
+    var parent = ulElement.closest('li');
+    if (parent.length > 0) {
+      unselect(liElement);
+      focusElement(parent.closest('ul'), parent);
+    }
+  }
+
+  return success;
 }
 
 function moveDown(ulElement, liElement, callback) {
 
-    var success = false;
-    var elements = ulElement.find('li');
-    elements.each(function (index) {
-        if ($(this).is(liElement)) {
-            if (index < elements.length - 1) {
-                var next = elements[index + 1];
-                //Select next element
-                focusElement(ulElement, $(next));
-            } else {
-                //Select next element in parent
-                selectNextParentElement(ulElement, liElement);
-            }
-            if (callback) {
-                callback();
-            }
-            success = true;
-            return false;
-        }
-
-    });
-
-    function selectNextParentElement(ulElement, liElement) {
-        var parent = ulElement.closest('li').next();
-        if (parent.length > 0) {
-            unselect(liElement);
-            focusElement(parent.closest('ul'), parent);
-        }       
+  var success = false;
+  var elements = ulElement.find('li');
+  elements.each(function (index) {
+    if ($(this).is(liElement)) {
+      if (index < elements.length - 1) {
+        var next = elements[index + 1];
+        //Select next element
+        focusElement(ulElement, $(next));
+      } else {
+        //Select next element in parent
+        selectNextParentElement(ulElement, liElement);
+      }
+      if (callback) {
+        callback();
+      }
+      success = true;
+      return false;
     }
 
-    return success;
+  });
+
+  function selectNextParentElement(ulElement, liElement) {
+    var parent = ulElement.closest('li').next();
+    if (parent.length > 0) {
+      unselect(liElement);
+      focusElement(parent.closest('ul'), parent);
+    }
+  }
+
+  return success;
 }
 
 function focusElement(ulElement, element) {
-    select(ulElement, element);
-    element.click();
-    element.focus();
+  select(ulElement, element);
+  element.click();
+  element.focus();
 }
 
 function focusAndSelect(input) {
 
-    input.focus();
-    input.select();
+  input.focus();
+  input.select();
 
 }
 
 function select(ulElement, liElement) {
 
-    ulElement.find('li').removeClass('active');
-    liElement.addClass('active');
+  ulElement.find('li').removeClass('active');
+  liElement.addClass('active');
 
 }
 
 function getSelected(element) {
 
-    return element.find('.active');
+  return element.find('.active');
 }
 
 function unselect(liElement) {
-    liElement.removeClass('active');
+  liElement.removeClass('active');
 }
 
 function selectFirst(ulElement) {
 
-    ulElement.find('li').removeClass('active');
-    ulElement.find('li').eq(0).addClass('active');
+  ulElement.find('li').removeClass('active');
+  ulElement.find('li').eq(0).addClass('active');
 
 }
 
 function selectTableRow(table, row) {
 
-    table.find('tbody tr').removeClass('active');
-    row.addClass('active');
+  table.find('tbody tr').removeClass('active');
+  row.addClass('active');
 }
 
 function unselectTableRow(row) {
-    row.removeClass('active');
+  row.removeClass('active');
 }
 
 
 function openModal(allowResizing, callback) {
 
-    getFileBrowser().modal({
-        keyboard: false,
-        backdrop: 'static'
+  getFileBrowser().modal({
+    keyboard: false,
+    backdrop: 'static'
+  });
+
+  if (allowResizing === true) {
+    allowModalResize();
+
+    $(window).resize(function(){
+      allowModalResize();
     });
-
-    if (allowResizing == true) {
-        allowModalResize();
-
-        $(window).resize(function(){
-            allowModalResize();
-        });
-    }
+  }
 }
 
 function getDiskBrowserPath() {
-    var scripts = document.getElementsByTagName('SCRIPT');
-    var path = '';
-    if(scripts && scripts.length>0) {
-        for(var i in scripts) {
-            if(scripts[i].src && scripts[i].src.match(/\/disk-browser\.js$/)) {
-                path = scripts[i].src.replace(/(.*)\/js\/disk-browser\.js$/, '$1');
-                break;
-            }
-        }
+  var scripts = document.getElementsByTagName('SCRIPT');
+  var path = '';
+  if(scripts && scripts.length>0) {
+    for(var i in scripts) {
+      if(scripts[i].src && scripts[i].src.match(/\/disk-browser\.js$/)) {
+        path = scripts[i].src.replace(/(.*)\/js\/disk-browser\.js$/, '$1');
+        break;
+      }
     }
-    return path;
+  }
+  return path;
 }
 
 function allowModalResize() {
-    var modalContent = getFileBrowser().find('.modal-content');
-    
-    if ($(window).width() >= 800){
-        modalContent.resizable({
-            handles: 'e, w',
-            minWidth: 900
-        });
+  var modalContent = getFileBrowser().find('.modal-content');
 
-        getFileBrowser().on('show.bs.modal', function () {
-            $(this).find('.modal-body').css({
-                'max-height':'100%'
-            });
-        });
+  if ($(window).width() >= 800){
+    modalContent.resizable({
+      handles: 'e, w',
+      minWidth: 900
+    });
 
-        getFileBrowser().resize(function() {
-            getFileBrowser().find('.modal-content').css("height", "auto");
-        });
-    } else {
-        modalContent.resizable("destroy");
-    }
+    getFileBrowser().on('show.bs.modal', function () {
+      $(this).find('.modal-body').css({
+        'max-height':'100%'
+      });
+    });
+
+    getFileBrowser().resize(function() {
+      getFileBrowser().find('.modal-content').css("height", "auto");
+    });
+  } else {
+    modalContent.resizable("destroy");
+  }
 }
 
 function closeModal() {
 
-    getFileBrowser().modal('hide');
+  getFileBrowser().modal('hide');
 
 }
 
 function focusoutOnEnter(inputElement) {
 
-    inputElement.keydown(function (e) {
-        if (e.which == 13) {
-            inputElement.focusout();
-        }
-    });
+  inputElement.keydown(function (e) {
+    if (e.which === 13) {
+      inputElement.focusout();
+    }
+  });
 }
 
 function deactivate(element) {
-    element.addClass('deactivate');
+  element.addClass('deactivate');
 }
 
 function activate(element) {
-    element.removeClass('deactivate');
+  element.removeClass('deactivate');
 }
 
 module.exports = {
-    getFileBrowser: getFileBrowser,
-    getPrimarySubmitButton: getPrimarySubmitButton,
-    getLoadingBar: getLoadingBar,
-    getFileBrowserBody: getFileBrowserBody,
-    getErrorMessagePlaceHolder: getErrorMessagePlaceHolder,
+  getFileBrowser: getFileBrowser,
+  getPrimarySubmitButton: getPrimarySubmitButton,
+  getLoadingBar: getLoadingBar,
+  getFileBrowserBody: getFileBrowserBody,
+  getErrorMessagePlaceHolder: getErrorMessagePlaceHolder,
 
-    getDiskDropdown: getDiskDropdown,
-    
-    getDirectoryWindow: getDirectoryWindow,
-    getDirectories: getDirectories,
-    getCreateNewDirectory: getCreateNewDirectory,
+  getDiskDropdown: getDiskDropdown,
+  getDiskTypes: getDiskTypes,
 
-    getFileWindow: getFileWindow,
-    getFilesList: getFilesList,
-    getFilesGrid: getFilesGrid,
-    getFileDetailsDiv: getFileDetailsDiv,
-    getFileManageMenu: getFileManageMenu,
+  getDirectoryWindow: getDirectoryWindow,
+  getDirectories: getDirectories,
+  getCreateNewDirectory: getCreateNewDirectory,
 
-    getFileContextMenu: getFileContextMenu,
-    getViewFile: getViewFile,
-    getDownloadFile: getDownloadFile,
-    getRenameFile: getRenameFile,
-    getRemoveFile: getRemoveFile,
+  getFileWindow: getFileWindow,
+  getFilesList: getFilesList,
+  getFilesGrid: getFilesGrid,
+  getFileDetailsDiv: getFileDetailsDiv,
+  getFileManageMenu: getFileManageMenu,
 
-    getDirectoryContextMenu: getDirectoryContextMenu,
-    getDeleteDirectory: getDeleteDirectory,
+  getFileContextMenu: getFileContextMenu,
+  getViewFile: getViewFile,
+  getDownloadFile: getDownloadFile,
+  getRenameFile: getRenameFile,
+  getRemoveFile: getRemoveFile,
 
-    getRenameFileBox: getRenameFileBox,
-    getRenameFileInput : getRenameFileInput,
-    getRenameFileClose : getRenameFileClose,
-    getRenameFileOkay : getRenameFileOkay,
+  getDirectoryContextMenu: getDirectoryContextMenu,
+  getDeleteDirectory: getDeleteDirectory,
 
-    getRemoveFileBox: getRemoveFileBox,
-    getRemoveFileClose : getRemoveFileClose,
-    getRemoveFileOkay : getRemoveFileOkay,
+  getRenameFileBox: getRenameFileBox,
+  getRenameFileInput : getRenameFileInput,
+  getRenameFileClose : getRenameFileClose,
+  getRenameFileOkay : getRenameFileOkay,
 
-    getUploadFileBtn: getUploadFileBtn,
-    getUploadFileInput: getUploadFileInput,
-    getFileBrowserUploadForm: getFileBrowserUploadForm,
-    getUploadFileParameterContainer : getUploadFileParameterContainer,
-    getUploadFileToServerBtn: getUploadFileToServerBtn,
-    getCancelFileUploadBtn: getCancelFileUploadBtn,
-    getUploadFileLoadingBar: getUploadFileLoadingBar,
-    
-    getFileRefreshBtn: getFileRefreshBtn,
-    getFileAlignListBtn: getFileAlignListBtn,
-    getFileAlignGridBtn: getFileAlignGridBtn,
-    getSortFilesDropdown: getSortFilesDropdown,
-    
-    getSearchBtn: getSearchBtn,
-    getSearchCancelBtn: getSearchCancelBtn,
-    getSearchInput: getSearchInput,
-    getFileSearchOptions: getFileSearchOptions,
+  getRemoveFileBox: getRemoveFileBox,
+  getRemoveFileClose : getRemoveFileClose,
+  getRemoveFileOkay : getRemoveFileOkay,
 
-    moveDown: moveDown,
-    moveUp: moveUp,
-    moveDownInTable: moveDownInTable,
-    moveUpInTable: moveUpInTable,
-    focusAndSelect: focusAndSelect,
-    focusoutOnEnter: focusoutOnEnter,
-    select: select,
-    selectFirst: selectFirst,
-    getSelected: getSelected,
-    unselect: unselect,
-    selectTableRow: selectTableRow,
-    unselectTableRow: unselectTableRow,
-    show: show,
-    hide: hide,
-    forceShow: forceShow,
-    forceHide: forceHide,
-    openModal: openModal,
-    closeModal: closeModal,
-    activate: activate,
-    deactivate: deactivate,
-    getDiskBrowserPath: getDiskBrowserPath,
-    flush: flush
+  getUploadFileBtn: getUploadFileBtn,
+  getUploadFileInput: getUploadFileInput,
+  getFileBrowserUploadForm: getFileBrowserUploadForm,
+  getUploadFileParameterContainer : getUploadFileParameterContainer,
+  getUploadFileToServerBtn: getUploadFileToServerBtn,
+  getCancelFileUploadBtn: getCancelFileUploadBtn,
+  getUploadFileLoadingBar: getUploadFileLoadingBar,
+
+  getFileRefreshBtn: getFileRefreshBtn,
+  getFileAlignListBtn: getFileAlignListBtn,
+  getFileAlignGridBtn: getFileAlignGridBtn,
+  getSortFilesDropdown: getSortFilesDropdown,
+
+  getSearchBtn: getSearchBtn,
+  getSearchCancelBtn: getSearchCancelBtn,
+  getSearchInput: getSearchInput,
+  getFileSearchOptions: getFileSearchOptions,
+
+  moveDown: moveDown,
+  moveUp: moveUp,
+  moveDownInTable: moveDownInTable,
+  moveUpInTable: moveUpInTable,
+  focusAndSelect: focusAndSelect,
+  focusoutOnEnter: focusoutOnEnter,
+  select: select,
+  selectFirst: selectFirst,
+  getSelected: getSelected,
+  unselect: unselect,
+  selectTableRow: selectTableRow,
+  unselectTableRow: unselectTableRow,
+  show: show,
+  hide: hide,
+  openModal: openModal,
+  closeModal: closeModal,
+  activate: activate,
+  deactivate: deactivate,
+  getDiskBrowserPath: getDiskBrowserPath,
+  flush: flush
 };
 
 },{}],6:[function(require,module,exports){
@@ -2927,7 +2993,7 @@ function disk() {
  *
  * @param diskData
  */
-function loadDisks(diskData, modalParameters) {
+function loadDisks(diskData) {
 
     addDisksElements();
     reqHandler.attachDiskElementEvents();
@@ -2939,32 +3005,22 @@ function loadDisks(diskData, modalParameters) {
         disks = {};
         for (var i=0, len=diskData.length; i < len; i++) {
             var disk = diskData[i];
-
-            if (disk && shouldShowDisk(modalParameters, disk.label)) {
-                disk.id = 'disk_' + util.slugify(disk.label);
-                diskElement.append($(getDiskNavElement(diskData[i])));
-                disk.path = disk.path || defaultPathParam;
-                disks[disk.id] = disk;
-            }
+            disk.id = 'disk_' + util.slugify(disk.label);
+            diskElement.append($(getDiskNavElement(diskData[i])));
+            disk.path = disk.path || defaultPathParam;
+            disks[disk.id] = disk;
         }
-
         diskElement.find("option:first").attr('selected','selected');
     }
 
     function getDiskNavElement(disk) {
 
         return '<option id="'+disk.id+'" data-name="'+disk.name+'" value="'+disk.id+'">' + disk.label + '</option>';
-
+    
     }
 
 }
 
-function shouldShowDisk(modalBoxParameters, disk) {
-
-    return (!modalBoxParameters || !modalBoxParameters.disks ||
-            modalBoxParameters.disks.length == 0 ||
-            modalBoxParameters.disks.indexOf(disk) != -1);
-}
 /**
  * Default disk setup.
  *
@@ -3059,9 +3115,10 @@ function checkIfDirectoryParentAllowed(currentDisk, path) {
  * @param fileArray
  * @returns {*}
  */
-function getAllowedFilesFrom(fileArray, diskName) {
+function getAllowedFilesFrom(fileArray) {
 
-    var currentDisk = (typeof(diskName) == "undefined") ? getCurrentDisk() : getDiskData(diskName);
+    var currentDisk = getCurrentDisk();
+
     var allowedFiles = [];
     for (var i = 0, len = fileArray.length; i < len; i++) {
         var file = fileArray[i];
@@ -3083,23 +3140,20 @@ function getAllowedFilesFrom(fileArray, diskName) {
  */
 function isThisFileAllowed(fileName, currentDisk) {
 
-    if (currentDisk && currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
+    if (currentDisk.allowed_extensions && currentDisk.allowed_extensions.length > 0) {
         return currentDisk.allowed_extensions.indexOf(getExtension(fileName)) != -1;
     }
 
     return true;
 }
 
-function getDiskData(diskLabel) {
-   var id = 'disk_' + util.slugify(diskLabel);
-   return disks[id];
-}
 /**
  * Is this disk read only?
  *
  * @returns {boolean}
  */
 function isReadOnly() {
+
     return getCurrentDisk().read_only == true;
 }
 
@@ -3157,10 +3211,10 @@ function file() {
 
     // Show files function can be called when we click on the directory or
     // when we search a file
-    function showFiles(filesArray, diskName) {
+    function showFiles(filesArray) {
         resetFiles();
         current_files_array = (filesArray) ? filesArray : JSON.parse(JSON.stringify(directory_files_array));
-        var allowed_files_array = reqHandler.getDiskHandler().getAllowedFilesFrom(current_files_array, diskName);
+        var allowed_files_array = reqHandler.getDiskHandler().getAllowedFilesFrom(current_files_array);
         loadFileList(allowed_files_array);
         loadFileGrid(allowed_files_array);
         show();

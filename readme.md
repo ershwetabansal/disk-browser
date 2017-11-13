@@ -1,31 +1,29 @@
-## Disk browser
-This package supports the client implementation for browsing files and directories on a disk.
-
-Disk browser helps in managing files and directories on a disk.
-Disk can be a folder maintained on the server or AWS disk or any other shared disks
-which can be connected through some APIs.
-
-Demo -
-https://disk-browser.herokuapp.com/demo
+# Disk browser
+Disk browser is a client-side dependency for managing files and directories on a storage disk e.g AWS 
+or any other shared disk.
 
 The client component is written in javascript. Server component is currently 
 available in Laravel PHP and node js. Server component can easily be developed
 in other languages as well.
 
-The application has been written with TDD approach.
+### Demo
+https://disk-browser.herokuapp.com/demo
 
-Steps to configure -
 
-1. Use npm or bower to install
+### Configuring this package
+* Use npm or bower to install
 
+```
    npm install disk-browser --save
-   
+```
+```
    bower install disk-browser --save
+```
 
-2. Using gulp or grunt task runner, you can copy node_modules/diskbrowser/dist or
- bower_components/diskbrowser/dist folder to the public directory.
+* Using gulp or grunt task runner, you can copy `node_modules/diskbrowser/dist` or
+ `bower_components/diskbrowser/dist` folder to the `public` directory of your application.
 
-3. Clone, fork or download the server component of disk browser. 
+* Clone, fork or download the server component of disk browser. 
 
    Git repo for node js -
    
@@ -35,6 +33,19 @@ Steps to configure -
    
    https://github.com/ershwetabansal/disk-browser-laravel
 
-4. Please refer below link for documentations -
+* For more details on the configuration, please refer docs -
 
    https://disk-browser.herokuapp.com/docs
+
+### Contribution to this package
+* Fork this repository
+
+* Install all dependencies
+```$xslt
+npm install
+```
+
+* Run tests
+```$xslt
+karma start
+```
