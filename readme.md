@@ -37,7 +37,7 @@ https://disk-browser.herokuapp.com/demo
 
    https://disk-browser.herokuapp.com/docs
 
-### Contribution to this package
+### Build/modify this package
 * Fork this repository
 
 * Install all dependencies
